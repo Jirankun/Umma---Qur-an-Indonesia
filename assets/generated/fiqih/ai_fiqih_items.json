@@ -1,0 +1,352 @@
+[
+  {
+    "id": "ai_fiqih_1",
+    "title": "Hukum Wudhu",
+    "content": "Wudhu adalah suatu keadaan suci yang harus dilakukan sebelum melakukan shalat, membaca Al-Quran, dan melakukan ibadah lainnya. Cara melakukan wudhu adalah dengan membasuh muka, tangan, dan kaki.",
+    "category": "thaharah",
+    "source": "QS. Al-Maidah: 6"
+  },
+  {
+    "id": "ai_fiqih_2",
+    "title": "Rukun Shalat",
+    "content": "Rukun shalat adalah hal-hal yang harus dilakukan dalam shalat, yaitu niat, takbiratul ihram, membaca Al-Fatihah, ruku, sujud, dan salam.",
+    "category": "sholat",
+    "source": "HR. Abu Daud"
+  },
+  {
+    "id": "ai_fiqih_3",
+    "title": "Zakat Fitrah",
+    "content": "Zakat fitrah adalah zakat yang dikeluarkan pada bulan Ramadan, yaitu sebesar 2,5 kg beras atau makanan lainnya.",
+    "category": "zakat",
+    "source": "QS. Al-Baqarah: 184"
+  },
+  {
+    "id": "ai_fiqih_4",
+    "title": "Hukum Jual Beli",
+    "content": "Jual beli adalah suatu transaksi yang sah jika dilakukan dengan cara yang adil dan tidak mengandung unsur penipuan.",
+    "category": "muamalah",
+    "source": "QS. Al-Baqarah: 188"
+  },
+  {
+    "id": "ai_fiqih_5",
+    "title": "Syarat Nikah",
+    "content": "Syarat nikah adalah adanya calon pengantin pria dan wanita, adanya wali, adanya saksi, dan adanya mahar.",
+    "category": "nikah",
+    "source": "QS. An-Nur: 32"
+  },
+  {
+    "id": "ai_fiqih_6",
+    "title": "Tata Cara Jenazah",
+    "content": "Tata cara jenazah adalah memandikan, mengafani, dan menguburkan jenazah dengan cara yang sesuai dengan syariat Islam.",
+    "category": "jenazah",
+    "source": "QS. Al-Baqarah: 156"
+  },
+  {
+    "id": "ai_fiqih_7",
+    "title": "Amalan Sehari-Hari",
+    "content": "Amalan sehari-hari yang disunnahkan adalah membaca doa ketika bangun tidur, membaca doa sebelum makan, dan membaca doa setelah makan.",
+    "category": "amalan",
+    "source": "HR. Abu Daud"
+  },
+  {
+    "id": "ai_fiqih_8",
+    "title": "Puasa Ramadan",
+    "content": "Puasa Ramadan adalah ibadah yang wajib dilakukan pada bulan Ramadan, yaitu menahan diri dari makan dan minum dari terbit fajar hingga terbenam matahari.",
+    "category": "puasa",
+    "source": "QS. Al-Baqarah: 183"
+  },
+  {
+    "id": "ai_fiqih_9",
+    "title": "Doa Sebelum Tidur",
+    "content": "Doa sebelum tidur adalah membaca doa untuk memohon perlindungan dari Allah SWT dan memohon ampun atas dosa-dosa.",
+    "category": "doa",
+    "source": "HR. Bukhari"
+  },
+  {
+    "id": "ai_fiqih_10",
+    "title": "Hukum Berwudhu",
+    "content": "Hukum berwudhu adalah wajib bagi orang yang ingin melakukan shalat, membaca Al-Quran, dan melakukan ibadah lainnya.",
+    "category": "thaharah",
+    "source": "QS. Al-Maidah: 6"
+  },
+  {
+    "id": "ai_fiqih_11",
+    "title": "Shalat Jumat",
+    "content": "Shalat Jumat adalah shalat yang wajib dilakukan pada hari Jumat, yaitu shalat yang dilakukan dengan cara berjamaah.",
+    "category": "sholat",
+    "source": "QS. Al-Jumuah: 9"
+  },
+  {
+    "id": "ai_fiqih_12",
+    "title": "Zakat Mal",
+    "content": "Zakat mal adalah zakat yang dikeluarkan dari harta yang dimiliki, yaitu sebesar 2,5% dari harta yang dimiliki.",
+    "category": "zakat",
+    "source": "QS. Al-Baqarah: 267"
+  },
+  {
+    "id": "ai_fiqih_13",
+    "title": "Hukum Riba",
+    "content": "Hukum riba adalah haram, yaitu mengambil atau memberikan bunga yang tidak sah.",
+    "category": "muamalah",
+    "source": "QS. Al-Baqarah: 278"
+  },
+  {
+    "id": "ai_fiqih_14",
+    "title": "Tata Cara Talak",
+    "content": "Tata cara talak adalah dengan cara yang adil dan tidak mengandung unsur penipuan, yaitu dengan membaca doa talak dan memberikan mahar.",
+    "category": "nikah",
+    "source": "QS. Al-Baqarah: 231"
+  },
+  {
+    "id": "ai_fiqih_15",
+    "title": "Hukum Menguburkan Jenazah",
+    "content": "Hukum menguburkan jenazah adalah wajib, yaitu dengan cara yang sesuai dengan syariat Islam.",
+    "category": "jenazah",
+    "source": "QS. Al-Baqarah: 156"
+  },
+  {
+    "id": "ai_fiqih_16",
+    "title": "Amalan Puasa",
+    "content": "Amalan puasa adalah menahan diri dari makan dan minum dari terbit fajar hingga terbenam matahari, dengan tujuan untuk mendekatkan diri kepada Allah SWT.",
+    "category": "amalan",
+    "source": "QS. Al-Baqarah: 183"
+  },
+  {
+    "id": "ai_fiqih_17",
+    "title": "Doa Setelah Shalat",
+    "content": "Doa setelah shalat adalah membaca doa untuk memohon perlindungan dari Allah SWT dan memohon ampun atas dosa-dosa.",
+    "category": "doa",
+    "source": "HR. Bukhari"
+  },
+  {
+    "id": "ai_fiqih_18",
+    "title": "Hukum Berpuasa",
+    "content": "Hukum berpuasa adalah wajib bagi orang yang telah balig dan sehat, yaitu menahan diri dari makan dan minum dari terbit fajar hingga terbenam matahari.",
+    "category": "puasa",
+    "source": "QS. Al-Baqarah: 183"
+  },
+  {
+    "id": "ai_fiqih_19",
+    "title": "Shalat Tarawih",
+    "content": "Shalat tarawih adalah shalat yang sunnah dilakukan pada malam hari, yaitu setelah shalat Isya.",
+    "category": "sholat",
+    "source": "HR. Abu Daud"
+  },
+  {
+    "id": "ai_fiqih_20",
+    "title": "Zakat Profesi",
+    "content": "Zakat profesi adalah zakat yang dikeluarkan dari penghasilan yang diperoleh dari profesi, yaitu sebesar 2,5% dari penghasilan.",
+    "category": "zakat",
+    "source": "QS. Al-Baqarah: 267"
+  },
+  {
+    "id": "ai_fiqih_21",
+    "title": "Hukum Jual Beli Online",
+    "content": "Hukum jual beli online adalah sah jika dilakukan dengan cara yang adil dan tidak mengandung unsur penipuan.",
+    "category": "muamalah",
+    "source": "QS. Al-Baqarah: 188"
+  },
+  {
+    "id": "ai_fiqih_22",
+    "title": "Tata Cara Akad Nikah",
+    "content": "Tata cara akad nikah adalah dengan cara yang adil dan tidak mengandung unsur penipuan, yaitu dengan membaca doa akad nikah dan memberikan mahar.",
+    "category": "nikah",
+    "source": "QS. An-Nur: 32"
+  },
+  {
+    "id": "ai_fiqih_23",
+    "title": "Hukum Mengurus Jenazah",
+    "content": "Hukum mengurus jenazah adalah wajib, yaitu dengan cara yang sesuai dengan syariat Islam.",
+    "category": "jenazah",
+    "source": "QS. Al-Baqarah: 156"
+  },
+  {
+    "id": "ai_fiqih_24",
+    "title": "Amalan Shalat",
+    "content": "Amalan shalat adalah melakukan shalat dengan cara yang sesuai dengan syariat Islam, yaitu dengan membaca doa dan melakukan gerakan shalat.",
+    "category": "amalan",
+    "source": "QS. Al-Baqarah: 43"
+  },
+  {
+    "id": "ai_fiqih_25",
+    "title": "Doa Sebelum Makan",
+    "content": "Doa sebelum makan adalah membaca doa untuk memohon perlindungan dari Allah SWT dan memohon ampun atas dosa-dosa.",
+    "category": "doa",
+    "source": "HR. Abu Daud"
+  },
+  {
+    "id": "ai_fiqih_26",
+    "title": "Hukum Berzakat",
+    "content": "Hukum berzakat adalah wajib bagi orang yang telah memiliki harta yang cukup, yaitu sebesar 2,5% dari harta yang dimiliki.",
+    "category": "zakat",
+    "source": "QS. Al-Baqarah: 267"
+  },
+  {
+    "id": "ai_fiqih_27",
+    "title": "Shalat Idul Fitri",
+    "content": "Shalat Idul Fitri adalah shalat yang wajib dilakukan pada hari raya Idul Fitri, yaitu setelah shalat Subuh.",
+    "category": "sholat",
+    "source": "HR. Abu Daud"
+  },
+  {
+    "id": "ai_fiqih_28",
+    "title": "Zakat Harta",
+    "content": "Zakat harta adalah zakat yang dikeluarkan dari harta yang dimiliki, yaitu sebesar 2,5% dari harta yang dimiliki.",
+    "category": "zakat",
+    "source": "QS. Al-Baqarah: 267"
+  },
+  {
+    "id": "ai_fiqih_29",
+    "title": "Hukum Riba Dalam Jual Beli",
+    "content": "Hukum riba dalam jual beli adalah haram, yaitu mengambil atau memberikan bunga yang tidak sah.",
+    "category": "muamalah",
+    "source": "QS. Al-Baqarah: 278"
+  },
+  {
+    "id": "ai_fiqih_30",
+    "title": "Tata Cara Poligami",
+    "content": "Tata cara poligami adalah dengan cara yang adil dan tidak mengandung unsur penipuan, yaitu dengan membaca doa poligami dan memberikan mahar.",
+    "category": "nikah",
+    "source": "QS. An-Nisa: 3"
+  },
+  {
+    "id": "ai_fiqih_31",
+    "title": "Hukum Mengurus Jenazah Anak",
+    "content": "Hukum mengurus jenazah anak adalah wajib, yaitu dengan cara yang sesuai dengan syariat Islam.",
+    "category": "jenazah",
+    "source": "QS. Al-Baqarah: 156"
+  },
+  {
+    "id": "ai_fiqih_32",
+    "title": "Amalan Puasa Sunnah",
+    "content": "Amalan puasa sunnah adalah menahan diri dari makan dan minum dari terbit fajar hingga terbenam matahari, dengan tujuan untuk mendekatkan diri kepada Allah SWT.",
+    "category": "amalan",
+    "source": "QS. Al-Baqarah: 183"
+  },
+  {
+    "id": "ai_fiqih_33",
+    "title": "Doa Setelah Makan",
+    "content": "Doa setelah makan adalah membaca doa untuk memohon perlindungan dari Allah SWT dan memohon ampun atas dosa-dosa.",
+    "category": "doa",
+    "source": "HR. Abu Daud"
+  },
+  {
+    "id": "ai_fiqih_34",
+    "title": "Hukum Berwudhu Sebelum Shalat",
+    "content": "Hukum berwudhu sebelum shalat adalah wajib, yaitu dengan cara yang sesuai dengan syariat Islam.",
+    "category": "thaharah",
+    "source": "QS. Al-Maidah: 6"
+  },
+  {
+    "id": "ai_fiqih_35",
+    "title": "Shalat Witir",
+    "content": "Shalat witir adalah shalat yang sunnah dilakukan pada malam hari, yaitu setelah shalat Isya.",
+    "category": "sholat",
+    "source": "HR. Abu Daud"
+  },
+  {
+    "id": "ai_fiqih_36",
+    "title": "Zakat Uang",
+    "content": "Zakat uang adalah zakat yang dikeluarkan dari uang yang dimiliki, yaitu sebesar 2,5% dari uang yang dimiliki.",
+    "category": "zakat",
+    "source": "QS. Al-Baqarah: 267"
+  },
+  {
+    "id": "ai_fiqih_37",
+    "title": "Hukum Jual Beli Barang Bekas",
+    "content": "Hukum jual beli barang bekas adalah sah jika dilakukan dengan cara yang adil dan tidak mengandung unsur penipuan.",
+    "category": "muamalah",
+    "source": "QS. Al-Baqarah: 188"
+  },
+  {
+    "id": "ai_fiqih_38",
+    "title": "Tata Cara Cerai",
+    "content": "Tata cara cerai adalah dengan cara yang adil dan tidak mengandung unsur penipuan, yaitu dengan membaca doa cerai dan memberikan mahar.",
+    "category": "nikah",
+    "source": "QS. Al-Baqarah: 231"
+  },
+  {
+    "id": "ai_fiqih_39",
+    "title": "Hukum Mengurus Jenazah Orang Tua",
+    "content": "Hukum mengurus jenazah orang tua adalah wajib, yaitu dengan cara yang sesuai dengan syariat Islam.",
+    "category": "jenazah",
+    "source": "QS. Al-Baqarah: 156"
+  },
+  {
+    "id": "ai_fiqih_40",
+    "title": "Amalan Shalat Malam",
+    "content": "Amalan shalat malam adalah melakukan shalat dengan cara yang sesuai dengan syariat Islam, yaitu dengan membaca doa dan melakukan gerakan shalat.",
+    "category": "amalan",
+    "source": "QS. Al-Baqarah: 43"
+  },
+  {
+    "id": "ai_fiqih_41",
+    "title": "Doa Sebelum Tidur",
+    "content": "Doa sebelum tidur adalah membaca doa untuk memohon perlindungan dari Allah SWT dan memohon ampun atas dosa-dosa.",
+    "category": "doa",
+    "source": "HR. Bukhari"
+  },
+  {
+    "id": "ai_fiqih_42",
+    "title": "Hukum Berzakat Fitrah",
+    "content": "Hukum berzakat fitrah adalah wajib bagi orang yang telah memiliki harta yang cukup, yaitu sebesar 2,5 kg beras atau makanan lainnya.",
+    "category": "zakat",
+    "source": "QS. Al-Baqarah: 184"
+  },
+  {
+    "id": "ai_fiqih_43",
+    "title": "Shalat Idul Adha",
+    "content": "Shalat Idul Adha adalah shalat yang wajib dilakukan pada hari raya Idul Adha, yaitu setelah shalat Subuh.",
+    "category": "sholat",
+    "source": "HR. Abu Daud"
+  },
+  {
+    "id": "ai_fiqih_44",
+    "title": "Zakat Harta Benda",
+    "content": "Zakat harta benda adalah zakat yang dikeluarkan dari harta benda yang dimiliki, yaitu sebesar 2,5% dari harta benda yang dimiliki.",
+    "category": "zakat",
+    "source": "QS. Al-Baqarah: 267"
+  },
+  {
+    "id": "ai_fiqih_45",
+    "title": "Hukum Riba Dalam Perbankan",
+    "content": "Hukum riba dalam perbankan adalah haram, yaitu mengambil atau memberikan bunga yang tidak sah.",
+    "category": "muamalah",
+    "source": "QS. Al-Baqarah: 278"
+  },
+  {
+    "id": "ai_fiqih_46",
+    "title": "Tata Cara Khitan",
+    "content": "Tata cara khitan adalah dengan cara yang adil dan tidak mengandung unsur penipuan, yaitu dengan membaca doa khitan dan memberikan mahar.",
+    "category": "nikah",
+    "source": "QS. An-Nur: 32"
+  },
+  {
+    "id": "ai_fiqih_47",
+    "title": "Hukum Mengurus Jenazah Bayi",
+    "content": "Hukum mengurus jenazah bayi adalah wajib, yaitu dengan cara yang sesuai dengan syariat Islam.",
+    "category": "jenazah",
+    "source": "QS. Al-Baqarah: 156"
+  },
+  {
+    "id": "ai_fiqih_48",
+    "title": "Amalan Puasa Daud",
+    "content": "Amalan puasa Daud adalah menahan diri dari makan dan minum dari terbit fajar hingga terbenam matahari, dengan tujuan untuk mendekatkan diri kepada Allah SWT.",
+    "category": "amalan",
+    "source": "QS. Al-Baqarah: 183"
+  },
+  {
+    "id": "ai_fiqih_49",
+    "title": "Doa Setelah Shalat Maghrib",
+    "content": "Doa setelah shalat Maghrib adalah membaca doa untuk memohon perlindungan dari Allah SWT dan memohon ampun atas dosa-dosa.",
+    "category": "doa",
+    "source": "HR. Abu Daud"
+  },
+  {
+    "id": "ai_fiqih_50",
+    "title": "Hukum Berwudhu Sebelum Shalat Jumat",
+    "content": "Hukum berwudhu sebelum shalat Jumat adalah wajib, yaitu dengan cara yang sesuai dengan syariat Islam.",
+    "category": "thaharah",
+    "source": "QS. Al-Maidah: 6"
+  }
+]
