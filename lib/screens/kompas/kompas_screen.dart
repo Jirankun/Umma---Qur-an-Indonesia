@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
@@ -20,7 +21,8 @@ class _KompasScreenState extends State<KompasScreen> {
   double _qibla = 0;
   double _latitude = 0;
   double _longitude = 0;
-  int _headingOffset = 0; // kalibrasi: 0 atau 180 (untuk perangkat dgn sumbu terbalik)
+  int _headingOffset =
+      0; // kalibrasi: 0 atau 180 (untuk perangkat dgn sumbu terbalik)
   bool _loading = true;
   String? _error;
   bool _hasLocation = false;
@@ -195,13 +197,9 @@ class _KompasScreenState extends State<KompasScreen> {
     final isAligned = diff.abs() <= 3;
 
     return CupertinoPageScaffold(
-      backgroundColor: isDark
-          ? AppColors.bgDark
-          : const Color(0xFF0A0F1E),
+      backgroundColor: isDark ? AppColors.bgDark : AppColors.kompasBg,
       navigationBar: CupertinoNavigationBar(
-        backgroundColor: isDark
-            ? AppColors.surfaceDark
-            : const Color(0xFF0A0F1E),
+        backgroundColor: isDark ? AppColors.surfaceDark : AppColors.kompasBg,
         middle: const Text(
           'Arah Kiblat',
           style: TextStyle(color: CupertinoColors.white),
@@ -255,7 +253,7 @@ class _KompasScreenState extends State<KompasScreen> {
               ),
               const SizedBox(height: 16),
               CupertinoButton.filled(
-                child: const Text('Coba Lagi'),
+                child: Text(AppStrings.retry),
                 onPressed: () {
                   setState(() => _loading = true);
                   _getLocation();
@@ -311,14 +309,14 @@ class _KompasScreenState extends State<KompasScreen> {
                 children: [
                   const Icon(
                     CupertinoIcons.arrow_up_right_square,
-                    color: Color(0xFFEF4444),
+                    color: AppColors.kompasRed,
                     size: 16,
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Putar HP ${diff > 0 ? 'kiri' : 'kanan'} ${diff.abs().round()}°',
+                    'Putar HP ${diff > 0 ? 'kanan' : 'kiri'} ${diff.abs().round()}°',
                     style: const TextStyle(
-                      color: Color(0xFFEF4444),
+                      color: AppColors.kompasRed,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
@@ -396,9 +394,7 @@ class _KompasScreenState extends State<KompasScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(
-              0xFF10B981,
-            ).withValues(alpha: isAligned ? 0.4 : 0.0),
+            color: AppColors.toolTeal.withValues(alpha: isAligned ? 0.4 : 0.0),
             blurRadius: 24,
             spreadRadius: 4,
           ),
@@ -552,10 +548,7 @@ class _KompasScreenState extends State<KompasScreen> {
         children: [
           Text(
             'Kalibrasi',
-            style: TextStyle(
-              fontSize: 11,
-              color: CupertinoColors.systemGrey,
-            ),
+            style: TextStyle(fontSize: 11, color: CupertinoColors.systemGrey),
           ),
           const SizedBox(width: 12),
           CupertinoButton(
@@ -751,7 +744,6 @@ class _QiblaNeedlePainter extends CustomPainter {
     final right = Offset(center.dx + 8, wingY);
     final left = Offset(center.dx - 8, wingY);
 
-
     // Upper diamond (tip to wings)
     final upperPath = Path()
       ..moveTo(tip.dx, tip.dy)
@@ -818,5 +810,3 @@ class _QiblaNeedlePainter extends CustomPainter {
   bool shouldRepaint(covariant _QiblaNeedlePainter oldDelegate) =>
       oldDelegate.length != length || oldDelegate.color != color;
 }
-
-

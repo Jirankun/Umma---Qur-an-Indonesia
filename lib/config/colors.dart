@@ -85,6 +85,7 @@ class AppColors {
   static const Color fiqihHaid = Color(0xFFDB2777);
   static const Color fiqihJenazah = Color(0xFF64748B);
   static const Color fiqihDoa = Color(0xFF7C3AED);
+  static const Color onboardingPurple = Color(0xFF7C3AED);
   static const Color fiqihAmalan = Color(0xFF0891B2);
   static const Color fiqihMuamalah = Color(0xFF059669);
   static const Color fiqihNikah = Color(0xFFEC4899);
@@ -173,4 +174,36 @@ class AppColors {
   static const Color jurnalBgLight = Color(0xFFFAFAF7);
   /// Orange gelap untuk Tracker gradient
   static const Color trackerOrangeDark = Color(0xFFEA580C);
+
+  // ─── SPECIALTY ADDITIONS ────────────────────────────────
+  /// Very dark indigo untuk Quote card dark gradient
+  static const Color quoteDark = Color(0xFF1E1B4B);
+  /// Very light green untuk Study screen / card backgrounds
+  static const Color studyGreenLight = Color(0xFFF0FDF4);
+  /// Light green border untuk Study screen
+  static const Color studyGreenBorder = Color(0xFFBBF7D0);
+  /// Dark green text untuk Study screen
+  static const Color studyGreenDark = Color(0xFF166534);
+  /// Medium green untuk Study screen source
+  static const Color studyGreenMedium = Color(0xFF4ADE80);
+  /// Very dark blue untuk Kompas screen bg
+  static const Color kompasBg = Color(0xFF0A0F1E);
+  /// Red untuk Kompas screen indicator
+  static const Color kompasRed = Color(0xFFEF4444);
+  /// Light indigo untuk water fill & gradient (muslim_ai)
+  static const Color indigoLight = Color(0xFF818CF8);
+  /// Very light indigo untuk ripple
+  static const Color indigoVeryLight = Color(0xFFA5B4FC);
+  /// Transparent black
+  static const Color blackTransparent = Color(0x00000000);
+  /// Pure black
+  static const Color black = Color(0xFF000000);
+
+  // ─── ONBOARDING GRADIENT COLORS ─────────────────────────
+  static const Color onboardingEmeraldDark = Color(0xFF047857);
+
+  static const Color onboardingBlue = Color(0xFF2563EB);
+  static const Color onboardingBlueDark = Color(0xFF1D4ED8);
+
+  static const Color onboardingPurpleDark = Color(0xFF6D28D9);
 }

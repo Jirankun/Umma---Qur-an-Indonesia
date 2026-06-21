@@ -1,5 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/cupertino.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import '../../providers/journal_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -70,7 +73,7 @@ class _JurnalDashboardScreenState extends State<JurnalDashboardScreen> {
               color: AppColors.toolCyan,
             ),
             SizedBox(width: 8),
-            Text('Jurnal Refleksi'),
+            Text(AppStrings.jurnalRefleksi),
           ],
         ),
       ),
@@ -84,7 +87,7 @@ class _JurnalDashboardScreenState extends State<JurnalDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Apa yang ada di benakmu hari ini?',
+                      AppStrings.jurnalKosong,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
@@ -162,7 +165,7 @@ class _JurnalDashboardScreenState extends State<JurnalDashboardScreen> {
                                   ),
                                 ),
                                 Text(
-                                  'Buat catatan baru',
+                                  AppStrings.jurnalBuatBaru,
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: isDark
@@ -243,7 +246,7 @@ class _JurnalDashboardScreenState extends State<JurnalDashboardScreen> {
                                     Text(
                                       entry.title.isNotEmpty
                                           ? entry.title
-                                          : 'Tanpa Judul',
+                                          : AppStrings.jurnalTanpaJudul,
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w700,
@@ -297,151 +300,156 @@ class _JurnalDashboardScreenState extends State<JurnalDashboardScreen> {
   void _showEntry(BuildContext context, JournalEntry entry, bool isDark) {
     showCupertinoModalPopup(
       context: context,
-      builder: (ctx) => Container(
-        height: 460,
-        decoration: BoxDecoration(
-          color: isDark
-              ? AppColors.surfaceDark
-              : CupertinoColors.systemBackground,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.systemGrey4,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      builder: (ctx) {
+        final bottomInset = MediaQuery.of(ctx).viewInsets.bottom;
+        return Padding(
+          padding: EdgeInsets.only(bottom: bottomInset),
+          child: Container(
+            height: 460,
+            decoration: BoxDecoration(
+              color: isDark
+                  ? AppColors.surfaceDark
+                  : CupertinoColors.systemBackground,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(
-                      entry.title.isNotEmpty ? entry.title : 'Tanpa Judul',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: isDark
-                            ? CupertinoColors.white
-                            : AppColors.textLight,
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.systemGrey4,
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 12),
                   Row(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          Future.delayed(
-                            const Duration(milliseconds: 100),
-                            () => _writeJournal(
-                              context,
-                              entry.category,
-                              existingEntry: entry,
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            CupertinoIcons.pencil,
-                            size: 16,
-                            color: AppColors.primary,
+                      Expanded(
+                        child: Text(
+                          entry.title.isNotEmpty ? entry.title : AppStrings.jurnalTanpaJudul,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: isDark
+                                ? CupertinoColors.white
+                                : AppColors.textLight,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () {
-                          showCupertinoDialog(
-                            context: context,
-                            builder: (dialogCtx) => CupertinoAlertDialog(
-                              title: const Text('Hapus Catatan'),
-                              content: const Text(
-                                'Yakin ingin menghapus catatan ini?',
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(ctx);
+                              Future.delayed(
+                                const Duration(milliseconds: 100),
+                                () => _writeJournal(
+                                  context,
+                                  entry.category,
+                                  existingEntry: entry,
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              actions: [
-                                CupertinoDialogAction(
-                                  isDefaultAction: true,
-                                  child: const Text('Batal'),
-                                  onPressed: () => Navigator.pop(dialogCtx),
-                                ),
-                                CupertinoDialogAction(
-                                  isDestructiveAction: true,
-                                  child: const Text('Hapus'),
-                                  onPressed: () {
-                                    Navigator.pop(dialogCtx);
-                                    Navigator.pop(ctx);
-                                    context
-                                        .read<JournalProvider>()
-                                        .deleteJournal(entry.id);
-                                  },
-                                ),
-                              ],
+                              child: const Icon(
+                                CupertinoIcons.pencil,
+                                size: 16,
+                                color: AppColors.primary,
+                              ),
                             ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: CupertinoColors.systemRed.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(
-                            CupertinoIcons.trash,
-                            size: 16,
-                            color: CupertinoColors.systemRed,
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () {
+                              showCupertinoDialog(
+                                context: context,
+                                builder: (dialogCtx) => CupertinoAlertDialog(
+                                  title: Text(AppStrings.jurnalHapusCatatan),
+                                  content: Text(
+                                    AppStrings.jurnalYakinHapus,
+                                  ),
+                                  actions: [
+                                    CupertinoDialogAction(
+                                      isDefaultAction: true,
+                                      child: Text(AppStrings.cancel),
+                                      onPressed: () => Navigator.pop(dialogCtx),
+                                    ),
+                                    CupertinoDialogAction(
+                                      isDestructiveAction: true,
+                                      child: Text(AppStrings.delete),
+                                      onPressed: () {
+                                        final journal = context.read<JournalProvider>();
+                                        Navigator.pop(dialogCtx);
+                                        Navigator.pop(ctx);
+                                        journal.deleteJournal(entry.id);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: CupertinoColors.systemRed.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                CupertinoIcons.trash,
+                                size: 16,
+                                color: CupertinoColors.systemRed,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Text(
-                    entry.content,
-                    style: TextStyle(
-                      fontSize: 14,
-                      height: 1.6,
-                      color: isDark
-                          ? CupertinoColors.white
-                          : AppColors.textLight,
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Text(
+                        entry.content,
+                        style: TextStyle(
+                          fontSize: 14,
+                          height: 1.6,
+                          color: isDark
+                              ? CupertinoColors.white
+                              : AppColors.textLight,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 12),
+                  Text(
+                    '${entry.createdAt.hour.toString().padLeft(2, '0')}:${entry.createdAt.minute.toString().padLeft(2, '0')} • ${entry.createdAt.day}/${entry.createdAt.month}/${entry.createdAt.year}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: isDark
+                          ? CupertinoColors.systemGrey
+                          : CupertinoColors.systemGrey,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              Text(
-                '${entry.createdAt.hour.toString().padLeft(2, '0')}:${entry.createdAt.minute.toString().padLeft(2, '0')} • ${entry.createdAt.day}/${entry.createdAt.month}/${entry.createdAt.year}',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? CupertinoColors.systemGrey
-                      : CupertinoColors.systemGrey,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -486,106 +494,81 @@ class _JournalWriteSheetState extends State<_JournalWriteSheet> {
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context, listen: false).isDark;
     final isEditing = widget.existingEntry != null;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return Container(
-      height: 500,
-      decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.surfaceDark
-            : CupertinoColors.systemBackground,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: CupertinoColors.systemGrey4,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  isEditing ? 'Edit Catatan' : 'Tulis Jurnal',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: isDark
-                        ? CupertinoColors.white
-                        : AppColors.textLight,
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: Container(
+        height: 500,
+        decoration: BoxDecoration(
+          color: isDark
+              ? AppColors.surfaceDark
+              : CupertinoColors.systemBackground,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.systemGrey4,
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  child: Text(
-                    isEditing ? 'Perbarui' : 'Simpan',
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    isEditing ? 'Edit Catatan' : 'Tulis Jurnal',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: isDark
+                          ? CupertinoColors.white
+                          : AppColors.textLight,
+                    ),
                   ),
-                  onPressed: () {
-                    if (_contentController.text.trim().isNotEmpty) {
-                      final entry = JournalEntry(
-                        id: isEditing
-                            ? widget.existingEntry!.id
-                            : DateTime.now().millisecondsSinceEpoch.toString(),
-                        title: _titleController.text.isNotEmpty
-                            ? _titleController.text
-                            : 'Catatan ${widget.category}',
-                        content: _contentController.text,
-                        category: widget.category,
-                        mood: widget.existingEntry?.mood ?? _selectedMood,
-                        createdAt: widget.existingEntry?.createdAt ?? DateTime.now(),
-                      );
-                      context.read<JournalProvider>().saveJournal(entry);
-                      Navigator.pop(context);
-                    }
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            CupertinoTextField(
-              controller: _titleController,
-              placeholder: 'Judul (opsional)',
-              padding: const EdgeInsets.all(12),
-              style: TextStyle(
-                color: isDark ? CupertinoColors.white : AppColors.textLight,
-                fontSize: 14,
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: Text(
+                      isEditing ? 'Perbarui' : 'Simpan',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    onPressed: () {
+                      if (_contentController.text.trim().isNotEmpty) {
+                        final entry = JournalEntry(
+                          id: isEditing
+                              ? widget.existingEntry!.id
+                              : DateTime.now().millisecondsSinceEpoch.toString(),
+                          title: _titleController.text.isNotEmpty
+                              ? _titleController.text
+                              : 'Catatan ${widget.category}',
+                          content: _contentController.text,
+                          category: widget.category,
+                          mood: widget.existingEntry?.mood ?? _selectedMood,
+                          createdAt: widget.existingEntry?.createdAt ?? DateTime.now(),
+                        );
+                        context.read<JournalProvider>().saveJournal(entry);
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                ],
               ),
-              placeholderStyle: TextStyle(
-                color: isDark
-                    ? CupertinoColors.systemGrey
-                    : CupertinoColors.systemGrey2,
-                fontSize: 14,
-              ),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? AppColors.textLight
-                    : CupertinoColors.tertiarySystemBackground,
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: CupertinoTextField(
-                controller: _contentController,
-                placeholder: 'Tulis sesuatu...',
-                maxLines: null,
-                expands: true,
-                textAlignVertical: TextAlignVertical.top,
+              const SizedBox(height: 12),
+              CupertinoTextField(
+                controller: _titleController,
+                placeholder: 'Judul (opsional)',
                 padding: const EdgeInsets.all(12),
                 style: TextStyle(
-                  color: isDark
-                      ? CupertinoColors.white
-                      : AppColors.textLight,
+                  color: isDark ? CupertinoColors.white : AppColors.textLight,
                   fontSize: 14,
                 ),
                 placeholderStyle: TextStyle(
@@ -601,8 +584,37 @@ class _JournalWriteSheetState extends State<_JournalWriteSheet> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 12),
+              Expanded(
+                child: CupertinoTextField(
+                  controller: _contentController,
+                  placeholder: 'Tulis sesuatu...',
+                  maxLines: null,
+                  expands: true,
+                  textAlignVertical: TextAlignVertical.top,
+                  padding: const EdgeInsets.all(12),
+                  style: TextStyle(
+                    color: isDark
+                        ? CupertinoColors.white
+                        : AppColors.textLight,
+                    fontSize: 14,
+                  ),
+                  placeholderStyle: TextStyle(
+                    color: isDark
+                        ? CupertinoColors.systemGrey
+                        : CupertinoColors.systemGrey2,
+                    fontSize: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.textLight
+                        : CupertinoColors.tertiarySystemBackground,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

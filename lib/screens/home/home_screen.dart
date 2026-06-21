@@ -1,5 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/cupertino.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import '../../config/api_config.dart';
 import '../../providers/prayer_times_provider.dart';
@@ -45,16 +48,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _selectedTab = 0;
   late final PageController _pageController;
 
+  /// GlobalKey untuk mengontrol video HeroCard dari sini
+  final _homeContentKey = GlobalKey<HomeContentState>();
+
   /// Apakah user sedang di tab Beranda (tab 0).
-  /// Digunakan oleh _HomeContentState untuk cek sebelum restart sound.
+  /// Digunakan oleh HomeContentState untuk cek sebelum restart sound.
   bool get isOnBerandaTab => _selectedTab == 0;
 
-  final List<Widget> _screens = [
-    const _HomeContent(),
-    const QuranIndexScreen(),
-    const DoaHomeScreen(),
-    const UserProfileScreen(),
-  ];
+  List<Widget> get _screens => [
+        HomeContent(key: _homeContentKey),
+        const QuranIndexScreen(),
+        const DoaHomeScreen(),
+        const UserProfileScreen(),
+      ];
 
   @override
   void initState() {
@@ -62,10 +68,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _pageController = PageController(initialPage: 0);
     _loadData();
+    final ctx = context;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Start background sound on Beranda (tab 0) if enabled
-      context.read<BackgroundSoundProvider>().start();
-      // Cek update dari GitHub
+      ctx.read<BackgroundSoundProvider>().start();
       _checkForUpdate();
     });
   }
@@ -82,34 +87,37 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (provider.status == UpdateStatus.idle ||
         provider.status == UpdateStatus.noUpdate ||
         provider.status == UpdateStatus.error) {
+      final ctx = context;
       provider.checkForUpdate().then((_) {
         if (!mounted) return;
         if (provider.status == UpdateStatus.updateAvailable) {
-          showUpdatePopup(context, provider);
+          showUpdatePopup(ctx, provider);
         }
-      }).catchError((_) {}); // silent catch for network errors
+      }).catchError((_) {});
     }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
-      // App di-minimize → stop semua audio
+      // App di-minimize → pause video + stop semua audio
+      _homeContentKey.currentState?.pauseVideo();
       context.read<BackgroundSoundProvider>().stop();
       context.read<QuranProvider>().stopAudio();
     } else if (state == AppLifecycleState.resumed) {
-      // App kembali aktif → restart bg sound jika di Beranda
+      final bgSound = context.read<BackgroundSoundProvider>();
       if (_selectedTab == 0) {
-        context.read<BackgroundSoundProvider>().start();
+        _homeContentKey.currentState?.resumeVideo();
+        bgSound.start();
       }
       // Retry install APK setelah kembali dari settings
       final updateProvider = context.read<UpdateProvider>();
       if (updateProvider.status == UpdateStatus.installPermissionNeeded) {
+        final ctx = context;
         updateProvider.retryInstall().then((_) {
           if (!mounted) return;
           if (updateProvider.status == UpdateStatus.installPermissionNeeded) {
-            // Gagal lagi — tampilkan permission popup lagi
-            showInstallPermissionPopup(context, updateProvider);
+            showInstallPermissionPopup(ctx, updateProvider);
           }
         }).catchError((_) {});
       }
@@ -120,8 +128,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     setState(() => _selectedTab = index);
     final bgSound = context.read<BackgroundSoundProvider>();
     if (index == 0) {
+      _homeContentKey.currentState?.resumeVideo();
       bgSound.start();
     } else {
+      _homeContentKey.currentState?.pauseVideo();
       bgSound.stop();
     }
   }
@@ -162,10 +172,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Widget _buildBottomNavBar(bool isDark) {
     final items = [
-      (icon: CupertinoIcons.house_fill, label: 'Beranda'),
-      (icon: CupertinoIcons.book_fill, label: "Al-Qur'an"),
-      (icon: CupertinoIcons.heart_fill, label: 'Doa'),
-      (icon: CupertinoIcons.person_fill, label: 'Akun'),
+      (icon: CupertinoIcons.house_fill, label: AppStrings.homeTitle),
+      (icon: CupertinoIcons.book_fill, label: AppStrings.quranTitle),
+      (icon: CupertinoIcons.heart_fill, label: AppStrings.doaTitle),
+      (icon: CupertinoIcons.person_fill, label: AppStrings.userProfile),
     ];
 
     return Container(
@@ -311,15 +321,26 @@ class _TabItemState extends State<_TabItem>
   }
 }
 
-class _HomeContent extends StatefulWidget {
-  const _HomeContent();
+class HomeContent extends StatefulWidget {
+  const HomeContent({super.key});
 
   @override
-  State<_HomeContent> createState() => _HomeContentState();
+  State<HomeContent> createState() => HomeContentState();
 }
 
-class _HomeContentState extends State<_HomeContent> {
+class HomeContentState extends State<HomeContent> {
+  final _heroCardKey = GlobalKey<HeroCardState>();
   DateTime _currentTime = DateTime.now();
+
+  /// Public wrapper: pause video HeroCard
+  void pauseVideo() => _heroCardKey.currentState?.pauseVideo();
+
+  /// Public wrapper: resume video HeroCard (hanya jika sudah initialized)
+  void resumeVideo() {
+    if (mounted && _heroCardKey.currentState != null) {
+      _heroCardKey.currentState!.resumeVideo();
+    }
+  }
 
   @override
   void initState() {
@@ -360,6 +381,7 @@ class _HomeContentState extends State<_HomeContent> {
                 SliverToBoxAdapter(child: _buildDateInfo(isDark)),
                 SliverToBoxAdapter(
                   child: HeroCard(
+                    key: _heroCardKey,
                     prayerTime: todayPrayer,
                     currentTime: _currentTime,
                     isDark: isDark,
@@ -417,12 +439,7 @@ class _HomeContentState extends State<_HomeContent> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Hadits An-Nawawiyyah',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: CupertinoColors.white,
-                    ),
+                    AppStrings.homeArbainTitle,
                   ),
                 ],
               ),
@@ -441,12 +458,12 @@ class _HomeContentState extends State<_HomeContent> {
     final timeStr =
         '${_currentTime.hour.toString().padLeft(2, '0')}:${_currentTime.minute.toString().padLeft(2, '0')}';
     final greeting = _currentTime.hour < 11
-        ? 'Selamat Pagi'
+        ? AppStrings.homeGreetingMorning
         : _currentTime.hour < 15
-        ? 'Selamat Siang'
+        ? AppStrings.homeGreetingAfternoon
         : _currentTime.hour < 18
-        ? 'Selamat Sore'
-        : 'Selamat Malam';
+        ? AppStrings.homeGreetingEvening
+        : AppStrings.homeGreetingNight;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
@@ -559,7 +576,7 @@ class _HomeContentState extends State<_HomeContent> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Gagal memuat jadwal sholat',
+                      AppStrings.homeFailedLoadPrayer,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -569,7 +586,7 @@ class _HomeContentState extends State<_HomeContent> {
                       ),
                     ),
                     Text(
-                      'Periksa koneksi internet',
+                      AppStrings.homeCheckInternet,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w400,
@@ -583,7 +600,7 @@ class _HomeContentState extends State<_HomeContent> {
               ),
               CupertinoButton(
                 padding: EdgeInsets.zero,
-                child: const Text('Muat Ulang', style: TextStyle(fontSize: 12)),
+                child: Text(AppStrings.homeReload, style: const TextStyle(fontSize: 12)),
                 onPressed: () => prayerProvider.fetchPrayerTimes(),
               ),
             ],
@@ -633,7 +650,7 @@ class _HomeContentState extends State<_HomeContent> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    nextPrayer != null ? 'Menuju $nextPrayer' : 'Jadwal Sholat',
+                    nextPrayer != null ? '${AppStrings.homeToward} $nextPrayer' : AppStrings.homePrayerSchedule,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -665,27 +682,27 @@ class _HomeContentState extends State<_HomeContent> {
   Widget _buildDateInfo(bool isDark) {
     final months = [
       '',
-      'Januari',
-      'Februari',
-      'Maret',
-      'April',
-      'Mei',
-      'Juni',
-      'Juli',
-      'Agustus',
-      'September',
-      'Oktober',
-      'November',
-      'Desember',
+      AppStrings.monthJanuari,
+      AppStrings.monthFebruari,
+      AppStrings.monthMaret,
+      AppStrings.monthApril,
+      AppStrings.monthMei,
+      AppStrings.monthJuni,
+      AppStrings.monthJuli,
+      AppStrings.monthAgustus,
+      AppStrings.monthSeptember,
+      AppStrings.monthOktober,
+      AppStrings.monthNovember,
+      AppStrings.monthDesember,
     ];
     final days = [
-      'Senin',
-      'Selasa',
-      'Rabu',
-      'Kamis',
-      'Jumat',
-      'Sabtu',
-      'Minggu',
+      AppStrings.daySenin,
+      AppStrings.daySelasa,
+      AppStrings.dayRabu,
+      AppStrings.dayKamis,
+      AppStrings.dayJumat,
+      AppStrings.daySabtu,
+      AppStrings.dayMinggu,
     ];
     final dateStr =
         '${days[_currentTime.weekday - 1]}, ${_currentTime.day} ${months[_currentTime.month]} ${_currentTime.year}';
@@ -723,8 +740,12 @@ class _HomeContentState extends State<_HomeContent> {
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
       child: GestureDetector(
         onTap: () async {
+          _heroCardKey.currentState?.pauseVideo();
           await context.read<BackgroundSoundProvider>().stop();
           if (!mounted) return;
+          final bgSound = context.read<BackgroundSoundProvider>();
+          final homeState =
+              context.findAncestorStateOfType<_HomeScreenState>();
           final route = lastRead.isJuz && lastRead.juzNumber != null
               ? CupertinoPageRoute(
                   builder: (_) => JuzReaderScreen(
@@ -740,12 +761,12 @@ class _HomeContentState extends State<_HomeContent> {
                   ),
                 );
           if (!mounted) return;
-          Navigator.of(context).push(route).then((_) {
+          final nav = Navigator.of(context);
+          nav.push(route).then((_) {
             if (!mounted) return;
-            final parent = context
-                .findAncestorStateOfType<_HomeScreenState>();
-            if (parent != null && parent.isOnBerandaTab) {
-              context.read<BackgroundSoundProvider>().start();
+            if (homeState != null && homeState.isOnBerandaTab) {
+              bgSound.start();
+              _heroCardKey.currentState?.resumeVideo();
             }
           });
         },
@@ -842,11 +863,15 @@ class _HomeContentState extends State<_HomeContent> {
     );
   }
 
-  void _navigateTo(BuildContext context, String route) {
-    // Stop background sound saat navigasi keluar dari Beranda
-    context.read<BackgroundSoundProvider>().stop();
+  Future<void> _navigateTo(BuildContext context, String route) async {
+    // Pause video + stop background sound sebelum navigasi
+    _heroCardKey.currentState?.pauseVideo();
+    await context.read<BackgroundSoundProvider>().stop();
 
-    Navigator.of(context)
+    if (!mounted) return;
+    final bgSound = context.read<BackgroundSoundProvider>();
+    final nav = Navigator.of(context);
+    nav
         .push(
           CupertinoPageRoute(
             builder: (context) {
@@ -884,17 +909,12 @@ class _HomeContentState extends State<_HomeContent> {
           ),
         )
         .then((_) {
-          // Resume background sound hanya jika:
-          // - masih di tab Beranda
-          // - HomeScreen adalah satu-satunya route (tidak ada screen di atasnya)
-          if (mounted) {
-            final parent = context.findAncestorStateOfType<_HomeScreenState>();
-            if (parent != null && parent.isOnBerandaTab) {
-              final nav = Navigator.of(context);
-              if (!nav.canPop()) {
-                context.read<BackgroundSoundProvider>().start();
-              }
-            }
+          if (!mounted) return;
+          if (nav.canPop()) return;
+          final homeState = context.findAncestorStateOfType<_HomeScreenState>();
+          if (homeState != null && homeState.isOnBerandaTab) {
+            bgSound.start();
+            _heroCardKey.currentState?.resumeVideo();
           }
         });
   }

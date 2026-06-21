@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import '../../providers/haid_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -40,7 +41,7 @@ class _HaidTrackerScreenState extends State<HaidTrackerScreen> {
           children: [
             Icon(CupertinoIcons.drop_fill, size: 18, color: AppColors.toolPink),
             SizedBox(width: 8),
-            Text('Haid Tracker'),
+            Text(AppStrings.haidTracker),
           ],
         ),
       ),
@@ -73,8 +74,8 @@ class _HaidTrackerScreenState extends State<HaidTrackerScreen> {
                         const SizedBox(width: 8),
                         Text(
                           active != null
-                              ? 'Sedang Haid (Hari ke-${provider.getDuration(active)})'
-                              : 'Tidak Haid',
+                              ? '${AppStrings.haidSedang} (${AppStrings.haidDay} ke-${provider.getDuration(active)})'
+                              : AppStrings.haidTidak,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -84,8 +85,8 @@ class _HaidTrackerScreenState extends State<HaidTrackerScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Fase siklus saat ini',
+                    Text(
+                      AppStrings.haidFaseSiklus,
                       style: TextStyle(
                         fontSize: 11,
                         color: CupertinoColors.white,
@@ -107,7 +108,7 @@ class _HaidTrackerScreenState extends State<HaidTrackerScreen> {
                           child: CupertinoButton.filled(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             child: Text(
-                              active != null ? 'Akhiri Haid' : 'Mulai Haid',
+                              active != null ? AppStrings.haidAkhiri : AppStrings.haidMulai,
                               style: const TextStyle(fontSize: 13),
                             ),
                             onPressed: () => _markDate(context),
@@ -126,14 +127,14 @@ class _HaidTrackerScreenState extends State<HaidTrackerScreen> {
                   _buildStatCard(
                     isDark,
                     '${provider.logs.length}',
-                    'Total Siklus',
+                    AppStrings.haidTotalSiklus,
                     AppColors.toolPink,
                   ),
                   const SizedBox(width: 12),
                   _buildStatCard(
                     isDark,
                     '${provider.totalMissedFasting}',
-                    'Qadha Puasa',
+                    AppStrings.haidQadha,
                     AppColors.haidDark,
                   ),
                 ],
@@ -141,8 +142,8 @@ class _HaidTrackerScreenState extends State<HaidTrackerScreen> {
               const SizedBox(height: 20),
 
               // History
-              const Text(
-                'RIWAYAT',
+              Text(
+                AppStrings.haidRiwayat,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -166,7 +167,7 @@ class _HaidTrackerScreenState extends State<HaidTrackerScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      'Belum ada riwayat. Mulai catat siklus haid pertama.',
+                      AppStrings.haidKosong,
                       style: TextStyle(
                         fontSize: 13,
                         color: isDark
@@ -222,10 +223,9 @@ class _HaidTrackerScreenState extends State<HaidTrackerScreen> {
                                             ? CupertinoColors.systemGrey
                                             : CupertinoColors.systemGrey,
                                       ),
-                                    )
-                                  else
-                                    const Text(
-                                      'Sedang berlangsung',
+                                    )                                    else
+                                    Text(
+                                      AppStrings.haidBerlangsung,
                                       style: TextStyle(
                                         fontSize: 11,
                                         color: AppColors.toolPink,
@@ -239,7 +239,7 @@ class _HaidTrackerScreenState extends State<HaidTrackerScreen> {
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFFBE185D),
+                                color: AppColors.haidDark,
                               ),
                             ),
                           ],
@@ -370,7 +370,7 @@ class _DatePickerSheetState extends State<_DatePickerSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CupertinoButton(
-                  child: const Text('Batal'),
+                  child: Text(AppStrings.cancel),
                   onPressed: () => Navigator.pop(context),
                 ),
                 Text(
@@ -385,9 +385,9 @@ class _DatePickerSheetState extends State<_DatePickerSheet> {
                     widget.onConfirm(_selectedDate);
                     Navigator.pop(context);
                   },
-                  child: const Text(
-                    'Simpan',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                  child: Text(
+                    AppStrings.save,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -176,7 +177,7 @@ class _P2pSyncScreenState extends State<P2pSyncScreen> {
               color: AppColors.primary,
             ),
             SizedBox(width: 8),
-            Text('Sync P2P'),
+            Text(AppStrings.syncP2P),
           ],
         ),
       ),
@@ -209,7 +210,7 @@ class _P2pSyncScreenState extends State<P2pSyncScreen> {
                           decoration: BoxDecoration(
                             color: _selectedTab == 0
                                 ? AppColors.primary
-                                : const Color(0x00000000),
+                                : AppColors.blackTransparent,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -224,7 +225,7 @@ class _P2pSyncScreenState extends State<P2pSyncScreen> {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                'Kirim',
+                                AppStrings.syncKirim,
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -248,7 +249,7 @@ class _P2pSyncScreenState extends State<P2pSyncScreen> {
                           decoration: BoxDecoration(
                             color: _selectedTab == 1
                                 ? AppColors.primary
-                                : const Color(0x00000000),
+                                : AppColors.blackTransparent,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -263,7 +264,7 @@ class _P2pSyncScreenState extends State<P2pSyncScreen> {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                'Terima',
+                                AppStrings.syncTerima,
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -348,7 +349,7 @@ class _P2pSyncScreenState extends State<P2pSyncScreen> {
               width: double.infinity,
               child: CupertinoButton.filled(
                 onPressed: _prepareQrData,
-                child: const Text('Siapkan QR Code'),
+                child: Text(AppStrings.syncSiapkanQR),
               ),
             ),
 
@@ -573,7 +574,7 @@ class _P2pSyncScreenState extends State<P2pSyncScreen> {
                         end: Alignment.bottomCenter,
                         colors: [
                           CupertinoColors.black.withValues(alpha: 0.5),
-                          const Color(0x00000000),
+                          AppColors.blackTransparent,
                         ],
                       ),
                     ),
@@ -831,7 +832,7 @@ class _P2pSyncScreenState extends State<P2pSyncScreen> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: const [
               BoxShadow(
-                color: Color(0xFF000000),
+                color: AppColors.black,
                 blurRadius: 12,
                 offset: Offset(0, 4),
               ),

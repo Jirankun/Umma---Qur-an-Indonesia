@@ -12,7 +12,10 @@ class AiConfig {
   //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   static const String groqBaseUrl =
       'https://api.groq.com/openai/v1/chat/completions';
-  /// API key Groq — bisa diubah runtime via LocalStorage
+  /// API key Groq default (built-in) untuk konten: quotes, nasehat, quest, fiqih
+  static const String groqApiKeyDefault =
+      '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';
+  /// API key Groq untuk Muslim AI Chat — bisa diubah runtime via LocalStorage
   static String groqApiKey = '';
   static const String groqModel = 'llama-3.3-70b-versatile';
 

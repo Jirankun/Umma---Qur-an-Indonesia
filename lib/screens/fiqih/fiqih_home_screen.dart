@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import '../../providers/fiqih_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -8,6 +9,7 @@ class FiqihHomeScreen extends StatelessWidget {
   const FiqihHomeScreen({super.key});
 
   static final Map<String, Map<String, dynamic>> _categories = {
+    'semua': {'emoji': '📖', 'color': AppColors.primary},
     'thaharah': {'emoji': '💧', 'color': AppColors.fiqihThaharah},
     'sholat': {'emoji': '🕌', 'color': AppColors.fiqihSholat},
     'puasa': {'emoji': '🌙', 'color': AppColors.heat4},
@@ -44,7 +46,7 @@ class FiqihHomeScreen extends StatelessWidget {
               color: AppColors.warning,
             ),
             SizedBox(width: 8),
-            Text('Fiqih Islam'),
+            Text(AppStrings.fiqihIslam),
           ],
         ),
       ),
@@ -66,12 +68,12 @@ class FiqihHomeScreen extends StatelessWidget {
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
               sliver: SliverToBoxAdapter(
-                child: provider.activeCategory.isNotEmpty
-                    ? _buildSectionTitle(
+                child: provider.activeCategory == FiqihProvider.kategoriSemua
+                    ? _buildSectionTitle(isDark, AppStrings.fiqihAll)
+                    : _buildSectionTitle(
                         isDark,
                         'Kategori: ${provider.activeCategory}',
-                      )
-                    : _buildSectionTitle(isDark, 'SEMUA MATERI'),
+                      ),
               ),
             ),
             _buildFiqihList(isDark, provider),
@@ -87,7 +89,7 @@ class FiqihHomeScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Panduan Fiqih Islam',
+          AppStrings.fiqihPanduan,
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w800,
@@ -96,7 +98,7 @@ class FiqihHomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          '${provider.allItems.length} materi tentang puasa, sholat, zakat, dan lainnya',
+          '${provider.allItems.length} ${AppStrings.fiqihMateriCountSuffix}',
           style: TextStyle(
             fontSize: 12,
             color: isDark
@@ -106,7 +108,7 @@ class FiqihHomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         CupertinoSearchTextField(
-          placeholder: 'Cari topik fiqih...',
+          placeholder: AppStrings.fiqihCari,
           style: TextStyle(
             color: isDark ? AppColors.textDark : AppColors.textLight,
           ),
@@ -129,6 +131,11 @@ class FiqihHomeScreen extends StatelessWidget {
               _categories[cat] ??
               {'emoji': '📖', 'color': AppColors.textSubtle};
           final isActive = provider.activeCategory == cat;
+          final label = cat == FiqihProvider.kategoriSemua
+              ? 'Semua'
+              : cat[0].toUpperCase() + cat.substring(1);
+          final count = provider.getItemCount(cat);
+
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: GestureDetector(
@@ -161,7 +168,7 @@ class FiqihHomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      cat[0].toUpperCase() + cat.substring(1),
+                      label,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -170,6 +177,29 @@ class FiqihHomeScreen extends StatelessWidget {
                             : (isDark
                                   ? CupertinoColors.white
                                   : AppColors.textLight),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 1,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isActive
+                            ? (catInfo['color'] as Color).withValues(alpha: 0.2)
+                            : CupertinoColors.systemGrey.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '$count',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: isActive
+                              ? (catInfo['color'] as Color)
+                              : CupertinoColors.systemGrey,
+                        ),
                       ),
                     ),
                   ],
@@ -195,8 +225,9 @@ class FiqihHomeScreen extends StatelessWidget {
   }
 
   Widget _buildFiqihList(bool isDark, FiqihProvider provider) {
-    // When searching or filtering by category, use filteredItems
-    final showFiltered = provider.activeCategory.isNotEmpty || provider.searchQuery.isNotEmpty;
+    // 'semua' → all items, kategori lain → filteredItems, search → filteredItems
+    final isSemua = provider.activeCategory == FiqihProvider.kategoriSemua;
+    final showFiltered = !isSemua || provider.searchQuery.isNotEmpty;
     final items = showFiltered ? provider.filteredItems : provider.allItems;
 
     // Show empty state when searching but nothing found
@@ -214,7 +245,7 @@ class FiqihHomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Tidak ditemukan topik untuk "${provider.searchQuery}"',
+                  '${AppStrings.fiqihNotFound} "${provider.searchQuery}"',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,

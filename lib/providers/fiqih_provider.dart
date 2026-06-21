@@ -4,9 +4,11 @@ import '../services/ai_content_service.dart';
 import '../data/fiqih_data.dart';
 
 class FiqihProvider extends ChangeNotifier {
+  static const String kategoriSemua = 'semua';
+
   List<FiqihItem> _allItems = [];
   List<FiqihItem> _filteredItems = [];
-  String _activeCategory = '';
+  String _activeCategory = kategoriSemua; // default: 'semua'
   String _searchQuery = '';
   String _selectedItemId = '';
   bool _isLoading = true;
@@ -18,11 +20,16 @@ class FiqihProvider extends ChangeNotifier {
   String get selectedItemId => _selectedItemId;
   bool get isLoading => _isLoading;
 
-  List<String> get categories =>
-      _allItems.map((i) => i.category).toSet().toList();
+  /// Daftar kategori termasuk 'semua' di posisi pertama
+  List<String> get categories {
+    final catSet = _allItems.map((i) => i.category).toSet().toList()..sort();
+    return [kategoriSemua, ...catSet];
+  }
 
-  int getItemCount(String category) =>
-      _allItems.where((i) => i.category == category).length;
+  int getItemCount(String category) {
+    if (category == kategoriSemua) return _allItems.length;
+    return _allItems.where((i) => i.category == category).length;
+  }
 
   /// Load konten Fiqih — PRIORITAS: offline data (124+ item) + AI supplement
   Future<void> loadContent() async {
@@ -78,13 +85,17 @@ class FiqihProvider extends ChangeNotifier {
   void filterByCategory(String category) {
     _activeCategory = category;
     _searchQuery = '';
-    _filteredItems = _allItems.where((i) => i.category == category).toList();
+    if (category == kategoriSemua) {
+      _filteredItems = []; // menandakan show all
+    } else {
+      _filteredItems = _allItems.where((i) => i.category == category).toList();
+    }
     notifyListeners();
   }
 
   void search(String query) {
     _searchQuery = query;
-    _activeCategory = '';
+    _activeCategory = kategoriSemua;
     if (query.isEmpty) {
       _filteredItems = [];
     } else {
@@ -100,7 +111,7 @@ class FiqihProvider extends ChangeNotifier {
   }
 
   void clearFilter() {
-    _activeCategory = '';
+    _activeCategory = kategoriSemua;
     _searchQuery = '';
     _filteredItems = [];
     _selectedItemId = '';

@@ -37,6 +37,7 @@ class SurahDownloadProgress {
 
 /// Task untuk audio download queue — simpan audioUrls agar gak berubah
 /// saat user ganti surah selagi queue menunggu
+// ignore: unused_element
 class _AudioDownloadTask {
   final int surahNumber;
   final List<String> audioUrls;
@@ -86,13 +87,10 @@ class QuranProvider extends ChangeNotifier {
         jsonDone: _downloadedSurahs.contains(_selectedSurah!.nomor),
         audioDownloaded: downloaded,
         audioTotal: _currentAyat.length,
-        isDownloading: downloaded < _currentAyat.length,
+        isDownloading: false,
       );
 
-      // Download audio untuk Qari baru jika belum lengkap
-      if (downloaded < _currentAyat.length) {
-        _downloadAyatAudioInBackground(_selectedSurah!.nomor);
-      }
+      // JANGAN auto-download — user harus tap tombol Download All atau play ayat
     }
 
     notifyListeners();
@@ -259,38 +257,35 @@ class QuranProvider extends ChangeNotifier {
 
   // ─── LOAD SURAH DETAIL (Offline-first with download trigger) ─
   Future<void> loadSurahDetail(int number) async {
-    _loadingAyat = true;
-    _currentProgress = SurahDownloadProgress(
-      surahNumber: number,
-      isDownloading: true,
-    );
-    notifyListeners();
+    _loadingAyat = true;      _currentProgress = SurahDownloadProgress(
+        surahNumber: number,
+        isDownloading: false,
+      );
+      notifyListeners();
 
-    try {
-      // 1. Try local JSON first
-      final localData = await _downloadService.getLocalSurahDetail(number);
-      if (localData != null) {
-        _selectedSurah = Surah.fromJson(localData);
-        _currentAyat = (localData['ayat'] as List? ?? [])
-            .map((a) => Ayat.fromJson(a))
-            .toList();
-        _downloadedSurahs.add(number);
-        _currentProgress = SurahDownloadProgress(
-          surahNumber: number,
-          jsonDone: true,
-          audioDownloaded: await _downloadService.countDownloadedAudio(
-            number,
-            surahName: _selectedSurah?.namaLatin,
-          ),
-          audioTotal: _currentAyat.length,
-          isDownloading: true,
-        );
+      try {
+        // 1. Try local JSON first
+        final localData = await _downloadService.getLocalSurahDetail(number);
+        if (localData != null) {
+          _selectedSurah = Surah.fromJson(localData);
+          _currentAyat = (localData['ayat'] as List? ?? [])
+              .map((a) => Ayat.fromJson(a))
+              .toList();
+          _downloadedSurahs.add(number);
+          _currentProgress = SurahDownloadProgress(
+            surahNumber: number,
+            jsonDone: true,
+            audioDownloaded: await _downloadService.countDownloadedAudio(
+              number,
+              qariId: _selectedQariId,
+              surahName: _selectedSurah?.namaLatin,
+            ),
+            audioTotal: _currentAyat.length,
+            isDownloading: false,
+          );
         _loadingAyat = false;
-        notifyListeners();
-
-        // 2. Start background audio download
-        _downloadAyatAudioInBackground(number);
         _error = null;
+        notifyListeners();
         return;
       }
 
@@ -308,16 +303,17 @@ class QuranProvider extends ChangeNotifier {
       _currentProgress = SurahDownloadProgress(
         surahNumber: number,
         jsonDone: true,
-        audioDownloaded: 0,
+        audioDownloaded: await _downloadService.countDownloadedAudio(
+          number,
+          qariId: _selectedQariId,
+          surahName: _selectedSurah?.namaLatin,
+        ),
         audioTotal: _currentAyat.length,
-        isDownloading: true,
+        isDownloading: false,
       );
       _error = null;
       _loadingAyat = false;
       notifyListeners();
-
-      // 5. Start background audio download
-      _downloadAyatAudioInBackground(number);
     } catch (e) {
       _error = 'Gagal memuat surah';
       // Bersihkan data surah sebelumnya agar tidak tampil surah lain saat error
@@ -342,116 +338,8 @@ class QuranProvider extends ChangeNotifier {
   }
 
   // ─── BACKGROUND AUDIO DOWNLOAD (per Qari) — Pakai Queue ──
-  bool _isDownloadingAudio = false;
-  final List<_AudioDownloadTask> _audioDownloadQueue = [];
 
-  Future<void> _downloadAyatAudioInBackground(int surahNumber) async {
-    // Tangkap audioUrls SEKARANG, bukan nanti (biar gak berubah kalo user ganti surah)
-    final audioUrls = _currentAyat
-        .map((a) => getAyatAudioUrlForQari(a) ?? '')
-        .toList();
-    final totalAyat = _currentAyat.length;
 
-    if (audioUrls.isEmpty || audioUrls.every((u) => u.isEmpty)) {
-      _currentProgress = SurahDownloadProgress(
-        surahNumber: surahNumber,
-        jsonDone: true,
-        audioDownloaded: 0,
-        audioTotal: 0,
-        isDownloading: false,
-      );
-      notifyListeners();
-      return;
-    }
-
-    final task = _AudioDownloadTask(
-      surahNumber: surahNumber,
-      audioUrls: List.from(audioUrls),
-      totalAyat: totalAyat,
-    );
-
-    // Queue: jangan duplikat, jangan tumpuk
-    if (_isDownloadingAudio) {
-      final alreadyQueued = _audioDownloadQueue.any((t) => t.surahNumber == surahNumber);
-      if (!alreadyQueued) {
-        _audioDownloadQueue.add(task);
-      }
-      return;
-    }
-
-    _isDownloadingAudio = true;
-    await _processAudioDownload(task);
-    _isDownloadingAudio = false;
-
-    // Proses queue berikutnya
-    while (_audioDownloadQueue.isNotEmpty) {
-      final nextTask = _audioDownloadQueue.removeAt(0);
-      _isDownloadingAudio = true;
-      await _processAudioDownload(nextTask);
-      _isDownloadingAudio = false;
-    }
-  }
-
-  Future<void> _processAudioDownload(_AudioDownloadTask task) async {
-    final surahNumber = task.surahNumber;
-    final audioUrls = task.audioUrls;
-    final totalAyat = task.totalAyat;
-    final currentQari = _selectedQariId;
-    final surahName = _getSurahName(surahNumber);
-
-    if (audioUrls.isEmpty || audioUrls.every((u) => u.isEmpty)) {
-      _currentProgress = SurahDownloadProgress(
-        surahNumber: surahNumber,
-        jsonDone: true,
-        audioDownloaded: 0,
-        audioTotal: 0,
-        isDownloading: false,
-      );
-      notifyListeners();
-      return;
-    }
-
-    try {
-      await _downloadService.downloadAllAyatAudio(
-        surahNumber: surahNumber,
-        totalAyat: totalAyat,
-        audioUrls: audioUrls,
-        qariId: currentQari,
-        surahName: surahName,
-        onProgress: (downloaded, total) {
-          for (int i = 1; i <= downloaded; i++) {
-            _audioCompleted.add('${currentQari}_${surahNumber}_$i');
-          }
-          _currentProgress = SurahDownloadProgress(
-            surahNumber: surahNumber,
-            jsonDone: true,
-            audioDownloaded: downloaded,
-            audioTotal: total,
-            isDownloading: downloaded < total,
-          );
-          notifyListeners();
-        },
-      );
-
-      _currentProgress = SurahDownloadProgress(
-        surahNumber: surahNumber,
-        jsonDone: true,
-        audioDownloaded: totalAyat,
-        audioTotal: totalAyat,
-        isDownloading: false,
-      );
-      notifyListeners();
-    } catch (_) {
-      _currentProgress = SurahDownloadProgress(
-        surahNumber: surahNumber,
-        jsonDone: true,
-        audioDownloaded: _currentProgress?.audioDownloaded ?? 0,
-        audioTotal: totalAyat,
-        isDownloading: false,
-      );
-      notifyListeners();
-    }
-  }
 
   // ─── DOWNLOAD ALL SURAHS ─────────────────────────────────
   Future<void> downloadAllSurahs() async {
@@ -527,7 +415,7 @@ class QuranProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Play audio untuk ayat tertentu — dari local file atau streaming
+  /// Play audio untuk ayat tertentu — download dulu jika belum lokal.
   /// Semua Qari (01-06) punya per-ayat URL dari API.
   Future<void> playAyatAudio(int surahNumber, Ayat ayat) async {
     final ayahNumber = ayat.nomorAyat;
@@ -546,7 +434,58 @@ class QuranProvider extends ChangeNotifier {
     });
 
     // Coba local file dulu (sudah pakai folder qariName/surahName)
-    final localPath = await getLocalAudioPathForQari(surahNumber, ayahNumber);
+    String? localPath = await getLocalAudioPathForQari(surahNumber, ayahNumber);
+
+    // Jika belum lokal, download dulu
+    if (localPath == null || !await File(localPath).exists()) {
+      final audioUrl = getAyatAudioUrlForQari(ayat);
+      if (audioUrl != null && audioUrl.isNotEmpty) {
+        try {
+          await _downloadService.downloadAyatAudio(
+            surahNumber: surahNumber,
+            ayahNumber: ayahNumber,
+            audioUrl: audioUrl,
+            qariId: _selectedQariId,
+            surahName: _getSurahName(surahNumber),
+          );
+          _audioCompleted
+              .add('${_selectedQariId}_${surahNumber}_$ayahNumber');
+          // Update progress jika ada
+          if (_currentProgress != null &&
+              _currentProgress!.surahNumber == surahNumber) {
+            final current = _audioCompleted
+                .where((k) =>
+                    k.startsWith('${_selectedQariId}_${surahNumber}_'))
+                .length;
+            _currentProgress = SurahDownloadProgress(
+              surahNumber: surahNumber,
+              jsonDone: true,
+              audioDownloaded: current,
+              audioTotal: _currentAyat.length,
+              isDownloading: false,
+            );
+            notifyListeners();
+          }
+          notifyListeners();
+        } catch (_) {
+          // Fallback: stream langsung jika download gagal
+          try {
+            await _audioPlayer.play(UrlSource(audioUrl));
+            _currentlyPlayingAyah = ayahNumber;
+            _isPlaying = true;
+            notifyListeners();
+          } catch (e) {
+            debugPrint('❌ Gagal play audio ayat $ayahNumber: $e');
+          }
+          return;
+        }
+      }
+      // Cek ulang path lokal setelah download
+      localPath =
+          await getLocalAudioPathForQari(surahNumber, ayahNumber);
+    }
+
+    // Play dari local file
     if (localPath != null && await File(localPath).exists()) {
       try {
         await _audioPlayer.play(DeviceFileSource(localPath));
@@ -555,19 +494,6 @@ class QuranProvider extends ChangeNotifier {
         notifyListeners();
         return;
       } catch (_) {}
-    }
-
-    // Stream dari URL per-ayat (semua Qari didukung)
-    final audioUrl = getAyatAudioUrlForQari(ayat);
-    if (audioUrl != null && audioUrl.isNotEmpty) {
-      try {
-        await _audioPlayer.play(UrlSource(audioUrl));
-        _currentlyPlayingAyah = ayahNumber;
-        _isPlaying = true;
-        notifyListeners();
-      } catch (e) {
-        debugPrint('❌ Gagal play audio ayat $ayahNumber: $e');
-      }
     }
   }
 
@@ -597,6 +523,95 @@ class QuranProvider extends ChangeNotifier {
       _isPlaying = true;
       notifyListeners();
     } catch (_) {}
+  }
+
+  // ─── DOWNLOAD ALL AUDIO UNTUK SURAH INI (per Qari) ───
+  /// Download semua ayat audio untuk surah & qari yang sedang aktif.
+  /// Dipanggil dari tombol "Download All Audio" di SurahReaderScreen.
+  Future<void> downloadAllAyatAudioForCurrentSurah() async {
+    if (_selectedSurah == null || _currentAyat.isEmpty) return;
+    final surahNumber = _selectedSurah!.nomor;
+
+    // Tangkap audioUrls SEKARANG
+    final audioUrls = _currentAyat
+        .map((a) => getAyatAudioUrlForQari(a) ?? '')
+        .toList();
+    final totalAyat = _currentAyat.length;
+
+    if (audioUrls.isEmpty || audioUrls.every((u) => u.isEmpty)) return;
+
+    _currentProgress = SurahDownloadProgress(
+      surahNumber: surahNumber,
+      jsonDone: true,
+      audioDownloaded: 0,
+      audioTotal: totalAyat,
+      isDownloading: true,
+    );
+    notifyListeners();
+
+    try {
+      await _downloadService.downloadAllAyatAudio(
+        surahNumber: surahNumber,
+        totalAyat: totalAyat,
+        audioUrls: audioUrls,
+        qariId: _selectedQariId,
+        surahName: _getSurahName(surahNumber),
+        onProgress: (downloaded, total) {
+          for (int i = 1; i <= downloaded; i++) {
+            _audioCompleted
+                .add('${_selectedQariId}_${surahNumber}_$i');
+          }
+          _currentProgress = SurahDownloadProgress(
+            surahNumber: surahNumber,
+            jsonDone: true,
+            audioDownloaded: downloaded,
+            audioTotal: total,
+            isDownloading: downloaded < total,
+          );
+          notifyListeners();
+        },
+      );
+
+      _currentProgress = SurahDownloadProgress(
+        surahNumber: surahNumber,
+        jsonDone: true,
+        audioDownloaded: totalAyat,
+        audioTotal: totalAyat,
+        isDownloading: false,
+      );
+    } catch (_) {
+      _currentProgress = SurahDownloadProgress(
+        surahNumber: surahNumber,
+        jsonDone: true,
+        audioDownloaded: _currentProgress?.audioDownloaded ?? 0,
+        audioTotal: totalAyat,
+        isDownloading: false,
+      );
+    }
+    notifyListeners();
+  }
+
+  /// Hitung jumlah audio yang sudah terunduh untuk surah & qari saat ini
+  Future<int> getCurrentAudioDownloadedCount() async {
+    if (_selectedSurah == null) return 0;
+    final surahNumber = _selectedSurah!.nomor;
+
+    // Cek dari _audioCompleted dulu
+    int completed = 0;
+    for (final key in _audioCompleted) {
+      if (key.startsWith('${_selectedQariId}_${surahNumber}_')) {
+        completed++;
+      }
+    }
+    if (completed > 0) return completed;
+
+    // Fallback: check filesystem
+    final surahName = _getSurahName(surahNumber);
+    return _downloadService.countDownloadedAudio(
+      surahNumber,
+      qariId: _selectedQariId,
+      surahName: surahName,
+    );
   }
 
   /// Clean up audio (call when leaving surah reader)

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import '../../config/api_config.dart';
 import '../../data/juz_mapping.dart';
@@ -181,7 +182,7 @@ class _JuzReaderScreenState extends State<JuzReaderScreen> {
         backgroundColor: isDark
             ? AppColors.surfaceDark
             : CupertinoColors.systemBackground,
-        middle: Text('Juz ${widget.juzNumber}'),
+        middle: Text('${AppStrings.quranJuz} ${widget.juzNumber}'),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -229,7 +230,7 @@ class _JuzReaderScreenState extends State<JuzReaderScreen> {
               const SizedBox(height: 16),
               CupertinoButton.filled(
                 onPressed: _fetchJuz,
-                child: const Text('Coba Lagi'),
+                child: Text(AppStrings.retry),
               ),
             ],
           ),
@@ -247,24 +248,27 @@ class _JuzReaderScreenState extends State<JuzReaderScreen> {
       _targetAyatKey = GlobalKey();
       _scrollRetries = 0;
 
-      // Fase 1: Lompat ke estimasi posisi supaya widget target dibangun
+      // Lompat ke estimasi posisi (pake hardcoded height — sudah paling optimal untuk Juz reader)
       double cumulativeOffset = 0;
       cumulativeOffset += 200; // hero banner
       if (_hafalanMode) cumulativeOffset += 58;
+      const ayahHeight = 220.0;
+      const separatorHeight = 56.0;
+      const surahItemGap = 12.0;
       bool found = false;
       for (final surahData in _juzSurahs) {
         if (found) break;
-        cumulativeOffset += 56; // surah separator
+        cumulativeOffset += separatorHeight;
         if (surahData.surahId == _targetFocusSurahId) {
           final targetIdx = surahData.ayat.indexWhere(
             (a) => a.nomorAyat == _targetFocusAyahNumber,
           );
           if (targetIdx >= 0) {
-            cumulativeOffset += targetIdx * 180;
+            cumulativeOffset += targetIdx * ayahHeight;
             found = true;
           }
         } else {
-          cumulativeOffset += surahData.ayat.length * 180 + 12;
+          cumulativeOffset += surahData.ayat.length * ayahHeight + surahItemGap;
         }
       }
 
@@ -276,8 +280,8 @@ class _JuzReaderScreenState extends State<JuzReaderScreen> {
         _scrollController.jumpTo(estimatedOffset);
       }
 
-      // Fase 2: ensureVisible setelah widget siap
-      _scheduleEnsureVisible();
+      // ensureVisible tiap frame sampai berhasil (max 60 frame)
+      _tryScrollToTarget();
     }
 
     return CustomScrollView(
@@ -733,10 +737,10 @@ class _JuzReaderScreenState extends State<JuzReaderScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) {
           if (loading) {
-            loading = false;
             _loadTafsir(ayat, surahData).then((r) {
               if (mounted) {
                 setModalState(() {
+                  loading = false;
                   tafsirText = r.tafsirText;
                   sourceLabel = r.sourceLabel;
                 });
@@ -744,11 +748,8 @@ class _JuzReaderScreenState extends State<JuzReaderScreen> {
             });
           }
 
-          final hasContent = tafsirText.isNotEmpty;
-          final isError = !hasContent && sourceLabel == null && !loading;
-
           return Container(
-            height: isError ? 200 : (loading ? 200 : 460),
+            height: loading ? 200 : 460,
             decoration: BoxDecoration(
               color: isDark
                   ? AppColors.surfaceDark
@@ -760,7 +761,6 @@ class _JuzReaderScreenState extends State<JuzReaderScreen> {
             child: _buildTafsirSheet(
               isDark: isDark,
               loading: loading,
-              isError: isError,
               ayat: ayat,
               surahData: surahData,
               tafsirText: tafsirText,
@@ -775,7 +775,6 @@ class _JuzReaderScreenState extends State<JuzReaderScreen> {
   Widget _buildTafsirSheet({
     required bool isDark,
     required bool loading,
-    required bool isError,
     required Ayat ayat,
     required _JuzSurahData surahData,
     required String tafsirText,
@@ -783,37 +782,6 @@ class _JuzReaderScreenState extends State<JuzReaderScreen> {
   }) {
     if (loading) {
       return const Center(child: CupertinoActivityIndicator(radius: 14));
-    }
-
-    if (isError) {
-      return Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              CupertinoIcons.exclamationmark_triangle_fill,
-              size: 40,
-              color: CupertinoColors.systemGrey,
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Tafsir tidak tersedia',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Untuk ayat ${ayat.nomorAyat} ${surahData.namaLatin}',
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark
-                    ? CupertinoColors.systemGrey
-                    : CupertinoColors.systemGrey,
-              ),
-            ),
-          ],
-        ),
-      );
     }
 
     // Content state (no ayat preview)
@@ -899,28 +867,57 @@ class _JuzReaderScreenState extends State<JuzReaderScreen> {
   }
 
   // ─── AUTO-SCROLL HELPER — scroll target ke tengah layar ──
-  void _scheduleEnsureVisible() {
-    if (!mounted || _hasScrolledToTarget || _scrollRetries >= 10) {
+  /// Scroll ke ayat target dengan retry tiap frame (max 60 frame /
+  void _tryScrollToTarget() {
+    if (!mounted || _hasScrolledToTarget || _scrollRetries >= 60) {
       _hasScrolledToTarget = true;
       return;
     }
-    _scrollRetries++;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+      if (!mounted || _hasScrolledToTarget) return;
 
       if (_targetAyatKey?.currentContext != null) {
         Scrollable.ensureVisible(
           _targetAyatKey!.currentContext!,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 400),
           curve: Curves.easeOut,
           alignment: 0.5,
         );
         _hasScrolledToTarget = true;
-      } else if (_scrollRetries < 10) {
-        _scheduleEnsureVisible();
-      } else {
-        _hasScrolledToTarget = true;
+        return;
       }
+
+      _scrollRetries++;
+
+      // Re-estimasi dan re-scroll
+      if (_scrollController.hasClients) {
+        double est = 200;
+        if (_hafalanMode) est += 58;
+        const ah = 220.0;
+        bool found = false;
+        for (final sd in _juzSurahs) {
+          if (found) break;
+          est += 56;
+          if (_targetFocusSurahId != null && sd.surahId == _targetFocusSurahId) {
+            final idx = sd.ayat.indexWhere(
+              (a) => a.nomorAyat == _targetFocusAyahNumber,
+            );
+            if (idx >= 0) {
+              est += idx * ah;
+              found = true;
+            }
+          } else {
+            est += sd.ayat.length * ah + 12;
+          }
+        }
+        if (found) {
+          final maxExt = _scrollController.position.maxScrollExtent;
+          _scrollController.jumpTo(est.clamp(0.0, maxExt));
+        }
+      }
+
+      _tryScrollToTarget();
     });
   }
 
@@ -1101,7 +1098,7 @@ class _JuzReaderScreenState extends State<JuzReaderScreen> {
               ),
               const Spacer(),
               CupertinoButton.filled(
-                child: const Text('Selesai'),
+                child: Text(AppStrings.done),
                 onPressed: () => Navigator.pop(ctx),
               ),
             ],

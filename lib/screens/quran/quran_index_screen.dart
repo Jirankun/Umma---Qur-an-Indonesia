@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import '../../models/quran.dart';
 import '../../providers/quran_provider.dart';
 import '../../providers/theme_provider.dart';
-import '../../providers/background_sound_provider.dart';
 import '../../services/quran_tracker_service.dart';
 import '../../utils/date_helper.dart';
 import 'surah_reader_screen.dart';
@@ -24,8 +24,6 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
   bool _showBookmarksOnly = false;
-  bool _autoScrolled = false;
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -39,37 +37,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<QuranProvider>();
       if (provider.surahs.isEmpty) provider.loadSurahs();
-      provider.loadStoredData().then((_) => _scrollToLastRead());
-    });
-  }
-
-  void _scrollToLastRead() {
-    if (_autoScrolled) return;
-    final provider = context.read<QuranProvider>();
-    final lastRead = provider.lastRead;
-    if (lastRead == null) return;
-
-    // Find the index of the last read surah in the filtered list
-    final surahs = _filteredSurahs(provider.surahs);
-    final index = surahs.indexWhere((s) => s.nomor == lastRead.surahId);
-    if (index < 0) return;
-
-    // Calculate approximate offset:
-    // Header: ~400px (banner + search + tabs + khatam + filter chips + download)
-    // Per item: ~78px (margin + padding + content)
-    final headerHeight = 400.0;
-    final itemHeight = 78.0;
-    final offset = headerHeight + (index * itemHeight) - 100; // offset for visibility
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _autoScrolled = true;
-        _scrollController.animateTo(
-          offset.clamp(0.0, _scrollController.position.maxScrollExtent),
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeOut,
-        );
-      }
+      provider.loadStoredData();
     });
   }
 
@@ -103,7 +71,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
           children: [
             Icon(CupertinoIcons.book_fill, size: 18, color: AppColors.primary),
             SizedBox(width: 8),
-            Text("Al-Qur'an"),
+            Text(AppStrings.quranTitle),
           ],
         ),
         trailing: GestureDetector(
@@ -193,7 +161,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
       child: Row(
         children: [
           _BookmarkFilterChip(
-            label: 'Semua Surah',
+            label: AppStrings.quranFilterAll,
             isActive: !_showBookmarksOnly,
             count: context.read<QuranProvider>().surahs.length,
             isDark: isDark,
@@ -201,7 +169,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
           ),
           const SizedBox(width: 10),
           _BookmarkFilterChip(
-            label: 'Bookmark',
+            label: AppStrings.quranFilterBookmark,
             isActive: _showBookmarksOnly,
             count: bookmarkCount,
             isDark: isDark,
@@ -210,7 +178,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
           const Spacer(),
           if (bookmarkCount > 0)
             Text(
-              '$bookmarkCount tersimpan',
+              '$bookmarkCount ${AppStrings.quranBookmarkCount}',
               style: TextStyle(
                 fontSize: 11,
                 color: isDark
@@ -244,8 +212,8 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                 const SizedBox(height: 12),
                 Text(
                   _searchQuery.isNotEmpty
-                      ? 'Bookmark tidak ditemukan'
-                      : 'Belum ada ayat yang di-bookmark',
+                      ? AppStrings.quranBookmarkNotFound
+                      : AppStrings.quranNoBookmark,
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -255,8 +223,8 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                 const SizedBox(height: 6),
                 Text(
                   _searchQuery.isNotEmpty
-                      ? 'Coba kata kunci lain'
-                      : 'Tap icon bookmark di setiap ayat untuk menyimpan',
+                      ? AppStrings.quranSearchHint
+                      : AppStrings.quranBookmarkHint,
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark
@@ -461,8 +429,8 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
               child: CupertinoTextField(
                 controller: _searchController,
                 placeholder: _showBookmarksOnly
-                    ? 'Cari bookmark...'
-                    : (_activeTab == 0 ? 'Cari surah...' : 'Cari Juz (1-30)...'),
+                    ? AppStrings.quranSearchBookmark
+                    : (_activeTab == 0 ? AppStrings.quranSearchSurah : AppStrings.quranSearchJuz),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: const BoxDecoration(),
                 style: TextStyle(
@@ -498,10 +466,9 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
       child: Container(
         padding: const EdgeInsets.all(3),
-        decoration: BoxDecoration(
-          color: isDark
-              ? AppColors.textLight
-              : CupertinoColors.tertiarySystemBackground,
+        decoration: BoxDecoration(              color: isDark
+                  ? AppColors.textLight
+                  : CupertinoColors.systemGrey5,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -514,7 +481,8 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                   _searchController.clear();
                   _searchQuery = '';
                 }),
-                child: Container(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
                     color: isActive
@@ -523,9 +491,20 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                               : CupertinoColors.white)
                         : null,
                     borderRadius: BorderRadius.circular(8),
+                    boxShadow: isActive && !isDark
+                        ? [
+                            BoxShadow(
+                              color: CupertinoColors.black.withValues(alpha: 0.06),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Text(
-                    i == 0 ? 'Surah' : 'Juz',
+                    i == 0
+                        ? AppStrings.quranTabSurah
+                        : AppStrings.quranTabJuz,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 13,
@@ -643,8 +622,6 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
       child: GestureDetector(
         onTap: () async {
-          await context.read<BackgroundSoundProvider>().stop();
-          if (!mounted) return;
           final isJuz = lastRead.isJuz && lastRead.juzNumber != null;
           if (isJuz) {
             if (!mounted) return;
@@ -699,7 +676,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                     Row(
                       children: [
                         const Text(
-                          'TERAKHIR DIBACA',
+                          AppStrings.quranLastRead,
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
@@ -916,8 +893,8 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                         Expanded(
                           child: Text(
                             allDownloaded
-                                ? 'Semua surah tersimpan (${provider.downloadedSurahCount})'
-                                : 'Download Semua Surah (${provider.downloadedSurahCount}/${provider.surahs.length})',
+                                ? '${AppStrings.quranDownloadedAll} (${provider.downloadedSurahCount})'
+                                : '${AppStrings.quranDownloadAll} (${provider.downloadedSurahCount}/${provider.surahs.length})',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -1149,7 +1126,7 @@ class _HeatmapScreenState extends State<_HeatmapScreen> {
         backgroundColor: widget.isDark
             ? AppColors.surfaceDark
             : CupertinoColors.systemBackground,
-        middle: Text('Statistik Bacaan $monthName'),
+        middle: Text('${AppStrings.quranStats} $monthName'),
       ),
       child: SafeArea(
         child: _loading

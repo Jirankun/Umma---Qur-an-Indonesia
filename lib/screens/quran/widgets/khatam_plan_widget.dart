@@ -1,5 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/cupertino.dart';
 import '../../../config/colors.dart';
+import '../../../config/strings.dart';
 import '../../../services/quran_tracker_service.dart';
 
 class KhatamPlanWidget extends StatefulWidget {
@@ -173,15 +176,20 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                 ),
               ),
               const SizedBox(width: 10),
-              const Text(
-                'Program Khatam',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+              Text(
+                AppStrings.quranKhatamPlan,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: widget.isDark
+                      ? CupertinoColors.white
+                      : AppColors.textLight,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            'Buat target khatam Al-Quran dan pantau progress harianmu.',
+          Text(                  AppStrings.quranKhatamDescEmpty,
             style: TextStyle(
               fontSize: 12,
               color: widget.isDark
@@ -203,7 +211,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text(
-                  'Mulai Program',
+                  AppStrings.quranKhatamStart,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -230,16 +238,22 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                     placeholder: '30',
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: const BoxDecoration(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Text(
-                  'Hari',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                Text(
+                  AppStrings.quranDayCap,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: widget.isDark
+                        ? CupertinoColors.white
+                        : AppColors.textLight,
+                  ),
                 ),
                 const Spacer(),
                 GestureDetector(
@@ -254,7 +268,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Text(
-                      'Simpan Target',
+                      AppStrings.save,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -304,16 +318,22 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                     color: AppColors.fiqihSholat,
                   ),
                   const SizedBox(width: 8),
-                  const Text(
-                    'Progres Khatam',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                  Text(
+                    AppStrings.quranKhatamProgress,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: widget.isDark
+                          ? CupertinoColors.white
+                          : AppColors.textLight,
+                    ),
                   ),
                 ],
               ),
               GestureDetector(
                 onTap: () => _showResetConfirm(),
                 child: const Text(
-                  'Reset',
+                  AppStrings.reset,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -369,11 +389,11 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
           Row(
             children: [
               Expanded(
-                child: _buildStatBox('Target Harian', '$targetAyatPerDay Ayat'),
+                child: _buildStatBox(                  AppStrings.trackerTargetHarian, '$targetAyatPerDay ${AppStrings.quranAyatCap}'),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _buildStatBox('Sisa Waktu', '$daysRemaining Hari'),
+                child: _buildStatBox(                  AppStrings.quranRemainingTime, '$daysRemaining ${AppStrings.quranDayCap}'),
               ),
             ],
           ),
@@ -474,8 +494,8 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                   color: AppColors.warning,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  'Selesai & Mulai Ulang',
+                child: Text(
+                  AppStrings.quranFinishRestart,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -527,22 +547,23 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
   }
 
   void _showResetConfirm() {
+    final state = this;
     showCupertinoDialog(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
-        title: const Text('Reset Program Khatam?'),
-        content: const Text('Apakah kamu yakin ingin mereset target khatam?'),
+        title: Text(AppStrings.quranKhatamResetTitle),
+        content: Text(AppStrings.quranKhatamResetContent),
         actions: [
           CupertinoDialogAction(
-            child: const Text('Batal'),
+            child: Text(AppStrings.cancel),
             onPressed: () => Navigator.pop(ctx),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
-            child: const Text('Reset'),
+            child: Text(AppStrings.reset),
             onPressed: () {
-              _removePlan().then((_) {
-                if (mounted) Navigator.pop(ctx);
+              state._removePlan().then((_) {
+                if (state.mounted) Navigator.pop(ctx);
               });
             },
           ),

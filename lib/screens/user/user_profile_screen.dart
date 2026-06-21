@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -59,21 +60,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   void _checkUpdateManually(bool isDark) {
     final provider = context.read<UpdateProvider>();
-    if (provider.status == UpdateStatus.checking) {
-      _showToast('Sedang memeriksa...');
-      return;
-    }
-    _showToast('Memeriksa update...');
-    provider.checkForUpdate().then((_) {
-      if (!mounted) return;
-      if (provider.status == UpdateStatus.updateAvailable) {
-        showUpdatePopup(context, provider);
-      } else if (provider.status == UpdateStatus.noUpdate) {
-        _showToast('✅ Aplikasi sudah versi terbaru');
-      } else if (provider.status == UpdateStatus.error) {
-        _showToast('Gagal memeriksa update: ${provider.error}');
-      }
-    });
+    if (provider.status == UpdateStatus.checking) return;
+    // Mulai cek update — dialog akan mendengarkan perubahan status provider
+    provider.checkForUpdate();
+    showUpdateCheckPopup(context, provider);
   }
 
   // ─── BUILD ──────────────────────────────────────────────────
@@ -100,7 +90,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               color: AppColors.primary,
             ),
             SizedBox(width: 8),
-            Text('Profil'),
+            Text(AppStrings.userProfile),
           ],
         ),
       ),
@@ -115,7 +105,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             _buildBantuanSection(isDark),
             const SizedBox(height: 40),
             const Text(
-              'Umma v1.0.0',
+              'Umma v1.0.1',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 10,
@@ -307,8 +297,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 icon: CupertinoIcons.sparkles,
                 iconBg: AppColors.toolIndigo.withValues(alpha: 0.1),
                 iconColor: AppColors.toolIndigo,
-                title: 'Pengaturan AI',
-                subtitle: 'Atur API key Groq untuk Muslim AI',
+                title: 'Pengaturan AI Chat',
+                subtitle: 'API key Groq untuk Muslim AI Chat',
                 onTap: () => _showAiSettings(isDark),
                 showBorder: true,
               ),
@@ -404,7 +394,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 iconBg: AppColors.profileViolet.withValues(alpha: 0.1),
                 iconColor: AppColors.profileViolet,
                 title: 'Tentang Umma',
-                subtitle: 'v1.0.0',
+                subtitle: 'v1.0.1',
                 onTap: () => _showTentang(isDark),
                 showBorder: true,
               ),
@@ -434,7 +424,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 iconBg: AppColors.heat4.withValues(alpha: 0.1),
                 iconColor: AppColors.heat4,
                 title: 'Cek Update Aplikasi',
-                subtitle: 'v1.0.0 — ketuk untuk periksa',
+                subtitle: 'v1.0.1 — ketuk untuk periksa',
                 onTap: () => _checkUpdateManually(isDark),
                 showBorder: true,
               ),
@@ -561,7 +551,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
     showCupertinoModalPopup(
       context: context,
-      builder: (ctx) => StatefulBuilder(
+      builder: (ctx) {
+        final bottomInset = MediaQuery.of(ctx).viewInsets.bottom;
+        return Padding(
+          padding: EdgeInsets.only(bottom: bottomInset),
+          child: StatefulBuilder(
         builder: (context, setSheetState) => Container(
           height: 480,
           decoration: BoxDecoration(
@@ -649,7 +643,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 ),
                 const SizedBox(height: 12),
                 CupertinoButton.filled(
-                  child: const Text('Simpan Perubahan'),
+                  child: Text(AppStrings.userSimpan),
                   onPressed: () {
                     final name = nameController.text.trim();
                     if (name.isNotEmpty) {
@@ -667,6 +661,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           ),
         ),
       ),
+      );
+    },
     );
   }
 
@@ -678,163 +674,169 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     showCupertinoModalPopup(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (context, setSheetState) => Container(
-          height: 360,
-          decoration: BoxDecoration(
-            color: isDark
-                ? AppColors.surfaceDark
-                : CupertinoColors.systemBackground,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: CupertinoColors.systemGrey4,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Icon(
-                      CupertinoIcons.sparkles,
-                      size: 18,
-                      color: AppColors.toolIndigo,
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Pengaturan AI',
-                      style:
-                          TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Masukkan API key Groq untuk mengaktifkan Muslim AI dan konten AI lainnya.\n\nDapatkan API key gratis di console.groq.com',
-                  style: TextStyle(
-                    fontSize: 12,
-                    height: 1.4,
-                    color: CupertinoColors.systemGrey,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                CupertinoTextField(
-                  controller: keyController,
-                  placeholder: 'gsk_...',
-                  obscureText: !showKey,
-                  padding: const EdgeInsets.all(12),
-                  style: TextStyle(
-                    color: isDark
-                        ? CupertinoColors.white
-                        : AppColors.textLight,
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                  ),
-                  placeholderStyle: TextStyle(
-                    color: isDark
-                        ? CupertinoColors.systemGrey
-                        : CupertinoColors.systemGrey2,
-                    fontSize: 13,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.textLight
-                        : CupertinoColors.tertiarySystemBackground,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  suffix: GestureDetector(
-                    onTap: () =>
-                        setSheetState(() => showKey = !showKey),
+        builder: (context, setSheetState) {
+          final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+          return Container(
+            padding: EdgeInsets.only(bottom: bottomInset),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? AppColors.surfaceDark
+                  : CupertinoColors.systemBackground,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
                     child: Container(
-                      padding: const EdgeInsets.all(10),
-                      child: Icon(
-                        showKey
-                            ? CupertinoIcons.eye_slash_fill
-                            : CupertinoIcons.eye_fill,
-                        size: 18,
-                        color: CupertinoColors.systemGrey,
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.systemGrey4,
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () => _openUrl(
-                    'https://console.groq.com/keys',
-                  ),
-                  child: Row(
+                  const SizedBox(height: 12),
+                  Row(
                     children: [
                       const Icon(
-                        CupertinoIcons.link,
-                        size: 12,
+                        CupertinoIcons.sparkles,
+                        size: 18,
                         color: AppColors.toolIndigo,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Buka console.groq.com',
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Pengaturan AI',
                         style: TextStyle(
-                          fontSize: 11,
+                            fontSize: 17, fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Masukkan API key Groq pribadi Anda untuk mengaktifkan Muslim AI Chat.\n\nKonten AI lainnya (quotes, nasehat, quest) sudah aktif secara default.\n\nDapatkan API key gratis di console.groq.com',
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 1.4,
+                      color: CupertinoColors.systemGrey,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  CupertinoTextField(
+                    controller: keyController,
+                    placeholder: 'gsk_...',
+                    obscureText: !showKey,
+                    padding: const EdgeInsets.all(12),
+                    style: TextStyle(
+                      color: isDark
+                          ? CupertinoColors.white
+                          : AppColors.textLight,
+                      fontSize: 13,
+                      fontFamily: 'monospace',
+                    ),
+                    placeholderStyle: TextStyle(
+                      color: isDark
+                          ? CupertinoColors.systemGrey
+                          : CupertinoColors.systemGrey2,
+                      fontSize: 13,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? AppColors.textLight
+                          : CupertinoColors.tertiarySystemBackground,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    suffix: GestureDetector(
+                      onTap: () =>
+                          setSheetState(() => showKey = !showKey),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        child: Icon(
+                          showKey
+                              ? CupertinoIcons.eye_slash_fill
+                              : CupertinoIcons.eye_fill,
+                          size: 18,
+                          color: CupertinoColors.systemGrey,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: () => _openUrl(
+                      'https://console.groq.com/keys',
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          CupertinoIcons.link,
+                          size: 12,
                           color: AppColors.toolIndigo,
-                          fontWeight: FontWeight.w600,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Buka console.groq.com',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.toolIndigo,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CupertinoButton(
+                          child: Text(AppStrings.deleteKey),
+                          onPressed: () async {
+                            AiConfig.groqApiKey = '';
+                            final storage = LocalStorage();
+                            await storage.remove(
+                              ApiConfig.storageKeyGroqApiKey,
+                            );
+                            if (ctx.mounted) Navigator.pop(ctx);
+                            _showToast('API key berhasil dihapus');
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: CupertinoButton.filled(
+                          child: Text(AppStrings.saveKey),
+                          onPressed: () async {
+                            final key = keyController.text.trim();
+                            if (key.isEmpty) {
+                              _showToast('Masukkan API key terlebih dahulu');
+                              return;
+                            }
+                            AiConfig.groqApiKey = key;
+                            final storage = LocalStorage();
+                            await storage.setString(
+                              ApiConfig.storageKeyGroqApiKey,
+                              key,
+                            );
+                            if (ctx.mounted) Navigator.pop(ctx);
+                            _showToast('✅ API key berhasil disimpan');
+                          },
                         ),
                       ),
                     ],
                   ),
-                ),
-                const Spacer(),
-                Row(
-                  children: [
-                    Expanded(
-                      child: CupertinoButton(
-                        child: const Text('Hapus Key'),
-                        onPressed: () async {
-                          AiConfig.groqApiKey = '';
-                          final storage = LocalStorage();
-                          await storage.remove(
-                            ApiConfig.storageKeyGroqApiKey,
-                          );
-                          if (ctx.mounted) Navigator.pop(ctx);
-                          _showToast('API key berhasil dihapus');
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 2,
-                      child: CupertinoButton.filled(
-                        child: const Text('Simpan Key'),
-                        onPressed: () async {
-                          final key = keyController.text.trim();
-                          if (key.isEmpty) {
-                            _showToast('Masukkan API key terlebih dahulu');
-                            return;
-                          }
-                          AiConfig.groqApiKey = key;
-                          final storage = LocalStorage();
-                          await storage.setString(
-                            ApiConfig.storageKeyGroqApiKey,
-                            key,
-                          );
-                          if (ctx.mounted) Navigator.pop(ctx);
-                          _showToast('✅ API key berhasil disimpan');
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  SizedBox(height: MediaQuery.of(context).padding.bottom),
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -1167,14 +1169,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 children: [
                   Expanded(
                     child: CupertinoButton(
-                      child: const Text('Batal'),
+                      child: Text(AppStrings.cancel),
                       onPressed: () => Navigator.pop(ctx),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: CupertinoButton.filled(
-                      child: const Text('Ya, Hapus'),
+                      child: Text(AppStrings.yesHapus),
                       onPressed: () async {
                         Navigator.pop(ctx);
                         await LocalStorage().clearAll();      if (mounted) {
@@ -1400,9 +1402,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: const Color(
-                                0xFF10B981,
-                              ).withValues(alpha: 0.1),
+                              color: AppColors.toolTeal.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Center(
@@ -1580,7 +1580,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     height: 72,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF818CF8), AppColors.toolIndigo],
+                        colors: [AppColors.indigoLight, AppColors.toolIndigo],
                       ),
                       shape: BoxShape.circle,
                     ),
@@ -1739,7 +1739,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   children: [
                     Icon(CupertinoIcons.photo_fill),
                     SizedBox(width: 8),
-                    Text('Pilih dari Galeri'),
+                    Text(AppStrings.pilihGaleri),
                   ],
                 ),
                 onPressed: () => Navigator.pop(ctx, 'gallery'),
@@ -1750,7 +1750,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   children: [
                     Icon(CupertinoIcons.camera_fill),
                     SizedBox(width: 8),
-                    Text('Ambil Foto'),
+                    Text(AppStrings.ambilFoto),
                   ],
                 ),
                 onPressed: () => Navigator.pop(ctx, 'camera'),
@@ -1763,7 +1763,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     children: [
                       Icon(CupertinoIcons.trash_fill, color: CupertinoColors.systemRed),
                       SizedBox(width: 8),
-                      Text('Hapus Foto', style: TextStyle(color: CupertinoColors.systemRed)),
+                      Text(AppStrings.hapusFoto, style: TextStyle(color: CupertinoColors.systemRed)),
                     ],
                   ),
                   onPressed: () => Navigator.pop(ctx, 'delete'),
@@ -2006,7 +2006,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       decoration: BoxDecoration(
                         color: isDark
                             ? AppColors.textLight.withValues(alpha: 0.5)
-                            : const Color(0xFFF0FDF4),
+                            : AppColors.studyGreenLight,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                           color: isDark
@@ -2025,9 +2025,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   vertical: 3,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(
-                                    0xFF059669,
-                                  ).withValues(alpha: 0.1),
+                                  color:AppColors.accent.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
@@ -2123,7 +2121,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: const [
               BoxShadow(
-                color: Color(0xFF000000),
+                color: AppColors.black,
                 blurRadius: 12,
                 offset: Offset(0, 4),
               ),

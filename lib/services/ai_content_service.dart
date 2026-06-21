@@ -5,7 +5,7 @@ import '../config/ai_config.dart';
 import '../utils/date_helper.dart';
 
 /// Service AI untuk auto-generate konten dinamis di HP user.
-/// 1 API Groq dipakai untuk 3 tugas: Quotes, Hadits, Fiqih (plus Muslim AI chat).
+/// Menggunakan groqApiKeyDefault (built-in) — terpisah dari key chat user.
 ///
 /// Cache system (hemat kredit AI):
 /// - Quotes: 12 jam sekali update
@@ -62,14 +62,14 @@ class AiContentService {
     double temperature = 0.7,
     int maxTokens = 2048,
   }) async {
-    if (AiConfig.groqApiKey.isEmpty) return null;
+    if (AiConfig.groqApiKeyDefault.isEmpty) return null;
 
     try {
       final response = await http.post(
         Uri.parse(AiConfig.groqBaseUrl),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${AiConfig.groqApiKey}',
+          'Authorization': 'Bearer ${AiConfig.groqApiKeyDefault}',
         },
         body: jsonEncode({
           'model': AiConfig.groqModel,

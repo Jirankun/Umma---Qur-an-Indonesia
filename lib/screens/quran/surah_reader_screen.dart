@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import '../../config/api_config.dart';
 import '../../models/quran.dart';
@@ -412,7 +413,7 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
                 ),
                 const SizedBox(height: 20),
                 CupertinoButton.filled(
-                  child: const Text('Coba Lagi'),
+                  child: Text(AppStrings.retry),
                   onPressed: () => provider.loadSurahDetail(widget.surahId),
                 ),
               ],
@@ -423,7 +424,6 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
       return const SizedBox();
     }
 
-    // ─── Auto-scroll ke ayat target (sekali, saat data siap) ───
     // ─── Initiate scroll ke ayat target (sekali, saat data siap) ───
     if (_targetAyahNumber != null &&
         !_scrollInitiated &&
@@ -433,29 +433,29 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
       _targetAyatKey = GlobalKey();
       _scrollRetries = 0;
 
-      // Fase 1: Lompat ke estimasi posisi supaya widget target dibangun
+      // Lompat ke posisi estimasi — hardcoded height (aggressive, langsung dekat target)
       final targetIndex = provider.currentAyat.indexWhere(
         (a) => a.nomorAyat == _targetAyahNumber,
       );
       if (targetIndex >= 0 && _scrollController.hasClients) {
-        final estimatedOffset = (targetIndex * 180.0).clamp(
-          0.0,
-          _scrollController.position.maxScrollExtent,
-        );
+        const ayahHeight = 220.0;
+        const headerHeight = 180.0;
+        final estimatedOffset = (headerHeight + targetIndex * ayahHeight)
+            .clamp(0.0, _scrollController.position.maxScrollExtent);
         _scrollController.jumpTo(estimatedOffset);
       }
 
-      // Fase 2: ensureVisible setelah widget siap (coba hingga 10 frame)
-      _scheduleEnsureVisible();
+      // ensureVisible tiap frame sampai berhasil (max 60 frame)
+      _tryScrollToTarget();
     }
 
     return CustomScrollView(
       controller: _scrollController,
       slivers: [
-        if (isDownloading || progress?.isComplete == true)
-          SliverToBoxAdapter(
-            child: _buildDownloadProgress(progress, isDark, surah.jumlahAyat),
-          ),
+        // ─── Download All Audio button / progress ───
+        SliverToBoxAdapter(
+          child: _buildAudioSection(progress, isDownloading, isDark, surah, provider),
+        ),
         if (_hafalanMode)
           SliverToBoxAdapter(
             child: Container(
@@ -526,91 +526,154 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
     );
   }
 
-  Widget _buildDownloadProgress(
+  Widget _buildAudioSection(
     SurahDownloadProgress? progress,
+    bool isDownloading,
     bool isDark,
-    int totalAyat,
+    Surah surah,
+    QuranProvider provider,
   ) {
     final isComplete = progress?.isComplete ?? false;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: isComplete
-            ? AppColors.heat4.withValues(alpha: 0.1)
-            : (isDark ? AppColors.surfaceDark : CupertinoColors.white),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isComplete
-              ? AppColors.heat4.withValues(alpha: 0.3)
-              : AppColors.primary.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            isComplete
-                ? CupertinoIcons.check_mark_circled_solid
-                : CupertinoIcons.cloud_download_fill,
-            size: 20,
-            color: isComplete
-                ? AppColors.heat4
-                : AppColors.primary,
+
+    // Saat sedang mendownload — tampilkan progress bar
+    if (isDownloading && progress != null) {
+      return Container(
+        margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : CupertinoColors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.primary.withValues(alpha: 0.2),
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Text(
-                  isComplete
-                      ? 'Audio siap offline \u2713'
-                      : 'Mengunduh audio...',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: isComplete
-                        ? AppColors.heat4
-                        : (isDark
-                              ? CupertinoColors.white
-                              : AppColors.textLight),
+                const CupertinoActivityIndicator(radius: 8),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Mengunduh audio...',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: isDark
+                          ? CupertinoColors.white
+                          : AppColors.textLight,
+                    ),
                   ),
                 ),
-                if (!isComplete && progress != null) ...[
-                  const SizedBox(height: 4),
-                  Container(
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: CupertinoColors.systemGrey5,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                    child: FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: progress.audioProgress.clamp(0.0, 1.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
+                Text(
+                  '${progress.audioDownloaded}/${progress.audioTotal}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
                   ),
-                ],
+                ),
               ],
             ),
-          ),
-          if (!isComplete && progress != null)
-            Text(
-              '${progress.audioDownloaded}/${progress.audioTotal}',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: isDark
-                    ? CupertinoColors.systemGrey
-                    : CupertinoColors.systemGrey,
+            const SizedBox(height: 6),
+            Container(
+              height: 4,
+              decoration: BoxDecoration(
+                color: CupertinoColors.systemGrey5,
+                borderRadius: BorderRadius.circular(2),
+              ),
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: progress.audioProgress.clamp(0.0, 1.0),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColors.primary, AppColors.primaryDark],
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(2)),
+                  ),
+                ),
               ),
             ),
-        ],
+          ],
+        ),
+      );
+    }
+
+    // Sudah lengkap — tampilkan badge hijau
+    if (isComplete) {
+      return Container(
+        margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.heat4.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.heat4.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              CupertinoIcons.check_mark_circled_solid,
+              size: 20,
+              color: AppColors.heat4,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Semua audio siap offline (${surah.jumlahAyat})',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.heat4,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Belum lengkap — tampilkan tombol Download All Audio
+    return GestureDetector(
+      onTap: () => provider.downloadAllAyatAudioForCurrentSurah(),
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : CupertinoColors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.primary.withValues(alpha: 0.2),
+          ),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              CupertinoIcons.cloud_download_fill,
+              size: 18,
+              color: AppColors.primary,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Download Semua Audio (${progress?.audioDownloaded ?? 0}/${surah.jumlahAyat})',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+            const Icon(
+              CupertinoIcons.chevron_forward,
+              size: 14,
+              color: AppColors.primary,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -976,28 +1039,49 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
   }
 
   // ─── AUTO-SCROLL HELPER — scroll target ke tengah layar ──
-  void _scheduleEnsureVisible() {
-    if (!mounted || _hasScrolledToTarget || _scrollRetries >= 10) {
+  /// Scroll ke ayat target dengan retry tiap frame (max 60 frame / ~1 detik).
+  /// Pakai rasio index/totalItems * maxScrollExtent agar estimasi makin akurat
+  /// seiring bertambahnya item yang di-layout oleh SliverList.
+  void _tryScrollToTarget() {
+    if (!mounted || _hasScrolledToTarget || _scrollRetries >= 60) {
       _hasScrolledToTarget = true;
       return;
     }
-    _scrollRetries++;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+      if (!mounted || _hasScrolledToTarget) return;
 
       if (_targetAyatKey?.currentContext != null) {
         Scrollable.ensureVisible(
           _targetAyatKey!.currentContext!,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 400),
           curve: Curves.easeOut,
           alignment: 0.5,
         );
         _hasScrolledToTarget = true;
-      } else if (_scrollRetries < 10) {
-        _scheduleEnsureVisible();
-      } else {
-        _hasScrolledToTarget = true;
+        return;
       }
+
+      _scrollRetries++;
+
+      // Update estimasi scroll menggunakan rasio index/total * maxScrollExtent
+      if (_scrollController.hasClients) {
+        final provider = context.read<QuranProvider>();
+        if (_targetAyahNumber != null && provider.currentAyat.isNotEmpty) {
+          final idx = provider.currentAyat.indexWhere(
+            (a) => a.nomorAyat == _targetAyahNumber,
+          );
+          if (idx >= 0) {
+            final total = provider.currentAyat.length;
+            final maxExt = _scrollController.position.maxScrollExtent;
+            _scrollController.jumpTo(
+              ((idx / total) * maxExt).clamp(0.0, maxExt),
+            );
+          }
+        }
+      }
+
+      _tryScrollToTarget();
     });
   }
 
@@ -1043,10 +1127,10 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) {
           if (loading) {
-            loading = false;
             _loadTafsir(ayat, surah).then((r) {
               if (mounted) {
                 setModalState(() {
+                  loading = false;
                   tafsirText = r.tafsirText;
                   sourceLabel = r.sourceLabel;
                 });
@@ -1054,11 +1138,8 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
             });
           }
 
-          final hasContent = tafsirText.isNotEmpty;
-          final isError = !hasContent && sourceLabel == null && !loading;
-
           return Container(
-            height: isError ? 200 : (loading ? 200 : 460),
+            height: loading ? 200 : 460,
             decoration: BoxDecoration(
               color: isDark
                   ? AppColors.surfaceDark
@@ -1070,7 +1151,6 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
             child: _buildTafsirSheet(
               isDark: isDark,
               loading: loading,
-              isError: isError,
               ayat: ayat,
               surah: surah,
               tafsirText: tafsirText,
@@ -1085,7 +1165,6 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
   Widget _buildTafsirSheet({
     required bool isDark,
     required bool loading,
-    required bool isError,
     required Ayat ayat,
     required Surah surah,
     required String tafsirText,
@@ -1095,38 +1174,7 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
       return const Center(child: CupertinoActivityIndicator(radius: 14));
     }
 
-    if (isError) {
-      return Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              CupertinoIcons.exclamationmark_triangle_fill,
-              size: 40,
-              color: CupertinoColors.systemGrey,
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Tafsir tidak tersedia',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Untuk ayat ${ayat.nomorAyat} ${surah.namaLatin}',
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark
-                    ? CupertinoColors.systemGrey
-                    : CupertinoColors.systemGrey,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Content state (no ayat preview)
+    // Content state
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -1479,7 +1527,7 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
               ),
               const Spacer(),
               CupertinoButton.filled(
-                child: const Text('Selesai'),
+                child: Text(AppStrings.done),
                 onPressed: () => Navigator.pop(ctx),
               ),
             ],

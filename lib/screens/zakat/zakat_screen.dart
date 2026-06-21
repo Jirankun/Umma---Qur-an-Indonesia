@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import '../../providers/zakat_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -28,7 +29,7 @@ class ZakatScreen extends StatelessWidget {
               color: AppColors.zakat,
             ),
             SizedBox(width: 8),
-            Text('Kalkulator Zakat'),
+            Text(AppStrings.zakatKalkulator),
           ],
         ),
       ),
@@ -59,7 +60,7 @@ class ZakatScreen extends StatelessWidget {
                   _buildTypeCard(
                     context,
                     isDark,
-                    'Zakat Fitrah',
+                    AppStrings.zakatFitrah,
                     '🍚',
                     '2.5 kg × jiwa × harga',
                     'fitrah',
@@ -68,28 +69,25 @@ class ZakatScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                 _buildTypeCard(
                   context,
-                  isDark,
-                  'Zakat Maal',
-                  '💰',
-                  'Harta & tabungan',
+                  isDark,                    AppStrings.zakatMaal,
+                    '💰',
+                    AppStrings.zakatMaalDesc,
                   'maal',
                 ),
                 const SizedBox(height: 12),
                 _buildTypeCard(
                   context,
-                  isDark,
-                  'Zakat Penghasilan',
-                  '💼',
-                  'Gaji bulanan',
+                  isDark,                    AppStrings.zakatPenghasilan,
+                    '💼',
+                    AppStrings.zakatPenghasilanDesc,
                   'penghasilan',
                 ),
                 const SizedBox(height: 12),
                 _buildTypeCard(
                   context,
-                  isDark,
-                  'Zakat Emas & Perak',
-                  '✨',
-                  'Logam mulia',
+                  isDark,                    AppStrings.zakatEmas,
+                    '✨',
+                    AppStrings.zakatEmasDesc,
                   'emas_perak',
                 ),
               ],
@@ -115,8 +113,7 @@ class ZakatScreen extends StatelessWidget {
               color: CupertinoColors.systemGrey,
             ),
             const SizedBox(height: 16),
-            Text(
-              'Zakat akan tersedia\nmenjelang akhir Ramadhan ☪️',
+            Text(                  AppStrings.zakatRamadhanOnly,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -146,7 +143,7 @@ class ZakatScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Tunaikan Zakat, Bersihkan Harta 🤍',
+            AppStrings.zakatTagline,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w800,
@@ -155,7 +152,7 @@ class ZakatScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Hitung zakat dengan mudah & akurat',
+            AppStrings.zakatSubtitle,
             style: TextStyle(fontSize: 13, color: CupertinoColors.white),
           ),
           const SizedBox(height: 12),
@@ -166,7 +163,7 @@ class ZakatScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Text(
-              'Nisab: Rp5.240.000/bulan',
+              AppStrings.zakatNisab,
               style: TextStyle(fontSize: 11, color: CupertinoColors.white),
             ),
           ),
@@ -390,55 +387,59 @@ class _ZakatCalculatorSheetState extends State<_ZakatCalculatorSheet> {
     final height = widget.type == 'fitrah'
         ? 480.0
         : (widget.type == 'penghasilan' ? 500.0 : 460.0);
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return Container(
-      height: height,
-      decoration: BoxDecoration(
-        color: widget.isDark
-            ? AppColors.surfaceDark
-            : CupertinoColors.systemBackground,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: CupertinoColors.systemGrey4,
-                  borderRadius: BorderRadius.circular(2),
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: Container(
+        height: height,
+        decoration: BoxDecoration(
+          color: widget.isDark
+              ? AppColors.surfaceDark
+              : CupertinoColors.systemBackground,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.systemGrey4,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              _getTitle(),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    ..._buildInputFields(),
-                    const SizedBox(height: 12),
-                    CupertinoButton.filled(
-                      onPressed: _calculate,
-                      child: const Text('Hitung Zakat'),
-                    ),
-                    if (_result != null) ...[
-                      const SizedBox(height: 16),
-                      _buildResult(),
+              const SizedBox(height: 16),
+              Text(
+                _getTitle(),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      ..._buildInputFields(),
+                      const SizedBox(height: 12),
+                      CupertinoButton.filled(
+                        onPressed: _calculate,
+                        child: Text(AppStrings.zakatHitung),
+                      ),
+                      if (_result != null) ...[
+                        const SizedBox(height: 16),
+                        _buildResult(),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -447,15 +448,15 @@ class _ZakatCalculatorSheetState extends State<_ZakatCalculatorSheet> {
   String _getTitle() {
     switch (widget.type) {
       case 'fitrah':
-        return '🍚 Kalkulator Zakat Fitrah';
+        return '🍚 ${AppStrings.zakatKalkulator} ${AppStrings.zakatFitrah}';
       case 'maal':
-        return '💰 Kalkulator Zakat Maal';
+        return '💰 ${AppStrings.zakatKalkulator} ${AppStrings.zakatMaal}';
       case 'penghasilan':
-        return '💼 Kalkulator Zakat Penghasilan';
+        return '💼 ${AppStrings.zakatKalkulator} ${AppStrings.zakatPenghasilan}';
       case 'emas_perak':
-        return '✨ Kalkulator Zakat Emas & Perak';
+        return '✨ ${AppStrings.zakatKalkulator} ${AppStrings.zakatEmas}';
       default:
-        return 'Kalkulator Zakat';
+        return AppStrings.zakatKalkulator;
     }
   }
 
@@ -463,44 +464,44 @@ class _ZakatCalculatorSheetState extends State<_ZakatCalculatorSheet> {
     switch (widget.type) {
       case 'fitrah':
         return [
-          _buildField('Jumlah Jiwa', _controllers['jumlahJiwa']!, 'Orang'),
+          _buildField(AppStrings.zakatJumlahJiwa, _controllers['jumlahJiwa']!, AppStrings.zakatOrang),
           _buildField(
-            'Harga Beras per Kg (Rp)',
+            AppStrings.zakatHargaBeras,
             _controllers['hargaBeras']!,
             'Rp',
           ),
           _buildField(
-            'Beras per Jiwa (kg)',
+            AppStrings.zakatBerasJiwa,
             _controllers['berasPerJiwa']!,
             'kg',
           ),
         ];
       case 'maal':
         return [
-          _buildField('Tabungan (Rp)', _controllers['tabungan']!, 'Rp'),
-          _buildField('Investasi (Rp)', _controllers['investasi']!, 'Rp'),
-          _buildField('Piutang (Rp)', _controllers['piutang']!, 'Rp'),
-          _buildField('Hutang (Rp)', _controllers['hutang']!, 'Rp'),
+          _buildField(AppStrings.zakatTabungan, _controllers['tabungan']!, 'Rp'),
+          _buildField(AppStrings.zakatInvestasi, _controllers['investasi']!, 'Rp'),
+          _buildField(AppStrings.zakatPiutang, _controllers['piutang']!, 'Rp'),
+          _buildField(AppStrings.zakatHutang, _controllers['hutang']!, 'Rp'),
         ];
       case 'penghasilan':
         return [
           _buildField(
-            'Penghasilan per Bulan (Rp)',
+            AppStrings.zakatPenghasilanBulan,
             _controllers['penghasilan']!,
             'Rp',
           ),
           _buildField(
-            'Pendapatan Lain (Rp)',
+            AppStrings.zakatPendapatanLain,
             _controllers['pendapatanLain']!,
             'Rp',
           ),
-          _buildField('Hutang (Rp)', _controllers['hutangPenghasilan']!, 'Rp'),
-          _buildField('Cicilan (Rp)', _controllers['cicilan']!, 'Rp'),
+          _buildField(AppStrings.zakatHutang, _controllers['hutangPenghasilan']!, 'Rp'),
+          _buildField(AppStrings.zakatCicilan, _controllers['cicilan']!, 'Rp'),
         ];
       case 'emas_perak':
         return [
-          _buildField('Emas (gram)', _controllers['emas']!, 'gr'),
-          _buildField('Perak (gram)', _controllers['perak']!, 'gr'),
+          _buildField(AppStrings.zakatEmasGram, _controllers['emas']!, 'gr'),
+          _buildField(AppStrings.zakatPerakGram, _controllers['perak']!, 'gr'),
         ];
       default:
         return [];
@@ -578,15 +579,15 @@ class _ZakatCalculatorSheetState extends State<_ZakatCalculatorSheet> {
           child: Column(
             children: [
               _resultRow(
-                'Total Beras',
+                AppStrings.zakatTotalBeras,
                 '${(_result!['totalBeras'] as num).toStringAsFixed(1)} kg',
               ),
               _resultRow(
-                'Total Uang',
+                AppStrings.zakatTotalUang,
                 'Rp ${(_result!['totalUang'] as num).toStringAsFixed(0)}',
               ),
               _resultRow(
-                'Per Jiwa',
+                AppStrings.zakatPerJiwa,
                 '${(_result!['perJiwa'] as num).toStringAsFixed(1)} kg / Rp ${(_result!['perJiwaUang'] as num).toStringAsFixed(0)}',
               ),
             ],
@@ -605,25 +606,25 @@ class _ZakatCalculatorSheetState extends State<_ZakatCalculatorSheet> {
           child: Column(
             children: [
               _resultRow(
-                'Total Harta',
+                AppStrings.zakatTotalHarta,
                 'Rp ${(_result!['totalHarta'] as num).toStringAsFixed(0)}',
               ),
               _resultRow(
-                'Nisab',
+                AppStrings.zakatNisabLabel,
                 'Rp ${(_result!['nisab'] as num).toStringAsFixed(0)}',
               ),
               if (isEligible)
                 _resultRow(
-                  'Zakat (2.5%)',
+                  AppStrings.zakatProsen,
                   'Rp ${(_result!['zakat'] as num).toStringAsFixed(0)}',
                   isTotal: true,
                 )
               else
-                const Padding(
-                  padding: EdgeInsets.only(top: 8),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    'Belum mencapai nisab, belum wajib zakat.',
-                    style: TextStyle(
+                    AppStrings.zakatBelumNisab,
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: CupertinoColors.systemRed,
@@ -646,25 +647,25 @@ class _ZakatCalculatorSheetState extends State<_ZakatCalculatorSheet> {
           child: Column(
             children: [
               _resultRow(
-                'Total Pendapatan',
+                AppStrings.zakatTotalPendapatan,
                 'Rp ${(_result!['totalPendapatan'] as num).toStringAsFixed(0)}',
               ),
               _resultRow(
-                'Nisab',
+                AppStrings.zakatNisabLabel,
                 'Rp ${(_result!['nisab'] as num).toStringAsFixed(0)}',
               ),
               if (isEligible)
                 _resultRow(
-                  'Zakat (2.5%)',
+                  AppStrings.zakatProsen,
                   'Rp ${(_result!['zakat'] as num).toStringAsFixed(0)}',
                   isTotal: true,
                 )
               else
-                const Padding(
-                  padding: EdgeInsets.only(top: 8),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    'Belum mencapai nisab, belum wajib zakat.',
-                    style: TextStyle(
+                    AppStrings.zakatBelumNisab,
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: CupertinoColors.systemRed,
@@ -684,32 +685,32 @@ class _ZakatCalculatorSheetState extends State<_ZakatCalculatorSheet> {
           child: Column(
             children: [
               _resultRow(
-                'Zakat Emas',
+                AppStrings.zakatEmasLabel,
                 '${(_result!['zakatEmas'] as num).toStringAsFixed(2)} gr',
                 isTotal: _result!['isEligibleEmas'] as bool,
               ),
               if (!(_result!['isEligibleEmas'] as bool))
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 8),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: Text(
-                    'Emas belum capai nisab 85 gr.',
-                    style: TextStyle(
+                    AppStrings.zakatEmasNisab,
+                    style: const TextStyle(
                       fontSize: 11,
                       color: CupertinoColors.systemGrey,
                     ),
                   ),
                 ),
               _resultRow(
-                'Zakat Perak',
+                AppStrings.zakatPerakLabel,
                 '${(_result!['zakatPerak'] as num).toStringAsFixed(2)} gr',
                 isTotal: _result!['isEligiblePerak'] as bool,
               ),
               if (!(_result!['isEligiblePerak'] as bool))
-                const Padding(
-                  padding: EdgeInsets.only(top: 4),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
                   child: Text(
-                    'Perak belum capai nisab 595 gr.',
-                    style: TextStyle(
+                    AppStrings.zakatPerakNisab,
+                    style: const TextStyle(
                       fontSize: 11,
                       color: CupertinoColors.systemGrey,
                     ),

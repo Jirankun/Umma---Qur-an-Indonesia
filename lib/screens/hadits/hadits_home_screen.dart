@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import '../../models/hadits.dart';
 import '../../providers/hadits_provider.dart';
@@ -19,16 +20,12 @@ class HaditsHomeScreen extends StatefulWidget {
 class _HaditsHomeScreenState extends State<HaditsHomeScreen> {
   String _searchQuery = '';
   final _searchController = TextEditingController();
-  bool _showArab = true;
-  bool _showTranslation = true;
-  double _arabFontSize = 20;
   bool _showBookmarksOnly = false;
   List<Map<String, dynamic>> _bookmarks = [];
 
   @override
   void initState() {
     super.initState();
-    _loadSettings();
     _loadBookmarks();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HaditsProvider>().loadBooks();
@@ -42,27 +39,6 @@ class _HaditsHomeScreenState extends State<HaditsHomeScreen> {
     if (data is List) {
       setState(() => _bookmarks = data.cast<Map<String, dynamic>>());
     }
-  }
-
-  Future<void> _loadSettings() async {
-    final data = await LocalStorage().getJson(
-      ApiConfig.storageKeyHaditsSettings,
-    );
-    if (data is Map) {
-      setState(() {
-        _showArab = (data['showArab'] as bool?) ?? true;
-        _showTranslation = (data['showTranslation'] as bool?) ?? true;
-        _arabFontSize = (data['arabFontSize'] as num?)?.toDouble() ?? 20;
-      });
-    }
-  }
-
-  Future<void> _saveSettings() async {
-    await LocalStorage().saveJson(ApiConfig.storageKeyHaditsSettings, {
-      'showArab': _showArab,
-      'showTranslation': _showTranslation,
-      'arabFontSize': _arabFontSize,
-    });
   }
 
   @override
@@ -103,186 +79,31 @@ class _HaditsHomeScreenState extends State<HaditsHomeScreen> {
               color: AppColors.accent,
             ),
             SizedBox(width: 8),
-            Text('Hadits Pilihan'),
+            Text(AppStrings.haditsPilihan),
           ],
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Bookmark count badge
-            if (_bookmarks.isNotEmpty)
-              Padding(
+        trailing: _bookmarks.isNotEmpty
+            ? Padding(
                 padding: const EdgeInsets.only(right: 6),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: _showBookmarksOnly
-                        ? AppColors.accent
-                        : AppColors.heat4.withValues(alpha: 0.15),
+                    color: AppColors.heat4.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     '${_bookmarks.length}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: _showBookmarksOnly
-                          ? CupertinoColors.white
-                          : AppColors.heat4,
+                      color: AppColors.heat4,
                     ),
                   ),
                 ),
-              ),
-            GestureDetector(
-              onTap: () => _showSettings(context, isDark),
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  CupertinoIcons.slider_horizontal_3,
-                  size: 16,
-                  color: AppColors.primary,
-                ),
-              ),
-            ),
-          ],
-        ),
+              )
+            : null,
       ),
       child: SafeArea(child: _buildBody(isDark, provider, books)),
-    );
-  }
-
-  void _showSettings(BuildContext context, bool isDark) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          height: 300,
-          decoration: BoxDecoration(
-            color: isDark
-                ? AppColors.surfaceDark
-                : CupertinoColors.systemBackground,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: CupertinoColors.systemGrey4,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Pengaturan Baca',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: isDark
-                        ? CupertinoColors.white
-                        : AppColors.textLight,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildToggle('Teks Arab', _showArab, isDark, (v) {
-                  setState(() => _showArab = v);
-                  setModalState(() {});
-                  _saveSettings();
-                }),
-                _buildToggle('Terjemahan', _showTranslation, isDark, (v) {
-                  setState(() => _showTranslation = v);
-                  setModalState(() {});
-                  _saveSettings();
-                }),
-                const SizedBox(height: 16),
-                Text(
-                  'Ukuran Arab',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: isDark
-                        ? CupertinoColors.white
-                        : AppColors.textLight,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    for (final size in [16.0, 20.0, 24.0, 28.0, 32.0])
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() => _arabFontSize = size);
-                            setModalState(() {});
-                            _saveSettings();
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _arabFontSize == size
-                                  ? AppColors.primary
-                                  : AppColors.primary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              '${size.toInt()}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: _arabFontSize == size
-                                    ? CupertinoColors.white
-                                    : AppColors.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildToggle(
-    String label,
-    bool value,
-    bool isDark,
-    void Function(bool) onChanged,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: isDark ? CupertinoColors.white : AppColors.textLight,
-            ),
-          ),
-          CupertinoSwitch(value: value, onChanged: onChanged),
-        ],
-      ),
     );
   }
 
@@ -303,7 +124,7 @@ class _HaditsHomeScreenState extends State<HaditsHomeScreen> {
           child: Row(
             children: [
               _FilterChip(
-                label: 'Kitab',
+                label: AppStrings.haditsKitab,
                 isActive: !_showBookmarksOnly,
                 count: provider.books.length,
                 isDark: isDark,
@@ -311,7 +132,7 @@ class _HaditsHomeScreenState extends State<HaditsHomeScreen> {
               ),
               const SizedBox(width: 10),
               _FilterChip(
-                label: 'Bookmark',
+                label: AppStrings.bookmark,
                 isActive: _showBookmarksOnly,
                 count: _bookmarks.length,
                 isDark: isDark,
@@ -363,7 +184,7 @@ class _HaditsHomeScreenState extends State<HaditsHomeScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Tidak ditemukan kitab untuk "$_searchQuery"',
+                      '${AppStrings.haditsNotFoundKitab} "$_searchQuery"',
                       style: TextStyle(
                         fontSize: 13,
                         color: isDark
@@ -393,9 +214,9 @@ class _HaditsHomeScreenState extends State<HaditsHomeScreen> {
               color: CupertinoColors.systemGrey,
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Belum ada hadits yang di-bookmark',
-              style: TextStyle(
+            Text(
+              AppStrings.haditsNoBookmark,
+              style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
                 color: CupertinoColors.systemGrey,
@@ -403,7 +224,7 @@ class _HaditsHomeScreenState extends State<HaditsHomeScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Buka kitab hadits, lalu ketuk ikon bookmark di setiap hadits',
+              AppStrings.haditsNoBookmarkHint,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
@@ -446,9 +267,6 @@ class _HaditsHomeScreenState extends State<HaditsHomeScreen> {
                     book: fullBook,
                     isDark: isDark,
                     highlightNumber: hadithNumber,
-                    showArab: _showArab,
-                    showTranslation: _showTranslation,
-                    arabFontSize: _arabFontSize,
                   ),
                 ),
               ).then((_) => _loadBookmarks());
@@ -530,13 +348,13 @@ class _HaditsHomeScreenState extends State<HaditsHomeScreen> {
               color: CupertinoColors.systemGrey,
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Koneksi diperlukan',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+            Text(
+              AppStrings.haditsNeedConnection,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Text(
-              'Hadits dimuat dari server.\nPastikan terhubung ke internet.',
+              AppStrings.haditsNeedConnectionDesc,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
@@ -555,8 +373,8 @@ class _HaditsHomeScreenState extends State<HaditsHomeScreen> {
   Widget _buildHeader(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [          const Text(
-          'Kumpulan Hadits',
+      children: [          Text(
+          AppStrings.haditsKumpulan,
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w800,
@@ -565,7 +383,7 @@ class _HaditsHomeScreenState extends State<HaditsHomeScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Dari berbagai kitab hadits terpercaya',
+          AppStrings.haditsKitabDesc,
           style: TextStyle(
             fontSize: 12,
             color: isDark
@@ -576,7 +394,7 @@ class _HaditsHomeScreenState extends State<HaditsHomeScreen> {
         const SizedBox(height: 16),
         CupertinoSearchTextField(
           controller: _searchController,
-          placeholder: 'Cari kitab hadits...',
+          placeholder: AppStrings.haditsSearchKitab,
           style: TextStyle(
             color: isDark ? AppColors.textDark : AppColors.textLight,
           ),
@@ -669,12 +487,9 @@ class _HaditsHomeScreenState extends State<HaditsHomeScreen> {
         builder: (_) => HaditsReaderScreen(
           book: book,
           isDark: isDark,
-          showArab: _showArab,
-          showTranslation: _showTranslation,
-          arabFontSize: _arabFontSize,
         ),
       ),
-    );
+    ).then((_) => _loadBookmarks());
   }
 }
 
@@ -779,11 +594,9 @@ class HaditsReaderScreen extends StatefulWidget {
 
 class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
   List<HaditsItem> _hadiths = [];
-  int _page = 1;
   bool _loading = false;
   String? _error;
   final _scrollController = ScrollController();
-  bool _highlightedDone = false;
   // Bookmark state
   Set<String> _bookmarkedNumbers = {};
   // Search state
@@ -799,19 +612,13 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
   GlobalKey? _highlightHadithKey;
   int _highlightRetries = 0;
 
-  static const int _pageSize = 20;
+  static const int _fetchLimit = 9999;
 
   @override
   void initState() {
     super.initState();
     WakelockPlus.enable();
     _loadReaderSettings();
-    if (widget.highlightNumber != null) {
-      final num = int.tryParse(widget.highlightNumber!);
-      if (num != null) {
-        _page = ((num - 1) ~/ _pageSize) + 1;
-      }
-    }
     _loadBookmarks();
     _fetchHadiths();
   }
@@ -860,34 +667,45 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
     _highlightHadithKey = GlobalKey();
     _highlightRetries = 0;
 
-    // Lompat ke estimasi posisi
-    if (_scrollController.hasClients) {
-      final offset = (index * 150.0) - 100;
-      _scrollController.jumpTo(
-        offset.clamp(0.0, _scrollController.position.maxScrollExtent),
-      );
+    // Lompat ke estimasi posisi SEKALI saja
+    // (jangan jump tiap frame — itu bikin scroll terasa stuck)
+    if (_scrollController.hasClients && _hadiths.isNotEmpty) {
+      final ratio = index / _hadiths.length;
+      final maxExt = _scrollController.position.maxScrollExtent;
+      _scrollController.jumpTo((ratio * maxExt).clamp(0.0, maxExt));
     }
 
-    _scheduleHadithScroll();
+    // Lanjut cek apakah widget highlight sudah ter-render
+    _tryScrollToHighlight();
   }
 
-  void _scheduleHadithScroll() {
-    if (!mounted || _highlightRetries >= 10) return;
-    _highlightRetries++;
+  void _tryScrollToHighlight() {
+    if (!mounted || _highlightRetries >= 30) {
+      _highlightRetries = 0;
+      return;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
       if (_highlightHadithKey?.currentContext != null) {
+        // Ketemu! Scroll halus ke item
         Scrollable.ensureVisible(
           _highlightHadithKey!.currentContext!,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 350),
           curve: Curves.easeOut,
           alignment: 0.5,
         );
-        setState(() {});
-      } else if (_highlightRetries < 10) {
-        _scheduleHadithScroll();
+        _highlightRetries = 0;
+        return;
       }
+
+      _highlightRetries++;
+
+      // Jangan jump posisi tiap frame — biarkan user bisa scroll
+      // Kalau item belum ter-render, ListView akan membangunnya
+      // saat user scroll atau saat frame berikutnya setelah jump awal
+
+      _tryScrollToHighlight();
     });
   }
 
@@ -905,16 +723,27 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
   }
 
   Future<void> _toggleBookmark(HaditsItem hadith) async {
+    final number = hadith.number;
+    final wasBookmarked = _bookmarkedNumbers.contains(number);
+
+    // Update UI IMMEDIATELY — seperti Quran reader
+    setState(() {
+      if (wasBookmarked) {
+        _bookmarkedNumbers.remove(number);
+      } else {
+        _bookmarkedNumbers.add(number);
+      }
+    });
+
+    // Persist ke storage (async, I/O di background)
     final storage = LocalStorage();
     final json = await storage.getJson(ApiConfig.storageKeyHaditsBookmarks);
     List bookmarks = json is List ? json : [];
 
-    final number = hadith.number;
-    if (_bookmarkedNumbers.contains(number)) {
+    if (wasBookmarked) {
       bookmarks.removeWhere((b) =>
           b['bookId'] == widget.book.id &&
           b['hadithNumber'].toString() == number);
-      setState(() => _bookmarkedNumbers.remove(number));
     } else {
       bookmarks.add({
         'bookId': widget.book.id,
@@ -923,7 +752,6 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
         'hadithText': hadith.translatedId,
         'savedAt': DateTime.now().toIso8601String(),
       });
-      setState(() => _bookmarkedNumbers.add(number));
     }
 
     await storage.saveJson(ApiConfig.storageKeyHaditsBookmarks, bookmarks);
@@ -937,8 +765,8 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
     try {
       final data = await ApiService().getHadithRange(
         book: widget.book.id,
-        page: _page,
-        limit: _pageSize,
+        page: 1,
+        limit: _fetchLimit,
       );
       setState(() {
         _hadiths = (data['items'] as List? ?? [])
@@ -946,7 +774,7 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
             .toList();
       });
     } catch (e) {
-      setState(() => _error = 'Koneksi diperlukan');
+      setState(() => _error = AppStrings.haditsNeedConnection);
     }
     setState(() => _loading = false);
 
@@ -966,22 +794,6 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _initiateScrollToHighlight();
       });
-    }
-  }
-
-  void _scrollToHighlight() {
-    if (_highlightedDone || widget.highlightNumber == null) return;
-    final index = _hadiths.indexWhere(
-      (h) => h.number == widget.highlightNumber,
-    );
-    if (index >= 0 && _scrollController.hasClients) {
-      _highlightedDone = true;
-      final offset = (index * 150.0) - 100;
-      _scrollController.animateTo(
-        offset.clamp(0.0, _scrollController.position.maxScrollExtent),
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeOut,
-      );
     }
   }
 
@@ -1018,60 +830,20 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
             ),
           ],
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: () => _showReaderSettings(context),
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  CupertinoIcons.slider_horizontal_3,
-                  size: 16,
-                  color: AppColors.primary,
-                ),
-              ),
+        trailing: GestureDetector(
+          onTap: () => _showReaderSettings(context),
+          child: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
             ),
-            const SizedBox(width: 6),
-            GestureDetector(
-              onTap: _page > 1
-                  ? () {
-                      setState(() => _page--);
-                      _fetchHadiths();
-                    }
-                  : null,
-              child: Icon(
-                CupertinoIcons.chevron_left,
-                color: _page > 1
-                    ? AppColors.primary
-                    : CupertinoColors.systemGrey,
-              ),
+            child: const Icon(
+              CupertinoIcons.slider_horizontal_3,
+              size: 16,
+              color: AppColors.primary,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                '$_page',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                setState(() => _page++);
-                _fetchHadiths();
-              },
-              child: const Icon(
-                CupertinoIcons.chevron_right,
-                color: AppColors.primary,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
       child: SafeArea(child: _buildReaderBody()),
@@ -1118,7 +890,7 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
               const SizedBox(height: 20),
               CupertinoButton(
                 onPressed: _fetchHadiths,
-                child: const Text('Coba Lagi'),
+                child: Text(AppStrings.retry),
               ),
             ],
           ),
@@ -1144,7 +916,7 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
             child: CupertinoSearchTextField(
               controller: _searchController,
-              placeholder: 'Cari hadits (nomor/teks)...',
+              placeholder: AppStrings.haditsSearchHadits,
               style: TextStyle(
                 color: widget.isDark ? AppColors.textDark : AppColors.textLight,
               ),
@@ -1185,7 +957,7 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Tidak ditemukan hadits untuk "$_searchQuery"',
+                        '${AppStrings.haditsNotFound} "$_searchQuery"',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 13,
@@ -1325,7 +1097,7 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Pengaturan Baca',
+                  AppStrings.quranSettings,
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
@@ -1341,7 +1113,7 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Teks Arab',
+                        AppStrings.quranSettingArab,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -1365,7 +1137,7 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Terjemahan',
+                        AppStrings.quranSettingTerjemahan,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -1385,7 +1157,7 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Ukuran Arab',
+                  AppStrings.quranSettingFontSize,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -1553,9 +1325,4 @@ class _HaditsReaderScreenState extends State<HaditsReaderScreen> {
     );
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToHighlight());
-  }
 }

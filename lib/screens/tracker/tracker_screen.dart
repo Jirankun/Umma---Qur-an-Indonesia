@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import '../../providers/tracker_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -84,7 +85,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
               color: AppColors.toolOrange,
             ),
             SizedBox(width: 8),
-            Text('Target Harian'),
+            Text(AppStrings.trackerTargetHarian),
           ],
         ),
       ),
@@ -100,7 +101,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
                 context,
                 isDark,
                 '🌙',
-                'Puasa (Sunah/Wajib)',
+                AppStrings.trackerPuasa,
                 'isPuasa',
                 AppColors.toolOrange,
               ),
@@ -108,7 +109,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
                 context,
                 isDark,
                 '🌅',
-                'Sholat Subuh',
+                AppStrings.trackerSubuh,
                 'subuh',
                 AppColors.profileBlue,
               ),
@@ -116,7 +117,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
                 context,
                 isDark,
                 '☀️',
-                'Sholat Dzuhur',
+                AppStrings.trackerDzuhur,
                 'dzuhur',
                 AppColors.zakat,
               ),
@@ -124,7 +125,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
                 context,
                 isDark,
                 '🌤️',
-                'Sholat Ashar',
+                AppStrings.trackerAshar,
                 'ashar',
                 AppColors.toolOrange,
               ),
@@ -132,7 +133,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
                 context,
                 isDark,
                 '🌇',
-                'Sholat Maghrib',
+                AppStrings.trackerMaghrib,
                 'maghrib',
                 AppColors.toolIndigo,
               ),
@@ -140,7 +141,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
                 context,
                 isDark,
                 '🌙',
-                'Sholat Isya',
+                AppStrings.trackerIsya,
                 'isya',
                 AppColors.fiqihDoa,
               ),
@@ -149,7 +150,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
                   context,
                   isDark,
                   '⭐',
-                  'Sholat Tarawih',
+                  AppStrings.trackerTarawih,
                   'tarawih',
                   AppColors.toolIndigo,
                 ),
@@ -157,7 +158,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
                 context,
                 isDark,
                 '📖',
-                'Tilawah Qur\'an',
+                AppStrings.trackerTilawah,
                 'quran',
                 AppColors.heat4,
               ),
@@ -165,7 +166,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
                 context,
                 isDark,
                 '❤️',
-                'Sedekah Harian',
+                AppStrings.trackerSedekah,
                 'sedekah',
                 AppColors.error,
               ),
@@ -182,7 +183,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [AppColors.toolOrange, Color(0xFFEA580C)],
+          colors: [AppColors.toolOrange, AppColors.trackerOrangeDark],
         ),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -192,8 +193,8 @@ class _TrackerScreenState extends State<TrackerScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Target Ibadah Harian',
+                Text(
+                  AppStrings.homeTargetHarian,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,

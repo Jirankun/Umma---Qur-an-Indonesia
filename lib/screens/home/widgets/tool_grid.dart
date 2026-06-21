@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../../../config/colors.dart';
+import '../../../config/strings.dart';
 import '../../../utils/date_helper.dart';
 
 class ToolGrid extends StatelessWidget {
@@ -10,63 +11,63 @@ class ToolGrid extends StatelessWidget {
 
   List<_ToolItem> get _tools {
     final base = <_ToolItem>[
-      const _ToolItem(
+      _ToolItem(
         icon: CupertinoIcons.book_fill,
-        label: 'Al-Qur\'an',
+        label: AppStrings.homeToolQuran,
         color: AppColors.toolIndigo,
         route: '/quran',
       ),
-      const _ToolItem(
+      _ToolItem(
         icon: CupertinoIcons.heart_fill,
-        label: 'Doa',
+        label: AppStrings.homeToolDoa,
         color: AppColors.error,
         route: '/doa',
       ),
-      const _ToolItem(
+      _ToolItem(
         icon: CupertinoIcons.doc_text_fill,
-        label: 'Hadits',
+        label: AppStrings.homeToolHadits,
         color: AppColors.accent,
         route: '/hadits',
       ),
-      const _ToolItem(
+      _ToolItem(
         icon: CupertinoIcons.doc_text_fill,
-        label: 'Fiqih',
+        label: AppStrings.homeToolFiqih,
         color: AppColors.warning,
         route: '/fiqih',
       ),
-      const _ToolItem(
+      _ToolItem(
         icon: CupertinoIcons.circle_fill,
-        label: 'Tasbih',
+        label: AppStrings.homeToolTasbih,
         color: AppColors.toolPurple,
         route: '/tasbih',
       ),
-      const _ToolItem(
+      _ToolItem(
         icon: CupertinoIcons.compass_fill,
-        label: 'Kiblat',
+        label: AppStrings.homeToolKiblat,
         color: AppColors.toolTeal,
         route: '/kompas',
       ),
-      const _ToolItem(
+      _ToolItem(
         icon: CupertinoIcons.chat_bubble_text_fill,
-        label: 'Muslim AI',
+        label: AppStrings.homeToolMuslimAi,
         color: AppColors.toolIndigo,
         route: '/muslim-ai',
       ),
-      const _ToolItem(
+      _ToolItem(
         icon: CupertinoIcons.sportscourt_fill,
-        label: 'Tracker',
+        label: AppStrings.homeToolTracker,
         color: AppColors.toolOrange,
         route: '/tracker',
       ),
-      const _ToolItem(
+      _ToolItem(
         icon: CupertinoIcons.pencil_ellipsis_rectangle,
-        label: 'Jurnal',
+        label: AppStrings.homeToolJurnal,
         color: AppColors.toolCyan,
         route: '/jurnal',
       ),
-      const _ToolItem(
+      _ToolItem(
         icon: CupertinoIcons.drop_fill,
-        label: 'Haid Tracker',
+        label: AppStrings.homeToolHaidTracker,
         color: AppColors.toolPink,
         route: '/haid',
       ),
@@ -76,9 +77,9 @@ class ToolGrid extends StatelessWidget {
     if (DateHelper.isEndOfRamadhan(DateTime.now())) {
       base.insert(
         4,
-        const _ToolItem(
+        _ToolItem(
           icon: CupertinoIcons.money_dollar_circle_fill,
-          label: 'Zakat',
+          label: AppStrings.homeToolZakat,
           color: AppColors.zakat,
           route: '/zakat',
         ),

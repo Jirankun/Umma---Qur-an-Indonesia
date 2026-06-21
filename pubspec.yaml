@@ -1,7 +1,7 @@
 name: umma
 description: "Umma - Qur'an Indonesia"
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.1+1
 
 environment:
   sdk: ^3.12.1
@@ -51,6 +51,7 @@ dependencies:
   file_picker: ^8.0.0
   image_picker: ^1.2.2
   wakelock_plus: ^1.5.2
+  video_player: ^2.11.1
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +63,8 @@ flutter:
 
   assets:
     - assets/audio/
+    - assets/video/
+    - assets/update/
 
   fonts:
     - family: Lateef

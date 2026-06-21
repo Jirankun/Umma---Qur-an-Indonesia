@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/tasbih_provider.dart';
@@ -269,7 +270,7 @@ class _CompletionBadge extends StatelessWidget {
           ),
           SizedBox(width: 8),
           Text(
-            'Dzikir Selesai!',
+            AppStrings.tasbihSelesai,
             style: TextStyle(
               color: AppColors.toolPurple,
               fontWeight: FontWeight.w700,
@@ -307,7 +308,7 @@ class TasbihScreen extends StatelessWidget {
               color: AppColors.toolPurple,
             ),
             SizedBox(width: 8),
-            Text('Dzikir Digital'),
+            Text(AppStrings.tasbihDzikirDigital),
           ],
         ),
       ),

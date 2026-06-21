@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
+import 'package:video_player/video_player.dart';
 import '../../../config/colors.dart';
+import '../../../config/strings.dart';
 import '../../../config/api_config.dart';
 import '../../../models/models.dart';
 import '../../../utils/date_helper.dart';
 
-class HeroCard extends StatelessWidget {
+class HeroCard extends StatefulWidget {
   final PrayerTime? prayerTime;
   final DateTime currentTime;
   final bool isDark;
@@ -19,24 +21,72 @@ class HeroCard extends StatelessWidget {
   });
 
   @override
+  State<HeroCard> createState() => HeroCardState();
+}
+
+class HeroCardState extends State<HeroCard> {
+  VideoPlayerController? _videoController;
+
+  @override
+  void initState() {
+    super.initState();
+    _initVideo();
+  }
+
+  void _initVideo() {
+    debugPrint('🎬 HeroCard: initializing video...');
+    _videoController = VideoPlayerController.asset('assets/video/background.mp4')
+      ..setLooping(true)
+      ..setVolume(0)
+      ..initialize().then((_) {
+        debugPrint('✅ HeroCard: video initialized, size=${_videoController?.value.size}');
+        if (mounted) {
+          setState(() {});
+          _videoController?.play();
+        }
+      }).catchError((Object error) {
+        debugPrint('❌ HeroCard: video failed: $error');
+        if (mounted) {
+          setState(() {
+            _videoController?.dispose();
+            _videoController = null;
+          });
+        }
+      });
+  }
+
+  /// Pause video (saat keluar dari Beranda)
+  void pauseVideo() {
+    _videoController?.pause();
+  }
+
+  /// Resume video (saat kembali ke Beranda)
+  void resumeVideo() {
+    if (_videoController != null && _videoController!.value.isInitialized) {
+      _videoController!.play();
+    }
+  }
+
+  @override
+  void dispose() {
+    _videoController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isRamadhan = DateHelper.isRamadhanSeason(currentTime);
+    final isRamadhan = DateHelper.isRamadhanSeason(widget.currentTime);
     final badgeText = isRamadhan
         ? '✨ Ramadhan ${DateHelper.getHijriYear()} H'
-        : '🌙 ${DateHelper.getMonthName(currentTime.month)}';
-    final tz = ApiConfig.getTimezone(city);
+        : '🌙 ${DateHelper.getMonthName(widget.currentTime.month)}';
+    final tz = ApiConfig.getTimezone(widget.city);
     final isFriday = DateTime.now().weekday == DateTime.friday;
-    final pt = prayerTime;
+    final pt = widget.prayerTime;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppColors.primary, AppColors.primaryDark],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -46,8 +96,39 @@ class HeroCard extends StatelessWidget {
             ),
           ],
         ),
+        clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
+            // ── Video background ──
+            if (_videoController != null && _videoController!.value.isInitialized)
+              Positioned.fill(
+                child: ClipRect(
+                  child: VideoPlayer(_videoController!),
+                ),
+              ),
+
+            // ── Gradient overlay (semi-transparan biar video kelihatan) ──
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primary.withValues(alpha: 0.75),
+                      AppColors.primaryDark.withValues(alpha: 0.80),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.black.withValues(alpha: 0.20),
+                  ),
+                ),
+              ),
+            ),
+
+            // ── Decorative circles ──
             Positioned(
               top: -40,
               right: -40,
@@ -72,12 +153,14 @@ class HeroCard extends StatelessWidget {
                 ),
               ),
             ),
+
+            // ── Content ──
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Badge + city
+                  // Badge
                   Row(
                     children: [
                       Container(
@@ -104,17 +187,17 @@ class HeroCard extends StatelessWidget {
 
                   // ALL prayer times
                   if (pt != null) ...[
-                    _prayerRow(pt, 'imsak', 'Imsak', '🌅'),
-                    _prayerRow(pt, 'subuh', 'Subuh', '🌤️'),
+                    _prayerRow(pt, 'imsak', AppStrings.prayerImsak, '🌅'),
+                    _prayerRow(pt, 'subuh', AppStrings.prayerSubuh, '🌤️'),
                     _prayerRow(
                       pt,
                       'dzuhur',
-                      isFriday ? 'Jumat' : 'Dzuhur',
+                      isFriday ? 'Jumat' : AppStrings.prayerDzuhur,
                       '☀️',
                     ),
-                    _prayerRow(pt, 'ashar', 'Ashar', '🌤️'),
-                    _prayerRow(pt, 'maghrib', 'Maghrib', '🌇'),
-                    _prayerRow(pt, 'isya', 'Isya', '🌙'),
+                    _prayerRow(pt, 'ashar', AppStrings.prayerAshar, '🌤️'),
+                    _prayerRow(pt, 'maghrib', AppStrings.prayerMaghrib, '🌇'),
+                    _prayerRow(pt, 'isya', AppStrings.prayerIsya, '🌙'),
                   ],
 
                   const SizedBox(height: 12),
@@ -141,7 +224,7 @@ class HeroCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '$city ($tz)',
+                              '${widget.city} ($tz)',
                               style: const TextStyle(
                                 color: CupertinoColors.white,
                                 fontSize: 12,
@@ -160,18 +243,18 @@ class HeroCard extends StatelessWidget {
                           color: CupertinoColors.white.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               CupertinoIcons.bell_fill,
                               size: 12,
                               color: CupertinoColors.white,
                             ),
-                            SizedBox(width: 4),
+                            const SizedBox(width: 4),
                             Text(
-                              'Notif Aktif',
-                              style: TextStyle(
+                              AppStrings.homeNotificationActive,
+                              style: const TextStyle(
                                 color: CupertinoColors.white,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,

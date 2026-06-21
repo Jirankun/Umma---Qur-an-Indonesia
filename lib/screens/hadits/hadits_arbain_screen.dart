@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import '../../config/api_config.dart';
 import '../../data/hadits_arbain_data.dart';
 import '../../providers/theme_provider.dart';
@@ -26,11 +27,38 @@ class _HaditsArbainScreenState extends State<HaditsArbainScreen> {
   GlobalKey? _highlightKey;
   int _highlightRetries = 0;
 
+  // ─── Reader settings ───
+  bool _showArab = true;
+  bool _showTranslation = true;
+  double _arabFontSize = 20;
+
   @override
   void initState() {
     super.initState();
     WakelockPlus.enable();
     _loadBookmarks();
+    _loadReaderSettings();
+  }
+
+  Future<void> _loadReaderSettings() async {
+    final data = await LocalStorage().getJson(
+      ApiConfig.storageKeyHaditsSettings,
+    );
+    if (data is Map) {
+      setState(() {
+        _showArab = (data['showArab'] as bool?) ?? true;
+        _showTranslation = (data['showTranslation'] as bool?) ?? true;
+        _arabFontSize = (data['arabFontSize'] as num?)?.toDouble() ?? 20;
+      });
+    }
+  }
+
+  Future<void> _saveReaderSettings() async {
+    await LocalStorage().saveJson(ApiConfig.storageKeyHaditsSettings, {
+      'showArab': _showArab,
+      'showTranslation': _showTranslation,
+      'arabFontSize': _arabFontSize,
+    });
   }
 
   void _initiateScrollToHighlight() {
@@ -46,19 +74,22 @@ class _HaditsArbainScreenState extends State<HaditsArbainScreen> {
     _highlightKey = GlobalKey();
     _highlightRetries = 0;
 
-    if (_scrollController.hasClients) {
-      final offset = (index * 200.0) - 100;
-      _scrollController.jumpTo(
-        offset.clamp(0.0, _scrollController.position.maxScrollExtent),
-      );
+    // Lompat ke estimasi posisi: (index / total) * maxScrollExtent
+    if (_scrollController.hasClients && _data.isNotEmpty) {
+      final ratio = index / _data.length;
+      final maxExt = _scrollController.position.maxScrollExtent;
+      _scrollController.jumpTo((ratio * maxExt).clamp(0.0, maxExt));
     }
 
-    _scheduleArbainScroll();
+    _tryScrollToHighlight();
   }
 
-  void _scheduleArbainScroll() {
-    if (!mounted || _highlightRetries >= 10) return;
-    _highlightRetries++;
+  void _tryScrollToHighlight() {
+    if (!mounted || _highlightRetries >= 60) {
+      _highlightRetries = 0;
+      _hasScrolledToHighlight = true;
+      return;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
@@ -70,9 +101,25 @@ class _HaditsArbainScreenState extends State<HaditsArbainScreen> {
           alignment: 0.5,
         );
         setState(() => _hasScrolledToHighlight = true);
-      } else if (_highlightRetries < 10) {
-        _scheduleArbainScroll();
+        return;
       }
+
+      _highlightRetries++;
+
+      // Update posisi pakai rasio tiap frame
+      if (_scrollController.hasClients && _data.isNotEmpty &&
+          widget.highlightNumber != null) {
+        final idx = _data.indexWhere(
+          (d) => d['number'] == widget.highlightNumber,
+        );
+        if (idx >= 0) {
+          final ratio = idx / _data.length;
+          final maxExt = _scrollController.position.maxScrollExtent;
+          _scrollController.jumpTo((ratio * maxExt).clamp(0.0, maxExt));
+        }
+      }
+
+      _tryScrollToHighlight();
     });
   }
 
@@ -137,8 +184,23 @@ class _HaditsArbainScreenState extends State<HaditsArbainScreen> {
           children: [
             Icon(CupertinoIcons.book_fill, size: 18, color: AppColors.accent),
             SizedBox(width: 8),
-            Text('Hadits Arba\'in'),
+            Text(AppStrings.haditsArbainTitle),
           ],
+        ),
+        trailing: GestureDetector(
+          onTap: () => _showReaderSettings(context),
+          child: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              CupertinoIcons.slider_horizontal_3,
+              size: 16,
+              color: AppColors.primary,
+            ),
+          ),
         ),
       ),
       child: SafeArea(
@@ -150,7 +212,7 @@ class _HaditsArbainScreenState extends State<HaditsArbainScreen> {
               child: Row(
                 children: [
                   _FilterChip(
-                    label: 'Semua',
+                    label: AppStrings.haditsFilterAll,
                     isActive: !_showBookmarksOnly,
                     count: _data.length,
                     isDark: isDark,
@@ -158,7 +220,7 @@ class _HaditsArbainScreenState extends State<HaditsArbainScreen> {
                   ),
                   const SizedBox(width: 10),
                   _FilterChip(
-                    label: 'Bookmark',
+                    label: AppStrings.bookmark,
                     isActive: _showBookmarksOnly,
                     count: bookmarkCount,
                     isDark: isDark,
@@ -167,7 +229,7 @@ class _HaditsArbainScreenState extends State<HaditsArbainScreen> {
                   const Spacer(),
                   if (bookmarkCount > 0)
                     Text(
-                      '$bookmarkCount tersimpan',
+                      '$bookmarkCount ${AppStrings.haditsSaved}',
                       style: TextStyle(
                         fontSize: 11,
                         color: isDark
@@ -196,8 +258,8 @@ class _HaditsArbainScreenState extends State<HaditsArbainScreen> {
                           const SizedBox(height: 12),
                           Text(
                             _showBookmarksOnly
-                                ? 'Belum ada hadits yang di-bookmark'
-                                : 'Tidak ada data',
+                                ? AppStrings.haditsNoBookmark
+                                : AppStrings.noData,
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -334,42 +396,189 @@ class _HaditsArbainScreenState extends State<HaditsArbainScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 14),
-
-          // ── Arabic text ──
-          Text(
-            hadith['arab'] as String? ?? '',
-            textDirection: TextDirection.rtl,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              height: 1.6,
-              fontFamily: 'Lateef',
-              color: isDark ? CupertinoColors.white : AppColors.textLight,
-            ),
-          ),
-          const SizedBox(height: 14),
-
-          // ── Terjemahan ──
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isDark
-                  ? AppColors.textLight.withValues(alpha: 0.5)
-                  : AppColors.textOnDark,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              hadith['arti'] as String? ?? '',
+          if (_showArab) ...[
+            const SizedBox(height: 14),
+            // ── Arabic text ──
+            Text(
+              hadith['arab'] as String? ?? '',
+              textDirection: TextDirection.rtl,
               style: TextStyle(
-                fontSize: 13,
-                height: 1.5,
-                color: isDark ? CupertinoColors.white : AppColors.borderSubtle,
+                fontSize: _arabFontSize,
+                fontWeight: FontWeight.w500,
+                height: 1.6,
+                fontFamily: 'Lateef',
+                color: isDark ? CupertinoColors.white : AppColors.textLight,
               ),
             ),
-          ),
+          ],
+          if (_showTranslation) ...[
+            const SizedBox(height: 14),
+            // ── Terjemahan ──
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AppColors.textLight.withValues(alpha: 0.5)
+                    : AppColors.textOnDark,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                hadith['arti'] as String? ?? '',
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.5,
+                  color: isDark ? CupertinoColors.white : AppColors.borderSubtle,
+                ),
+              ),
+            ),
+          ],
         ],
+      ),
+    );
+  }
+
+  void _showReaderSettings(BuildContext context) {
+    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDark;
+    showCupertinoModalPopup(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          height: 300,
+          decoration: BoxDecoration(
+            color: isDark
+                ? AppColors.surfaceDark
+                : CupertinoColors.systemBackground,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.systemGrey4,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  AppStrings.quranSettings,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: isDark
+                        ? CupertinoColors.white
+                        : AppColors.textLight,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppStrings.quranSettingArab,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? CupertinoColors.white : AppColors.textLight,
+                        ),
+                      ),
+                      CupertinoSwitch(
+                        value: _showArab,
+                        onChanged: (v) {
+                          setState(() => _showArab = v);
+                          setModalState(() {});
+                          _saveReaderSettings();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppStrings.quranSettingTerjemahan,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? CupertinoColors.white : AppColors.textLight,
+                        ),
+                      ),
+                      CupertinoSwitch(
+                        value: _showTranslation,
+                        onChanged: (v) {
+                          setState(() => _showTranslation = v);
+                          setModalState(() {});
+                          _saveReaderSettings();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  AppStrings.quranSettingFontSize,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isDark
+                        ? CupertinoColors.white
+                        : AppColors.textLight,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    for (final size in [16.0, 20.0, 24.0, 28.0, 32.0])
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() => _arabFontSize = size);
+                            setModalState(() {});
+                            _saveReaderSettings();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _arabFontSize == size
+                                  ? AppColors.primary
+                                  : AppColors.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '${size.toInt()}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: _arabFontSize == size
+                                    ? CupertinoColors.white
+                                    : AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

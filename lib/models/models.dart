@@ -92,7 +92,9 @@ class PrayerTime {
     final now = DateTime.now();
     // Konversi device local time ke timezone kota agar sesuai dgn jadwal dari API
     final cityTime = _toCityTime(now, cityUtcOffset);
-    final timeStr = getTime(prayerName);
+    // Pada hari Jumat, 'Jumat' menggunakan waktu Dzuhur
+    final effectiveName = prayerName == 'Jumat' ? 'Dzuhur' : prayerName;
+    final timeStr = getTime(effectiveName);
     if (timeStr == '--:--') return 0;
 
     final parts = timeStr.split(':');

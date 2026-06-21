@@ -1,10 +1,10 @@
 import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../providers/muslim_ai_provider.dart';
-import '../../providers/background_sound_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/hadits_provider.dart';
 import '../../providers/quran_provider.dart';
@@ -270,7 +270,7 @@ class _MuslimAiScreenState extends State<MuslimAiScreen> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: const [
               BoxShadow(
-                color: Color(0xFF000000),
+                color: AppColors.black,
                 blurRadius: 12,
                 offset: Offset(0, 4),
               ),
@@ -445,10 +445,7 @@ class _MuslimAiScreenState extends State<MuslimAiScreen> {
         return;
     }
 
-    // Stop semua audio sebelum navigasi
-    try {
-      await context.read<BackgroundSoundProvider>().stop();
-    } catch (_) {}
+    // Stop audio Quran (jika sedang diputar) sebelum navigasi
     try {
       await context.read<QuranProvider>().stopAudio();
     } catch (_) {}
@@ -548,13 +545,13 @@ class _MuslimAiScreenState extends State<MuslimAiScreen> {
 
   Map<String, dynamic> _fiqihCategoryInfo(String category) {
     const categories = {
-      'thaharah': {'emoji': '💧', 'color': Color(0xFF0284C7)},
+      'thaharah': {'emoji': '💧', 'color': AppColors.fiqihThaharah},
       'sholat': {'emoji': '🕌', 'color': AppColors.fiqihSholat},
       'puasa': {'emoji': '🌙', 'color': AppColors.accent},
       'zakat': {'emoji': '💰', 'color': AppColors.warning},
       'haid': {'emoji': '🩸', 'color': AppColors.toolPink},
       'jenazah': {'emoji': '🤍', 'color': AppColors.textSubtle},
-      'doa': {'emoji': '🤲', 'color': Color(0xFF7C3AED)},
+      'doa': {'emoji': '🤲', 'color': AppColors.fiqihDoa},
       'amalan': {'emoji': '✨', 'color': AppColors.toolCyan},
     };
     return categories[category.toLowerCase()] ??
@@ -588,7 +585,7 @@ class _MuslimAiScreenState extends State<MuslimAiScreen> {
               color: AppColors.toolIndigo,
             ),
             SizedBox(width: 8),
-            Text('Muslim AI'),
+            Text(AppStrings.aiTitle),
           ],
         ),
       ),
@@ -704,9 +701,7 @@ class _MuslimAiScreenState extends State<MuslimAiScreen> {
                             width: 32,
                             height: 32,
                             decoration: BoxDecoration(
-                              color: const Color(
-                                0xFF6366F1,
-                              ).withValues(alpha: 0.2),
+                              color: AppColors.toolIndigo.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(
@@ -915,7 +910,7 @@ class _SendButton extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
-                        colors: [Color(0xFF818CF8), AppColors.toolIndigo],
+                        colors: [AppColors.indigoLight, AppColors.toolIndigo],
                       ),
                     ),
                   ),
@@ -985,7 +980,7 @@ class _AnimatedWaterPainter extends CustomPainter {
       ..shader = const LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [Color(0xFF818CF8), AppColors.toolIndigo],
+        colors: [AppColors.indigoLight, AppColors.toolIndigo],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
       ..style = PaintingStyle.fill;
 
@@ -1014,9 +1009,7 @@ class _AnimatedWaterPainter extends CustomPainter {
 
       if (rippleRadius > 1 && rippleAlpha > 0) {
         final ripplePaint = Paint()
-          ..color = const Color(
-            0xFF818CF8,
-          ).withValues(alpha: rippleAlpha / 255.0)
+          ..color =AppColors.indigoLight.withValues(alpha:  rippleAlpha / 255.0)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.0;
 
@@ -1036,9 +1029,7 @@ class _AnimatedWaterPainter extends CustomPainter {
 
       if (rippleRadius > 1 && rippleAlpha > 0) {
         final ripplePaint2 = Paint()
-          ..color = const Color(
-            0xFFA5B4FC,
-          ).withValues(alpha: rippleAlpha / 255.0)
+          ..color =AppColors.indigoVeryLight.withValues(alpha: rippleAlpha / 255.0)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 0.8;
 

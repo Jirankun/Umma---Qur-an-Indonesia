@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import '../../models/models.dart';
 import '../../providers/tracker_provider.dart';
@@ -206,10 +207,10 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
     final stats = _calcMonthStats(monthDays);
 
     final months = [
-      '', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+      '', AppStrings.monthJanuari, AppStrings.monthFebruari, AppStrings.monthMaret, AppStrings.monthApril, AppStrings.monthMei, AppStrings.monthJuni,
+      AppStrings.monthJuli, AppStrings.monthAgustus, AppStrings.monthSeptember, AppStrings.monthOktober, AppStrings.monthNovember, AppStrings.monthDesember,
     ];
-    final daysOfWeek = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    final daysOfWeek = [AppStrings.dayMinPendek, AppStrings.daySenPendek, AppStrings.daySelPendek, AppStrings.dayRabPendek, AppStrings.dayKamPendek, AppStrings.dayJumPendek, AppStrings.daySabPendek];
     final monthName = months[_selectedMonth];
 
     // First day offset (0 = Sunday)
@@ -225,9 +226,6 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
             .firstOrNull
         : null;
 
-    final isCurrentMonth = _selectedYear == DateTime.now().year &&
-        _selectedMonth == DateTime.now().month;
-
     return CupertinoPageScaffold(
       backgroundColor:
           isDark ? AppColors.bgDark : AppColors.bgLight,
@@ -240,7 +238,7 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
             Icon(CupertinoIcons.sportscourt_fill,
                 size: 18, color: AppColors.toolOrange),
             SizedBox(width: 8),
-            Text('Tracker Dashboard'),
+            Text(AppStrings.trackerDashboard),
           ],
         ),
       ),
@@ -250,7 +248,7 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildMonthNav(isDark, monthName, isCurrentMonth),
+              _buildMonthNav(isDark, monthName),
               const SizedBox(height: 12),
               _buildStatsRow(isDark, stats),
               const SizedBox(height: 16),
@@ -269,7 +267,7 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
   }
 
   // ─── MONTH NAV ──────────────────────────────────────────────
-  Widget _buildMonthNav(bool isDark, String monthName, bool isCurrentMonth) {
+  Widget _buildMonthNav(bool isDark, String monthName) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -314,25 +312,7 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
                         : AppColors.textLight,
                   ),
                 ),
-                if (!isCurrentMonth) ...[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppColors.toolOrange.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      'Hari Ini',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.toolOrange,
-                      ),
-                    ),
-                  ),
-                ],
+
               ],
             ),
           ),
@@ -372,7 +352,7 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
           child: _StatCard(
             isDark: isDark,
             value: '${stats['trackedDays']}',
-            label: 'Hari Terisi',
+            label: AppStrings.trackerHariTerisi,
             color: AppColors.toolIndigo,
             icon: CupertinoIcons.check_mark_circled_solid,
           ),
@@ -382,7 +362,7 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
           child: _StatCard(
             isDark: isDark,
             value: '$avg%',
-            label: 'Rata-rata',
+            label: AppStrings.trackerRataRata,
             color: avgColor,
             icon: CupertinoIcons.chart_bar_fill,
           ),
@@ -392,7 +372,7 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
           child: _StatCard(
             isDark: isDark,
             value: _fmtDuration(stats['totalReadingSecs'] as int),
-            label: 'Baca Quran',
+            label: AppStrings.trackerBacaQuran,
             color: AppColors.heat4,
             icon: CupertinoIcons.book_fill,
           ),
@@ -408,8 +388,10 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
     int startOffset,
     List<String> dow,
   ) {
-    final double cellSize =
-        (MediaQuery.of(context).size.width - 32 - 12) / 7;
+    // Available width = screen width - SingleChildScrollView padding(16x2)
+    // - Container padding(12x2) - Container border
+    final availableWidth = MediaQuery.of(context).size.width - 32 - 24;
+    final double cellSize = availableWidth / 7;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
@@ -495,11 +477,11 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
     TrackerProvider trackerProvider,
   ) {
     final dayNames = [
-      'Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'
+      AppStrings.dayMinggu, AppStrings.daySenin, AppStrings.daySelasa, AppStrings.dayRabu, AppStrings.dayKamis, AppStrings.dayJumat, AppStrings.daySabtu
     ];
     final months = [
-      '', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+      '', AppStrings.monthJanuari, AppStrings.monthFebruari, AppStrings.monthMaret, AppStrings.monthApril, AppStrings.monthMei, AppStrings.monthJuni,
+      AppStrings.monthJuli, AppStrings.monthAgustus, AppStrings.monthSeptember, AppStrings.monthOktober, AppStrings.monthNovember, AppStrings.monthDesember,
     ];
     final hijri = DateHelper.getHijriDate(day.date);
     final hijriStr = hijri != null
@@ -519,7 +501,7 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
         gradient: LinearGradient(
           colors: day.isComplete
               ? [AppColors.heat4, AppColors.accent]
-              : [AppColors.toolOrange, const Color(0xFFEA580C)],
+              : [AppColors.toolOrange, AppColors.trackerOrangeDark],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -560,7 +542,7 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Text(
-                              'HARI INI',
+                              AppStrings.trackerHariIni,
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w700,
@@ -621,7 +603,7 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
               if (day.isPuasa)
                 _Badge(
                   emoji: '🌙',
-                  label: 'Puasa',
+                  label: AppStrings.trackerPuasaLabel,
                   bgColor: CupertinoColors.white.withValues(alpha: 0.2),
                 ),
               if (day.hasReading)
@@ -633,13 +615,13 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
               if (day.isHaid)
                 _Badge(
                   emoji: '🩸',
-                  label: day.isHaidOngoing ? 'Haid (berlangsung)' : 'Haid',
+                  label: day.isHaidOngoing ? 'Haid (berlangsung)' : AppStrings.trackerHaidLabel,
                   bgColor: CupertinoColors.white.withValues(alpha: 0.2),
                 ),
               if (day.isComplete)
                 _Badge(
                   emoji: '✅',
-                  label: 'Target selesai',
+                  label: AppStrings.trackerTargetSelesai,
                   bgColor: CupertinoColors.white.withValues(alpha: 0.2),
                 ),
               if (day.hasTrackerData && !day.isComplete)
@@ -651,7 +633,7 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
               if (!day.hasTrackerData && !day.isHaid)
                 _Badge(
                   emoji: '⬜',
-                  label: 'Belum dicatat',
+                  label: AppStrings.trackerBelumDicatat,
                   bgColor: CupertinoColors.white.withValues(alpha: 0.15),
                 ),
             ],
@@ -663,7 +645,7 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
               child: CupertinoButton.filled(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Text(
-                  isToday ? 'Catat Target Harian' : 'Lihat Detail',
+                  isToday ? AppStrings.trackerCatatHarian : AppStrings.trackerLihatDetail,
                   style: const TextStyle(fontSize: 13),
                 ),
                 onPressed: () {
@@ -692,14 +674,16 @@ class _TrackerDashboardScreenState extends State<TrackerDashboardScreen> {
               : CupertinoColors.systemGrey6,
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 6,
+        alignment: WrapAlignment.center,
         children: [
-          _LegendItem(color: AppColors.heat4, label: 'Selesai'),
-          _LegendItem(color: AppColors.warning, label: 'Sebagian'),
-          _LegendItem(color: AppColors.profileBlue, label: 'Terisi'),
-          _LegendItem(color: AppColors.toolPink, label: 'Haid'),
-          _LegendItem(color: AppColors.accent, label: 'Baca Quran'),
+          _LegendItem(color: AppColors.heat4, label: AppStrings.trackerSelesai),
+          _LegendItem(color: AppColors.warning, label: AppStrings.trackerSebagian),
+          _LegendItem(color: AppColors.profileBlue, label: AppStrings.trackerTerisi),
+          _LegendItem(color: AppColors.toolPink, label: AppStrings.trackerHaidLabel),
+          _LegendItem(color: AppColors.accent, label: AppStrings.trackerBacaQuranLegend),
         ],
       ),
     );

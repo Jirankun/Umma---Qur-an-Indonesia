@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../../config/colors.dart';
+import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../utils/date_helper.dart';
@@ -39,7 +40,7 @@ class _StudyScreenState extends State<StudyScreen> {
           backgroundColor: isDark
               ? AppColors.surfaceDark
               : CupertinoColors.systemBackground,
-          middle: const Text('Studi Ramadhan'),
+          middle: Text(AppStrings.studyTitle),
         ),
         child: SafeArea(
           child: Center(
@@ -54,13 +55,13 @@ class _StudyScreenState extends State<StudyScreen> {
                     color: AppColors.accent,
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Studi Ramadhan',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+                  Text(
+                    AppStrings.studyTitle,
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Fitur ini hanya tersedia selama bulan Ramadhan.\n\nTunggu kedatangan bulan suci untuk mengakses materi studi harian selama 30 hari.',
+                    AppStrings.studyOnlyRamadhan,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
@@ -91,7 +92,7 @@ class _StudyScreenState extends State<StudyScreen> {
         backgroundColor: isDark
             ? AppColors.surfaceDark
             : CupertinoColors.systemBackground,
-        middle: Text('Hari ke-$_selectedDay'),
+        middle: Text('${AppStrings.studyDay} $_selectedDay'),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -288,12 +289,12 @@ class _StudyScreenState extends State<StudyScreen> {
               decoration: BoxDecoration(
                 color: isDark
                     ? AppColors.surfaceDark
-                    : const Color(0xFFF0FDF4),
+                    : AppColors.studyGreenLight,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isDark
                       ? AppColors.textLight
-                      : const Color(0xFFBBF7D0),
+                      : AppColors.studyGreenBorder,
                 ),
               ),
               child: Column(
@@ -326,8 +327,8 @@ class _StudyScreenState extends State<StudyScreen> {
                       height: 1.6,
                       fontStyle: FontStyle.italic,
                       color: isDark
-                          ? const Color(0xFFBBF7D0)
-                          : const Color(0xFF166534),
+                          ? AppColors.studyGreenBorder
+                          : AppColors.studyGreenDark,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -339,7 +340,7 @@ class _StudyScreenState extends State<StudyScreen> {
                       fontWeight: FontWeight.w600,
                       color: isDark
                           ? CupertinoColors.systemGrey
-                          : const Color(0xFF4ADE80),
+                          : AppColors.studyGreenMedium,
                     ),
                   ),
                 ],

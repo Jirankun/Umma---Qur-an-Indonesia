@@ -49,7 +49,7 @@ class _QuoteCardState extends State<QuoteCard> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: widget.isDark
-                ? [AppColors.surfaceDark, const Color(0xFF1E1B4B)]
+                ? [AppColors.surfaceDark, AppColors.quoteDark]
                 : [AppColors.primaryLight, AppColors.primarySurfaceLight],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,

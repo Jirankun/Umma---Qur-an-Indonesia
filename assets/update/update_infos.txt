@@ -1,0 +1,22 @@
+Umma v1.0.1
+
+Perubahan :
+- Perbaikan bug download audio — progress auto-update saat ganti qari, string "Instance of 'Surah'" diperbaiki
+- Perbaikan bug bookmark hadits — scroll tidak stuck saat buka dari bookmark
+- Perbaikan bug video background — video pause saat navigasi, lanjut saat kembali ke Beranda
+- Perbaikan layout overflow di Tracker Dashboard — calendar grid & legend
+- Hapus label "Hari Ini" yang tidak berguna di samping tahun pada navbar kalender Tracker
+- Fitur Pengaturan Baca untuk Hadits Arba'in (toggle arab/terjemahan, ukuran font)
+- Semua teks UI dipindah ke AppStrings (tool grid, nama sholat, notifikasi)
+- Semua warna hardcode dipindah ke AppColors (gradient onboarding, dll)
+- Tab "Semua" ditambahkan di Fiqih sebagai default tab
+- Tafsir loading indicator — modal tafsir sekarang menampilkan CupertinoActivityIndicator saat memuat data
+- FAB "Hadits An-Nawawiyyah" diganti label menjadi "Hadits Arba'in"
+- Keyboard-aware bottom sheet — semua modal bottom sheet dengan form input sekarang otomatis terangkat saat keyboard muncul
+- Background sound aktif secara default pada fresh install
+- Onboarding screen — slides 3 halaman pengenalan fitur aplikasi
+- Tidak ada auto-download audio — user harus tap tombol Download atau play ayat untuk mengunduh audio
+- Fiqih content offline diperluas: Thaharah (10 materi), Sholat (15 materi), Puasa (15 materi), Zakat (10 materi), Haid (6 materi), Jenazah (7 materi), Amalan Ramadhan (6 materi) — konten detail dari Rumaysho.com
+
+dev :
+- Zhyllan Fyllah

@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import 'config/colors.dart';
 import 'config/strings.dart';
 import 'providers/theme_provider.dart';
+import 'services/local_storage.dart';
 import 'screens/home/home_screen.dart';
+import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/quran/quran_index_screen.dart';
 import 'screens/doa/doa_home_screen.dart';
 import 'screens/hadits/hadits_home_screen.dart';
@@ -20,8 +22,28 @@ import 'screens/user/user_profile_screen.dart';
 import 'screens/study/study_screen.dart';
 import 'screens/sync/p2p_sync_screen.dart';
 
-class UmmaApp extends StatelessWidget {
+class UmmaApp extends StatefulWidget {
   const UmmaApp({super.key});
+
+  @override
+  State<UmmaApp> createState() => _UmmaAppState();
+}
+
+class _UmmaAppState extends State<UmmaApp> {
+  bool? _isFirstLaunch;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkOnboarding();
+  }
+
+  Future<void> _checkOnboarding() async {
+    final done = LocalStorage().getBool('umma_onboarding_done') ?? false;
+    if (mounted) {
+      setState(() => _isFirstLaunch = !done);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +67,11 @@ class UmmaApp extends StatelessWidget {
               ),
             ),
           ),
-          home: const HomeScreen(),
+          home: _isFirstLaunch == null
+              ? const Center(child: CupertinoActivityIndicator(radius: 14))
+              : (_isFirstLaunch!
+                    ? const OnboardingScreen()
+                    : const HomeScreen()),
           routes: {
             '/quran': (context) => const QuranIndexScreen(),
             '/doa': (context) => const DoaHomeScreen(),

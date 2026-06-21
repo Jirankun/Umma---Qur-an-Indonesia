@@ -8,10 +8,31 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// - bg_night.mp3: from Maghrib (18:00) to Subuh (05:00)
 /// - bg_sunrise.mp3: from Subuh (05:00) to Maghrib (18:00)
 class BackgroundSoundProvider extends ChangeNotifier {
+  // ── Global audio context: mix dengan video player ─────────
+  static bool _contextSet = false;
+
+  static Future<void> _ensureAudioContext() async {
+    if (_contextSet) return;
+    _contextSet = true;
+    await AudioPlayer.global.setAudioContext(
+      AudioContext(
+        iOS: AudioContextIOS(
+          // .ambient = tidak mengambil alih fokus audio dari video
+          category: AVAudioSessionCategory.ambient,
+          options: {AVAudioSessionOptions.mixWithOthers},
+        ),
+        android: AudioContextAndroid(
+          stayAwake: false,
+          isSpeakerphoneOn: false,
+        ),
+      ),
+    );
+  }
+
   static const String _storageKey = 'umma_bg_sound_enabled';
 
   AudioPlayer? _player;
-  bool _isEnabled = false;
+  bool _isEnabled = true;
   bool _initialized = false;
   final Completer<void> _initCompleter = Completer<void>();
   String? _currentAudioType; // 'night' or 'sunrise'
@@ -26,7 +47,7 @@ class BackgroundSoundProvider extends ChangeNotifier {
   Future<void> loadSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      _isEnabled = prefs.getBool(_storageKey) ?? false;
+      _isEnabled = prefs.getBool(_storageKey) ?? true;
     } catch (_) {
       _isEnabled = false;
     } finally {
@@ -70,6 +91,9 @@ class BackgroundSoundProvider extends ChangeNotifier {
 
     await _stopPlayer();
 
+    // Pastikan audio context di-set agar tidak mengganggu video player
+    await _ensureAudioContext();
+
     _player = AudioPlayer();
     _player!.setReleaseMode(ReleaseMode.loop);
     _player!.onPlayerComplete.listen((_) {
@@ -77,9 +101,8 @@ class BackgroundSoundProvider extends ChangeNotifier {
     });
 
     try {
-      await _player!.setSource(AssetSource(assetPath));
       await _player!.setVolume(0.5);
-      await _player!.resume();
+      await _player!.play(AssetSource(assetPath));
       _currentAudioType = audioType;
     } catch (e) {
       debugPrint('BackgroundSound: Gagal play audio — $e');
