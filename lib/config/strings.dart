@@ -6,10 +6,21 @@
 /// ============================================================
 library;
 
+import '../utils/app_info.dart';
+
 class AppStrings {
   // ─── APP ─────────────────────────────────────────────────
   static const String appName = 'Umma';
   static const String packageName = 'app.umma.aokaze';
+
+  /// Versi aplikasi — baca dari native build (Gradle) via PackageInfo
+  static String get appVersion => AppInfo.version;
+
+  /// Display string: "v1.0.1"
+  static String get appVersionShort => 'v${AppInfo.version}';
+
+  /// Display string: "Umma v1.0.1" — single source of truth untuk semua UI
+  static String get appVersionDisplay => '$appName v${AppInfo.version}';
 
   // ─── QURAN ───────────────────────────────────────────────
   static const String quranTitle = "Al-Qur'an";
@@ -106,6 +117,11 @@ class AppStrings {
   // ─── MUSLIM AI ───────────────────────────────────────────
   static const String aiTitle = 'Muslim AI';
   static const String aiGreeting = 'Assalamu\'alaikum! Ada yang bisa saya bantu tentang Islam?';
+
+  // ─── MURATTAL ────────────────────────────────────────────
+  static const String murattalTitle = 'Murattal';
+  static const String murattalNowPlaying = 'Sedang Diputar';
+  static const String murattalDownloadAll = 'Mengunduh semua audio...';
 
   // ─── USER ────────────────────────────────────────────────
   static const String userProfile = 'Profil';
@@ -377,8 +393,16 @@ class AppStrings {
   static const String pilihGaleri = 'Pilih dari Galeri';
   static const String ambilFoto = 'Ambil Foto';
   static const String hapusFoto = 'Hapus Foto';
+  static const String fotoProfilDihapus = 'Foto profil dihapus';
+  static const String fotoProfilDiproses = 'Memproses foto...';
+  static const String fotoProfilDiperbarui = '✅ Foto profil diperbarui';
+  static const String gagalBukaLink = 'Gagal membuka link';
   static const String userPreferensi = 'PREFERENSI APLIKASI';
   static const String userBantuan = 'BANTUAN & INFO';
+  static const String userDefaultName = 'Hamba Allah';
+  static const String userDefaultCity = 'Jakarta';
+  static const String userThemeDark = 'Gelap';
+  static const String userThemeLight = 'Terang';
 
   // ─── DATE/MONTH ──────────────────────────────────────────
   static const String monthJanuari = 'Januari';
@@ -409,6 +433,118 @@ class AppStrings {
   static const String dayJumPendek = 'Jum';
   static const String daySabPendek = 'Sab';
 
+  // ─── HOME SCREEN ─────────────────────────────────────────
+  /// Label untuk banner lanjut baca Quran di Home
+  static const String homeLanjutBaca = 'LANJUT BACA';
+  /// Label section fitur ibadah di Home
+  static const String homeFiturIbadah = 'FITUR IBADAH';
+  /// Label misi harian di Home
+  static const String homeMisiHarian = 'MISI HARIAN';
+  static const String homeTahukahKamu = 'TAHUKAH KAMU?';
+  static const String homeHaditsRamadhan = 'HADITS RAMADHAN';
+  /// Format: "Ayat 5 dari 286"
+  static const String homeAyatDariFormat = 'Ayat {number} dari {total}';
+  /// Format: "Ayat 5"
+  static const String homeAyatFormat = 'Ayat {number}';
+  /// Label reward di quest card: "Hadiah: ..."
+  static const String homeHadiahLabel = 'Hadiah:';
+  /// Label hari di quote card: "Hari 15"
+  static const String homeHariFormat = 'Hari {day}';
+
+  // ─── USER / PROFILE ────────────────────────────────────
+  static const String userTemaAplikasi = 'Tema Aplikasi';
+  static const String userBackgroundSound = 'Background Sound';
+  static const String userBgSoundDesc = 'Suasana latar di Beranda';
+  static const String userPengaturanAI = 'Pengaturan AI Chat';
+  static const String userAiDesc = 'API key Groq untuk Muslim AI Chat';
+  static const String userAiDescription = 'Masukkan API key Groq pribadi Anda untuk mengaktifkan Muslim AI Chat.\n\nKonten AI lainnya (quotes, nasehat, quest) sudah aktif secara default.\n\nDapatkan API key gratis di console.groq.com';
+  static const String userBukaGroqConsole = 'Buka console.groq.com';
+  static const String userSyncP2P = 'Sync P2P (QR)';
+  static const String userSyncP2PDesc = 'Kirim data via QR Code';
+  static const String userManajemenData = 'Manajemen Data';
+  static const String userManajemenDataDesc = 'Pindahkan data Jurnal, Tracker, dan preferensi Anda jika ingin berpindah perangkat.';
+  static const String userBackupRestore = 'Backup & Restore';
+  static const String userExportBackup = 'Export (Backup) Data';
+  static const String userExportDesc = 'Unduh semua progres ke file .json';
+  static const String userBuatBackup = 'Buat Backup';
+  static const String userImportRestore = 'Import (Restore) Data';
+  static const String userImportDesc = 'Pulihkan data dari file backup';
+  static const String userPilihFileBackup = 'Pilih File Backup';
+  static const String userResetSemuaData = 'Reset Semua Data';
+  static const String userResetDesc = 'Hapus semua progres';
+  static const String userResetTitle = 'Reset Semua Data?';
+  static const String userResetWarning = 'Semua data tracker, jurnal, bookmark, dan preferensi akan dihapus secara permanen.';
+  static const String userBantuanFAQ = 'Bantuan & FAQ';
+  static const String userKebijakanPrivasi = 'Kebijakan Privasi';
+  static const String userTentangUmma = 'Tentang Umma';
+  static const String userPengembang = 'Pengembang Aplikasi';
+  static const String userKirimFeedback = 'Kirim Feedback';
+  static const String userCekUpdate = 'Cek Update Aplikasi';
+  static const String userGitHubRepo = 'GitHub Repository';
+  static const String userGitHubDesc = 'Buka halaman proyek';
+  static const String userDoakanDeveloper = "Do'akan Developer";
+  static const String userIkutiSaya = 'Ikuti Saya';
+  static const String userPortofolio = 'Portofolio';
+  static const String userGitHub = 'GitHub';
+  static const String userDataBackup = 'Backup Data Umma';
+  static const String userPrivacyHeader = 'Kenyamanan dan privasi Anda adalah prioritas mutlak kami:';
+  static const String userPrivacyNoServer = 'Tidak Ada Database Server';
+  static const String userPrivacyNoServerDesc = 'Semua data Anda disimpan sepenuhnya secara lokal di memori perangkat Anda.';
+  static const String userPrivacyNoCollect = 'Tidak Ada Koleksi Data';
+  static const String userPrivacyNoCollectDesc = 'Kami tidak mengumpulkan, melihat, atau menyimpan data pribadi Anda di server mana pun.';
+  static const String userPrivacyDirectTransfer = 'Transfer Data Langsung';
+  static const String userPrivacyDirectTransferDesc = 'Saat Anda memindahkan data ke perangkat baru, file backup ditransfer langsung tanpa perantara server.';
+  static const String userPrivacyNoAds = 'Tanpa Iklan & Pelacakan';
+  static const String userPrivacyNoAdsDesc = 'Aplikasi ini bersih dari iklan pihak ketiga dan skrip pelacak.';
+  static const String userTentangDesc1 = 'Umma adalah aplikasi Muslim all-in-one yang dirancang untuk membantu ibadah sehari-hari dengan gaya iOS yang elegan.';
+  static const String userTentangDesc2 = 'Aplikasi ini 100% gratis tanpa iklan. Data Anda aman tersimpan secara lokal di perangkat.';
+  static const String userTentangDesc3 = 'Semoga menjadi amal jariyah dan bermanfaat bagi kita semua. 🤲';
+  static const String userCityNotFound = 'Tidak ditemukan kota untuk "{city}"';
+  // AI settings placeholder
+  static const String userGroqApiPlaceholder = 'gsk_...';
+
+  // ─── MURATTAL ────────────────────────────────────────────
+  static const String murattalCariSurah = 'Cari surah...';
+  static const String murattalPilihQari = 'Pilih Qari';
+  static const String murattalOffline = 'OFFLINE';
+  static const String murattalSurahNotFound = 'Surah tidak ditemukan';
+  static const String murattalSearchHint = 'Coba kata kunci lain';
+  static const String murattalDownloadingSurah = 'Mengunduh surah...';
+  static const String murattalDownloadCount = '{downloaded} dari {total} surah tersimpan';
+  static const String murattalActiveLabel = 'Aktif';
+
+  // ─── QURAN (tambahan) ─────────────────────────────────────
+  static const String quranModeHafalan = 'Mode Hafalan — ketuk untuk melihat ayat';
+  static const String quranAudioSiapOffline = 'Semua audio siap offline ({count})';
+  static const String quranDownloadAudio = 'Download Semua Audio ({downloaded}/{total})';
+  static const String quranAyatFormat = 'Ayat {number}';
+  static const String quranJuzFormat = 'Juz {number}';
+  static const String quranTotalAyat = '{total} Ayat';
+  static const String quranJuzLoadError = 'Gagal memuat Juz {number}';
+  static const String quranErrorNeedInternet = 'Aktifkan internet untuk memuat Surah "{name}" dari server';
+  static const String quranSurahNameList = '{surahs}';
+  static const String quranDoaSetelahBaca = 'Doa Setelah Membaca Al-Qur\'an';
+
+  // ─── ONBOARDING ────────────────────────────────────────────
+  static const String onboardingWelcomeTitle = 'Selamat Datang di Umma';
+  static const String onboardingQuranTitle = "Al-Qur'an Digital dengan Tafsir";
+  static const String onboardingShalatTitle = 'Jadwal Shalat & Dzikir Harian';
+  static const String onboardingFiturTitle = 'Fitur Lengkap untuk Muslim';
+  static const String onboardingUpdateTitle = 'Catatan Update';
+  static const String onboardingLanjut = 'Lanjut';
+  static const String onboardingMulai = 'Mulai';
+  static const String onboardingLewati = 'Lewati';
+  static const String onboardingVersionLoading = 'Memuat catatan update...';
+  // Onboarding page subtitles
+  static const String onboardingPage1Sub = 'Segala puji bagi Allah. Umma hadir untuk memudahkan Anda dalam menuntut ilmu syar\'i dan mengamalkannya. Aplikasi ini menyediakan Al-Qur\'an dengan tafsir, kumpulan hadits shahih, doa & dzikir pilihan, serta panduan fikih praktis. Semoga menjadi wasilah istiqomah Anda dalam beribadah.';
+  static const String onboardingPage2Sub = 'Baca Al-Qur\'an 114 surah dengan terjemah dan tafsir lengkap. Dilengkapi audio murottal, bookmark ayat, catatan pribadi, dan target khatam. Nikmati pengalaman membaca yang khusyuk dengan tampilan mushaf yang nyaman di mata.';
+  static const String onboardingPage3Sub = 'Jadwal shalat otomatis untuk kota Anda dengan notifikasi yang akurat. Lengkap dengan dzikir pagi-petua, doa sehari-hari, hadits Arbain, dan kompas kiblat. Jangan lewatkan waktu shalat dengan alarm yang tepat.';
+  static const String onboardingPage4Sub = 'Tracker ibadah harian, jurnal muhasabah, kalkulator zakat, tracker haid untuk muslimah, dan Muslim AI untuk tanya jawab agama. Semua fitur dirancang untuk membantu Anda lebih dekat dengan Allah.';
+  static const String onboardingSalam = 'السلام عليكم ورحمة الله';
+  static const String onboardingQuranArab = 'القرآن كلام الله';
+  static const String onboardingShalatArab = 'أقم الصلاة لذكري';
+  static const String onboardingIlmuArab = 'طلب العلم فريضة';
+
   // ─── COMMON ACTIONS ─────────────────────────────────────
   static const String yesHapus = 'Ya, Hapus';
   static const String update = 'Update';
@@ -417,5 +553,22 @@ class AppStrings {
   static const String reset = 'Reset';
   static const String bukaPengaturan = 'Buka Pengaturan';
   static const String versiBaru = 'Versi baru tersedia, silahkan update aplikasi Umma';
+  static const String updateVersi = 'Silahkan Update aplikasi Umma ke versi {version}';
+
+  // ─── UPDATE POPUP ──────────────────────────────────────────
+  static const String gagalMengunduh = 'Gagal Mengunduh';
+  static const String updateError = 'Terjadi kesalahan saat mengunduh pembaruan. Coba lagi nanti.';
+  static const String updateChecking = 'Memeriksa Update';
+  static const String updateCheckWait = 'Mohon tunggu...';
+  static const String updateAlreadyLatest = 'Aplikasi sudah versi terbaru';
+  static const String updateCheckError = 'Gagal memeriksa pembaruan. Pastikan koneksi internet aktif.';
+  static const String updateCheckFailed = 'Gagal';
+  static const String updateLatest = 'Terbaru';
+  static const String tutup = 'Tutup';
+  static const String installPermission = 'Aktifkan "Izinkan Install dari sumber tidak dikenal" di pengaturan, lalu kembali ke aplikasi untuk melanjutkan install.';
+
+  // ─── JURNAL ───────────────────────────────────────────────
+  static const String jurnalEntriTerbaru = 'ENTRI TERBARU';
+  static const String jurnalEntriTersimpan = '{count} entri tersimpan';
 }
 

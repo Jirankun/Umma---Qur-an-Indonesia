@@ -13,10 +13,45 @@ Perubahan :
 - Tafsir loading indicator — modal tafsir sekarang menampilkan CupertinoActivityIndicator saat memuat data
 - FAB "Hadits An-Nawawiyyah" diganti label menjadi "Hadits Arba'in"
 - Keyboard-aware bottom sheet — semua modal bottom sheet dengan form input sekarang otomatis terangkat saat keyboard muncul
-- Background sound aktif secara default pada fresh install
-- Onboarding screen — slides 3 halaman pengenalan fitur aplikasi
+- Background sound non-aktif secara default (fresh install)
+- Onboarding screen — slides 5 halaman pengenalan + partikel animasi
 - Tidak ada auto-download audio — user harus tap tombol Download atau play ayat untuk mengunduh audio
 - Fiqih content offline diperluas: Thaharah (10 materi), Sholat (15 materi), Puasa (15 materi), Zakat (10 materi), Haid (6 materi), Jenazah (7 materi), Amalan Ramadhan (6 materi) — konten detail dari Rumaysho.com
+- Semua URL hardcode dipindah ke ApiConfig (GitHub, Google Forms, Groq Console, dll)
+- Sentralisasi appName & appVersion ke AppStrings — baca dari build.gradle via package_info_plus
+- Video hero card muted sepenuhnya (flag _isMuted = true) — tidak mengganggu background sound
+- Background sound dilengkapi AndroidAudioFocus.none — tidak bentrok audio dengan video player
+- Background sound auto-reconnect — restart otomatis dalam 500ms jika terinterupsi
+- Hardcoded Color() di onboarding_screen.dart dipindah ke AppColors
+- Hardcoded UI strings di update_popup, jurnal_dashboard, daily_goal_tracker dipindah ke AppStrings
+- Dependensi package_info_plus ditambahkan untuk baca versi native
+
+
+Umma v1.0.2
+
+Perubahan :
+- Fitur Murattal — layar baru pemutar audio Quran full surah (114 surah) dengan player bawah (seekbar, play/pause, prev/next, time, Loop One)
+- Speed-Dial FAB — tombol utama Beranda jadi expandable: Arba'in + Murattal (ikon buku + audio)
+- Qari picker — pilih 6 qari (Misyari, Sudais, dll) di Murattal, CDN audio otomatis menyesuaikan
+- Download audio per surah — tap surah → download dulu baru play, dengan progress bar realtime
+- Download All — tombol download semua surah sekaligus, progress bar di atas list
+- Audio status per surah — centang hijau (selesai), % hijau (sedang), play/pause abu (streaming)
+- Durasi audio di daftar surah — tersimpan otomatis saat pertama diputar
+- Offline mode — hanya tampilkan surah yang sudah di-download saat offline
+- Background playback — audio tetap jalan walau app di-minimize atau layar mati (Android foreground service via audio_service)
+- Notifikasi lock screen — kontrol play/pause dari notifikasi Android (audio_service)
+- Dependensi audio_service & audio_session ditambahkan untuk foreground service
+- File handler baru: lib/services/murattal_audio_handler.dart
+- File screen baru: lib/screens/murattal/murattal_screen.dart
+
+Perbaikan :
+- Perbaiki double circular progress di daftar surah Murattal — nomor surah tetap terlihat saat download, hanya satu indikator progress di sisi kanan (CircularProgressIndicator dengan persentase)
+- Perbaiki audio pause saat lock screen / control panel Android — tambah WidgetsBindingObserver untuk sinkronisasi ulang play state saat app resume
+- Simpan posisi playback otomatis saat app di-minimize
+- Tambah error handling — banner merah dengan pesan error + auto-dismiss 5 detik jika audio gagal dimuat
+- Fallback streaming otomatis — jika download gagal, coba streaming; jika streaming juga gagal, tampilkan pesan error
+- Ekstraksi trailing icon surah jadi method terpisah (_buildSurahTrailingIcon) untuk kode lebih bersih
 
 dev :
 - Zhyllan Fyllah
+
