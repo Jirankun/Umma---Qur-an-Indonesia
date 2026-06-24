@@ -27,25 +27,25 @@ class _JurnalDashboardScreenState extends State<JurnalDashboardScreen> {
   static const List<Map<String, dynamic>> _categories = [
     {
       'id': 'daily',
-      'title': 'Refleksi Harian',
+      'title': AppStrings.jurnalRefleksiHarian,
       'emoji': '📝',
       'color': AppColors.primary,
     },
     {
       'id': 'syukur',
-      'title': 'Catatan Syukur',
+      'title': AppStrings.jurnalCatatanSyukur,
       'emoji': '💚',
       'color': AppColors.accent,
     },
     {
       'id': 'ikhlaskan',
-      'title': 'Ruang Ikhlas',
+      'title': AppStrings.jurnalRuangIkhlas,
       'emoji': '🕊️',
       'color': AppColors.error,
     },
     {
       'id': 'bebas',
-      'title': 'Catatan Bebas',
+      'title': AppStrings.jurnalCatatanBebas,
       'emoji': '✏️',
       'color': AppColors.warning,
     },
@@ -96,7 +96,7 @@ class _JurnalDashboardScreenState extends State<JurnalDashboardScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${provider.entries.length} entri tersimpan',
+                      AppStrings.jurnalEntriTersimpan.replaceFirst('{count}', '${provider.entries.length}'),
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark
@@ -192,9 +192,8 @@ class _JurnalDashboardScreenState extends State<JurnalDashboardScreen> {
             if (provider.entries.isNotEmpty) ...[
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                sliver: SliverToBoxAdapter(
-                  child: Text(
-                    'ENTRI TERBARU',
+                sliver: SliverToBoxAdapter(                    child: Text(
+                      AppStrings.jurnalEntriTerbaru,
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -526,7 +525,7 @@ class _JournalWriteSheetState extends State<_JournalWriteSheet> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    isEditing ? 'Edit Catatan' : 'Tulis Jurnal',
+                    isEditing ? AppStrings.jurnalEditCatatan : AppStrings.jurnalTulis,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -538,7 +537,7 @@ class _JournalWriteSheetState extends State<_JournalWriteSheet> {
                   CupertinoButton(
                     padding: EdgeInsets.zero,
                     child: Text(
-                      isEditing ? 'Perbarui' : 'Simpan',
+                      isEditing ? AppStrings.jurnalPerbarui : AppStrings.jurnalSimpan,
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     onPressed: () {
@@ -565,7 +564,7 @@ class _JournalWriteSheetState extends State<_JournalWriteSheet> {
               const SizedBox(height: 12),
               CupertinoTextField(
                 controller: _titleController,
-                placeholder: 'Judul (opsional)',
+                placeholder: AppStrings.jurnalPlaceholderJudul,
                 padding: const EdgeInsets.all(12),
                 style: TextStyle(
                   color: isDark ? CupertinoColors.white : AppColors.textLight,
@@ -588,7 +587,7 @@ class _JournalWriteSheetState extends State<_JournalWriteSheet> {
               Expanded(
                 child: CupertinoTextField(
                   controller: _contentController,
-                  placeholder: 'Tulis sesuatu...',
+                  placeholder: AppStrings.jurnalPlaceholderIsi,
                   maxLines: null,
                   expands: true,
                   textAlignVertical: TextAlignVertical.top,

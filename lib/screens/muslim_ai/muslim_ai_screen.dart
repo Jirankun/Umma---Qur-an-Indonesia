@@ -4,6 +4,7 @@ import '../../config/colors.dart';
 import '../../config/strings.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../config/api_config.dart';
 import '../../providers/muslim_ai_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/hadits_provider.dart';
@@ -244,7 +245,7 @@ class _MuslimAiScreenState extends State<MuslimAiScreen> {
   /// Open Google Search in external browser
   Future<void> _openGoogleSearch(String query) async {
     final encoded = Uri.encodeComponent(query);
-    final url = 'https://www.google.com/search?q=$encoded';
+    final url = '${ApiConfig.googleSearchBaseUrl}?q=$encoded';
     final uri = Uri.parse(url);
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);

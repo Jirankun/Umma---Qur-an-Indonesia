@@ -45,6 +45,7 @@ class _P2pSyncScreenState extends State<P2pSyncScreen> {
   // ─── RECEIVE STATE ───────────────────────────────────────
   bool _isProcessing = false;
   String _scanStatus = '';
+  final MobileScannerController _scannerController = MobileScannerController();
 
   // ═══════════════════════════════════════════════════════
   //  SEND LOGIC
@@ -120,6 +121,8 @@ class _P2pSyncScreenState extends State<P2pSyncScreen> {
   void _onQrDetected(String data) {
     if (_isProcessing) return; // prevent double processing
     setState(() => _isProcessing = true);
+    // Tutup kamera segera setelah QR terbaca
+    _scannerController.stop();
     _restoreFromQrData(data);
   }
 
@@ -138,19 +141,103 @@ class _P2pSyncScreenState extends State<P2pSyncScreen> {
       final restored = await LocalStorage().restoreFromExport(data);
 
       if (mounted) {
-        _reloadAllProviders();
+        await _reloadAllProviders();
         setState(() {
-          _scanStatus = '✅ $restored data berhasil dipulihkan!';
           _isProcessing = false;
         });
-        _showToast('Data berhasil dipulihkan!');
+        // Tampilkan Cupertino modal sukses — bukan toast
+        _showSuccessModal(restored);
       }
     } catch (e) {
       setState(() {
-        _scanStatus = '❌ Gagal: $e';
+        _scanStatus = 'Gagal: $e';
         _isProcessing = false;
       });
     }
+  }
+
+  /// Tampilkan Cupertino modal sukses dengan icon proper (bukan emoji)
+  void _showSuccessModal(int restored) {
+    if (!mounted) return;
+    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDark;
+
+    showCupertinoModalPopup(
+      context: context,
+      builder: (ctx) => Container(
+        height: 340,
+        decoration: BoxDecoration(
+          color: isDark
+              ? AppColors.surfaceDark
+              : CupertinoColors.systemBackground,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(20),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.systemGrey4,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Icon sukses — bukan emoji
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: AppColors.toolTeal.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  CupertinoIcons.check_mark_circled_solid,
+                  size: 44,
+                  color: AppColors.toolTeal,
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Data Berhasil Dipulihkan',
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                '$restored data berhasil dipulihkan.\nSemua pengaturan dan progres sudah diterapkan.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  height: 1.4,
+                  color: CupertinoColors.systemGrey,
+                ),
+              ),
+              const Spacer(),
+              CupertinoButton.filled(
+                child: const Text(
+                  'Oke',
+                  style: TextStyle(fontSize: 16),
+                ),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  setState(() {
+                    _scanStatus = '';
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   // ═══════════════════════════════════════════════════════
@@ -534,11 +621,12 @@ class _P2pSyncScreenState extends State<P2pSyncScreen> {
             child: Stack(
               children: [
                 MobileScanner(
+                  controller: _scannerController,
                   fit: BoxFit.cover,
                   onDetect: (capture) {
                     final barcode = capture.barcodes.firstOrNull;
                     final rawValue = barcode?.rawValue;
-                    if (rawValue != null) {
+                    if (rawValue != null && !_isProcessing) {
                       _onQrDetected(rawValue);
                     }
                   },
@@ -751,51 +839,41 @@ class _P2pSyncScreenState extends State<P2pSyncScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    _scannerController.dispose();
+    super.dispose();
+  }
+
   /// Reload ALL providers after data restore — shared antara QR scan & file import
-  void _reloadAllProviders() {
+  /// Semua loadX() dijalankan parallel via Future.wait() untuk kecepatan maksimal.
+  Future<void> _reloadAllProviders() async {
+    final futures = <Future<void>>[];
+
     // Theme
     final themeStr = LocalStorage().getString(ApiConfig.storageKeyTheme);
     if (themeStr != null) {
       context.read<ThemeProvider>().loadTheme(themeStr);
     }
 
-    // User
-    context.read<UserProvider>().loadProfile();
+    // Provider loads — semua dijalankan parallel
+    futures.add(context.read<UserProvider>().loadProfile());
+    futures.add(context.read<TrackerProvider>().loadTrackers());
+    futures.add(context.read<QuranProvider>().loadStoredData());
+    futures.add(context.read<DoaProvider>().loadData());
+    futures.add(context.read<HaditsProvider>().loadBooks());
+    futures.add(context.read<FiqihProvider>().loadContent());
+    futures.add(context.read<JournalProvider>().loadJournals());
+    futures.add(context.read<ZakatProvider>().loadSavedSettings());
+    futures.add(context.read<HaidProvider>().loadData());
+    futures.add(context.read<TasbihProvider>().loadSettings());
+    futures.add(context.read<MuslimAiProvider>().loadCooldown());
+    futures.add(context.read<BackgroundSoundProvider>().loadSettings());
 
-    // Tracker
-    context.read<TrackerProvider>().loadTrackers();
+    // Tunggu semua selesai parallel
+    await Future.wait(futures);
 
-    // Quran
-    context.read<QuranProvider>().loadStoredData();
-
-    // Doa
-    context.read<DoaProvider>().loadData();
-
-    // Hadits
-    context.read<HaditsProvider>().loadBooks();
-
-    // Fiqih
-    context.read<FiqihProvider>().loadContent();
-
-    // Jurnal
-    context.read<JournalProvider>().loadJournals();
-
-    // Zakat
-    context.read<ZakatProvider>().loadSavedSettings();
-
-    // Haid
-    context.read<HaidProvider>().loadData();
-
-    // Tasbih
-    context.read<TasbihProvider>().loadSettings();
-
-    // Muslim AI
-    context.read<MuslimAiProvider>().loadCooldown();
-
-    // Background sound
-    context.read<BackgroundSoundProvider>().loadSettings();
-
-    // Prayer times
+    // Prayer times (butuh user profile kota yang sudah di-load)
     final userProvider = context.read<UserProvider>();
     final currentCity = userProvider.profile?.locationCity;
     if (currentCity != null) {

@@ -7,6 +7,10 @@ import '../../../providers/update_provider.dart';
 
 /// Tampilkan mandatory update popup — tidak bisa ditutup, hanya 1 tombol Update.
 void showUpdatePopup(BuildContext context, UpdateProvider provider) {
+  // Cegah stacking popup
+  if (provider.isPopupVisible) return;
+  provider.setPopupVisible(true);
+
   final isDark = Provider.of<ThemeProvider>(context).isDark;
 
   showCupertinoDialog(
@@ -47,7 +51,7 @@ void showUpdatePopup(BuildContext context, UpdateProvider provider) {
             style: TextStyle(
               fontSize: 14,
               height: 1.4,
-              color: isDark ? CupertinoColors.white : AppColors.textLight,
+              color: isDark ? AppColors.cupertinoWhite : AppColors.textLight,
             ),
           ),
         ),
@@ -55,6 +59,7 @@ void showUpdatePopup(BuildContext context, UpdateProvider provider) {
           CupertinoDialogAction(
             isDefaultAction: true,
             onPressed: () {
+              provider.setPopupVisible(false);
               Navigator.of(ctx).pop();
               provider.startDownload();
               showDownloadProgress(context, provider);
@@ -76,6 +81,10 @@ void showUpdatePopup(BuildContext context, UpdateProvider provider) {
 
 /// Tampilkan download progress popup — mandatory, tidak bisa ditutup.
 void showDownloadProgress(BuildContext context, UpdateProvider provider) {
+  // Cegah stacking popup
+  if (provider.isPopupVisible) return;
+  provider.setPopupVisible(true);
+
   showCupertinoDialog(
     context: context,
     barrierDismissible: false,
@@ -114,6 +123,7 @@ class _DownloadProgressDialogState extends State<_DownloadProgressDialog> {
   @override
   void dispose() {
     widget.provider.removeListener(_onProviderChange);
+    widget.provider.setPopupVisible(false);
     super.dispose();
   }
 
@@ -128,6 +138,7 @@ class _DownloadProgressDialogState extends State<_DownloadProgressDialog> {
       // Install butuh izin — tutup download dialog, tampilkan permission dialog
       if (widget.dialogContext.mounted) {
         Navigator.of(widget.dialogContext).pop();
+        widget.provider.setPopupVisible(false);
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (widget.context.mounted) {
@@ -138,57 +149,26 @@ class _DownloadProgressDialogState extends State<_DownloadProgressDialog> {
       // Install berhasil (reset) — tutup dialog
       if (widget.dialogContext.mounted) {
         Navigator.of(widget.dialogContext).pop();
+        widget.provider.setPopupVisible(false);
       }
     } else if (status == UpdateStatus.error) {
-      // Error — tutup dialog
+      // Error — tutup dialog download, tampilkan popup error
       if (widget.dialogContext.mounted) {
         Navigator.of(widget.dialogContext).pop();
+        widget.provider.setPopupVisible(false);
       }
-      _showErrorToast(
-        widget.context,
-        widget.provider.error ?? 'Gagal download',
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (widget.context.mounted) {
+          showErrorPopup(widget.context, widget.provider);
+        }
+      });
     } else {
       setState(() {});
     }
   }
 
-  void _showErrorToast(BuildContext context, String message) {
-    if (!context.mounted) return;
-    final overlay = Overlay.of(context);
-    final entry = OverlayEntry(
-      builder: (_) => Positioned(
-        left: 20,
-        right: 20,
-        bottom: MediaQuery.of(context).padding.bottom + 20,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          decoration: BoxDecoration(
-            color: AppColors.textLight,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            message,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: CupertinoColors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
-    );
-    overlay.insert(entry);
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) entry.remove();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final isDark = Provider.of<ThemeProvider>(context).isDark;
-
     return PopScope(
       canPop: false,
       child: CupertinoAlertDialog(
@@ -218,7 +198,7 @@ class _DownloadProgressDialogState extends State<_DownloadProgressDialog> {
               Container(
                 height: 6,
                 decoration: BoxDecoration(
-                  color: CupertinoColors.systemGrey5,
+                  color: AppColors.cupertinoSystemGrey5,
                   borderRadius: BorderRadius.circular(3),
                 ),
                 child: widget.provider.downloadTotal > 0
@@ -253,9 +233,7 @@ class _DownloadProgressDialogState extends State<_DownloadProgressDialog> {
                     : '${_formatSize(widget.provider.downloadProgress)} — Mengunduh...',
                 style: TextStyle(
                   fontSize: 12,
-                  color: isDark
-                      ? CupertinoColors.systemGrey
-                      : CupertinoColors.systemGrey,
+                  color: AppColors.cupertinoSystemGrey,
                 ),
               ),
               const SizedBox(height: 4),
@@ -278,8 +256,78 @@ class _DownloadProgressDialogState extends State<_DownloadProgressDialog> {
   }
 }
 
+/// Tampilkan popup error download — proper dialog, bukan toast.
+void showErrorPopup(BuildContext context, UpdateProvider provider) {
+  // Cegah stacking popup
+  if (provider.isPopupVisible) return;
+  provider.setPopupVisible(true);
+
+  final isDark = Provider.of<ThemeProvider>(context, listen: false).isDark;
+
+  showCupertinoDialog(
+    context: context,
+    builder: (ctx) => CupertinoAlertDialog(
+      title: Column(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: AppColors.cupertinoSystemRed.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              CupertinoIcons.exclamationmark_triangle_fill,
+              size: 28,
+              color: AppColors.cupertinoSystemRed,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            AppStrings.gagalMengunduh,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+          ),
+        ],
+      ),
+      content: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Text(
+          provider.error ?? AppStrings.updateError,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
+            height: 1.4,
+            color: isDark ? AppColors.cupertinoWhite : AppColors.textLight,
+          ),
+        ),
+      ),
+      actions: [
+        CupertinoDialogAction(
+          isDefaultAction: true,
+          onPressed: () {
+            provider.setPopupVisible(false);
+            Navigator.of(ctx).pop();
+          },
+          child: Text(
+            AppStrings.tutup,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: AppColors.primary,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 /// Tampilkan popup install permission needed.
 void showInstallPermissionPopup(BuildContext context, UpdateProvider provider) {
+  // Cegah stacking popup
+  if (provider.isPopupVisible) return;
+  provider.setPopupVisible(true);
+
   final isDark = Provider.of<ThemeProvider>(context).isDark;
 
   showCupertinoDialog(
@@ -294,13 +342,13 @@ void showInstallPermissionPopup(BuildContext context, UpdateProvider provider) {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: CupertinoColors.systemOrange.withValues(alpha: 0.15),
+                color: AppColors.cupertinoSystemOrange.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 CupertinoIcons.shield_fill,
                 size: 28,
-                color: CupertinoColors.systemOrange,
+                color: AppColors.cupertinoSystemOrange,
               ),
             ),
             const SizedBox(height: 12),
@@ -313,13 +361,12 @@ void showInstallPermissionPopup(BuildContext context, UpdateProvider provider) {
         content: Padding(
           padding: const EdgeInsets.only(top: 8),
           child: Text(
-            'Aktifkan "Izinkan Install dari sumber tidak dikenal" '
-            'di pengaturan, lalu kembali ke aplikasi untuk melanjutkan install.',
+            AppStrings.installPermission,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
               height: 1.4,
-              color: isDark ? CupertinoColors.white : AppColors.textLight,
+              color: isDark ? AppColors.cupertinoWhite : AppColors.textLight,
             ),
           ),
         ),
@@ -327,6 +374,7 @@ void showInstallPermissionPopup(BuildContext context, UpdateProvider provider) {
           CupertinoDialogAction(
             isDefaultAction: true,
             onPressed: () {
+              provider.setPopupVisible(false);
               Navigator.of(ctx).pop();
               provider.openInstallSettings();
               // retryInstall akan dipanggil saat app resume (lifecycle)
@@ -349,6 +397,10 @@ void showInstallPermissionPopup(BuildContext context, UpdateProvider provider) {
 /// Tampilkan popup cek update — SATU DIALOG dengan teks yang berubah.
 /// Loading → sukses/gagal — bukan 2 entitas terpisah.
 void showUpdateCheckPopup(BuildContext context, UpdateProvider provider) {
+  // Cegah stacking popup
+  if (provider.isPopupVisible) return;
+  provider.setPopupVisible(true);
+
   final ctx = context;
   showCupertinoDialog(
     context: context,
@@ -393,6 +445,7 @@ class _UpdateCheckDialogState extends State<_UpdateCheckDialog> {
   @override
   void dispose() {
     widget.provider.removeListener(_onStatusChange);
+    widget.provider.setPopupVisible(false);
     super.dispose();
   }
 
@@ -401,21 +454,22 @@ class _UpdateCheckDialogState extends State<_UpdateCheckDialog> {
     switch (widget.provider.status) {
       case UpdateStatus.checking:
         setState(() {
-          _message = 'Mohon tunggu...';
+          _message = AppStrings.updateCheckWait;
           _isLoading = true;
           _isSuccess = false;
         });
         break;
       case UpdateStatus.noUpdate:
         setState(() {
-          _message = 'Aplikasi sudah versi terbaru';
+          _message = AppStrings.updateAlreadyLatest;
           _isLoading = false;
           _isSuccess = true;
         });
         break;
       case UpdateStatus.updateAvailable:
-        // Tutup dialog cek — lalu tampilkan popup update
+        // Tutup dialog cek — reset flag dulu agar showUpdatePopup bisa tampil
         if (widget.dialogContext.mounted) {
+          widget.provider.setPopupVisible(false);
           Navigator.of(widget.dialogContext).pop();
         }
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -425,10 +479,8 @@ class _UpdateCheckDialogState extends State<_UpdateCheckDialog> {
         });
         break;
       case UpdateStatus.error:
-        final errMsg = widget.provider.error;
         setState(() {
-          _message =
-              'Gagal memeriksa update${errMsg != null ? ': $errMsg' : ''}';
+          _message = AppStrings.updateCheckError;
           _isLoading = false;
           _isSuccess = false;
         });
@@ -454,7 +506,7 @@ class _UpdateCheckDialogState extends State<_UpdateCheckDialog> {
                     ? AppColors.accent.withValues(alpha: 0.1)
                     : _isLoading
                     ? AppColors.primary.withValues(alpha: 0.1)
-                    : CupertinoColors.systemRed.withValues(alpha: 0.1),
+                    : AppColors.cupertinoSystemRed.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: _isLoading
@@ -468,16 +520,16 @@ class _UpdateCheckDialogState extends State<_UpdateCheckDialog> {
                   : const Icon(
                       CupertinoIcons.exclamationmark_triangle_fill,
                       size: 28,
-                      color: CupertinoColors.systemRed,
+                      color: AppColors.cupertinoSystemRed,
                     ),
             ),
             const SizedBox(height: 12),
             Text(
               _isLoading
-                  ? 'Memeriksa Update'
+                  ? AppStrings.updateChecking
                   : _isSuccess
-                  ? 'Terbaru'
-                  : 'Gagal',
+                  ? AppStrings.updateLatest
+                  : AppStrings.updateCheckFailed,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
           ],
@@ -490,7 +542,7 @@ class _UpdateCheckDialogState extends State<_UpdateCheckDialog> {
             style: TextStyle(
               fontSize: 14,
               height: 1.4,
-              color: isDark ? CupertinoColors.white : AppColors.textLight,
+              color: isDark ? AppColors.cupertinoWhite : AppColors.textLight,
             ),
           ),
         ),
@@ -499,10 +551,13 @@ class _UpdateCheckDialogState extends State<_UpdateCheckDialog> {
             : [
                 CupertinoDialogAction(
                   isDefaultAction: true,
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text(
-                    'Tutup',
-                    style: TextStyle(
+                  onPressed: () {
+                    widget.provider.setPopupVisible(false);
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    AppStrings.tutup,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: AppColors.primary,

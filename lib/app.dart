@@ -4,6 +4,7 @@ import 'config/colors.dart';
 import 'config/strings.dart';
 import 'providers/theme_provider.dart';
 import 'services/local_storage.dart';
+import 'utils/app_info.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/quran/quran_index_screen.dart';
@@ -39,7 +40,7 @@ class _UmmaAppState extends State<UmmaApp> {
   }
 
   Future<void> _checkOnboarding() async {
-    final done = LocalStorage().getBool('umma_onboarding_done') ?? false;
+    final done = LocalStorage().getBool('umma_onboarding_done_${AppInfo.version}') ?? false;
     if (mounted) {
       setState(() => _isFirstLaunch = !done);
     }

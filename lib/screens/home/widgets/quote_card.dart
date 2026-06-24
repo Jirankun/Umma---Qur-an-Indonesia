@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../../../config/colors.dart';
+import '../../../config/strings.dart';
 import '../../../services/ai_content_service.dart';
 
 class QuoteCard extends StatefulWidget {
@@ -76,11 +77,11 @@ class _QuoteCardState extends State<QuoteCard> {
                   ],
                 ),
                 Text(
-                  'Hari ${DateTime.now().day}',
+                  AppStrings.homeHariFormat.replaceAll('{day}', '${DateTime.now().day}'),
                   style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
-                    color: CupertinoColors.systemGrey,
+                    color: AppColors.cupertinoSystemGrey,
                   ),
                 ),
               ],
@@ -97,7 +98,7 @@ class _QuoteCardState extends State<QuoteCard> {
                   fontStyle: FontStyle.italic,
                   height: 1.5,
                   color: widget.isDark
-                      ? CupertinoColors.white
+                      ? AppColors.cupertinoWhite
                       : AppColors.textLight,
                 ),
               ),
@@ -117,7 +118,7 @@ class _QuoteCardState extends State<QuoteCard> {
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: widget.isDark
-                            ? CupertinoColors.systemGrey
+                            ? AppColors.cupertinoSystemGrey
                             : AppColors.textSecondary,
                       ),
                     ),

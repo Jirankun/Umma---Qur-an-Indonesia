@@ -28,6 +28,7 @@ import '../tracker/tracker_screen.dart';
 import '../tracker/tracker_dashboard_screen.dart';
 import '../jurnal/jurnal_dashboard_screen.dart';
 import '../haid/haid_tracker_screen.dart';
+import '../murattal/murattal_screen.dart';
 import '../user/user_profile_screen.dart';
 import 'widgets/hero_card.dart';
 import 'widgets/daily_goal_tracker.dart';
@@ -180,9 +181,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.surfaceDark
-            : CupertinoColors.systemBackground,
+        color: AppColors.navbar(isDark),
       ),
       child: SafeArea(
         top: false,
@@ -283,8 +282,8 @@ class _TabItemState extends State<_TabItem>
   Widget build(BuildContext context) {
     final activeColor = AppColors.primary;
     final inactiveColor = widget.isDark
-        ? CupertinoColors.systemGrey
-        : CupertinoColors.systemGrey2;
+        ? AppColors.cupertinoSystemGrey
+        : AppColors.cupertinoSystemGrey2;
     final color = widget.isActive ? activeColor : inactiveColor;
 
     return GestureDetector(
@@ -315,6 +314,211 @@ class _TabItemState extends State<_TabItem>
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── SPEED-DIAL FAB: Arba'in + Murattal ──────────────────
+class _SpeedDialFab extends StatefulWidget {
+  final bool isDark;
+  final VoidCallback onArbainTap;
+  final VoidCallback onMurattalTap;
+
+  const _SpeedDialFab({
+    required this.isDark,
+    required this.onArbainTap,
+    required this.onMurattalTap,
+  });
+
+  @override
+  State<_SpeedDialFab> createState() => _SpeedDialFabState();
+}
+
+class _SpeedDialFabState extends State<_SpeedDialFab>
+    with SingleTickerProviderStateMixin {
+  bool _expanded = false;
+  late AnimationController _animController;
+  late Animation<double> _expandAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
+    _expandAnimation = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOutBack,
+      reverseCurve: Curves.easeIn,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
+  void _toggle() {
+    setState(() {
+      _expanded = !_expanded;
+      if (_expanded) {
+        _animController.forward();
+      } else {
+        _animController.reverse();
+      }
+    });
+  }
+
+  void _handleTap(VoidCallback onTap) {
+    _toggle();
+    onTap();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      right: 20,
+      bottom: 20,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          // ── Child FAB: Arba'in ──
+          _buildChildItem(
+            icon: CupertinoIcons.book_fill,
+            label: AppStrings.homeArbainTitle,
+            color: AppColors.heat4,
+            index: 1,
+            onTap: () => _handleTap(widget.onArbainTap),
+          ),
+          const SizedBox(height: 12),
+          // ── Child FAB: Murattal ──
+          _buildChildItem(
+            icon: CupertinoIcons.music_mic,
+            label: AppStrings.murattalTitle,
+            color: AppColors.toolIndigo,
+            index: 0,
+            onTap: () => _handleTap(widget.onMurattalTap),
+          ),
+          const SizedBox(height: 12),
+          // ── Main FAB ──
+          GestureDetector(
+            onTap: _toggle,
+            child: Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: AppColors.heat4,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.heat4.withValues(alpha: 0.4),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: AnimatedRotation(
+                turns: _expanded ? 0.125 : 0,
+                duration: const Duration(milliseconds: 250),
+                child: const Icon(
+                  CupertinoIcons.book_fill,
+                  size: 22,
+                  color: CupertinoColors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChildItem({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required int index,
+    required VoidCallback onTap,
+  }) {
+    return AnimatedBuilder(
+      animation: _animController,
+      builder: (context, child) {
+        final expandValue = _expandAnimation.value;
+        final fadeValue = _fadeAnimation.value;
+
+        return Opacity(
+          opacity: fadeValue,
+          child: Transform.translate(
+            offset: Offset(0, 20 * (1 - expandValue)),
+            child: child,
+          ),
+        );
+      },
+      child: GestureDetector(
+        onTap: onTap,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Label (to the LEFT of icon)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: widget.isDark
+                    ? AppColors.surfaceDark
+                    : AppColors.cupertinoWhite,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color                    : AppColors.blackWithAlpha(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: widget.isDark
+                      ? AppColors.cupertinoWhite
+                      : AppColors.textLight,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Icon circle
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.4),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(
+                icon,
+                size: 20,
+                color: CupertinoColors.white,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -410,41 +614,11 @@ class HomeContentState extends State<HomeContent> {
             ),
           ),
         ),
-        // ─── FAB: Hadits An-Nawawiyyah ───
-        Positioned(
-          right: 20,
-          bottom: 20,
-          child: GestureDetector(
-            onTap: () => _navigateTo(context, '/arbain'),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.heat4,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.heat4.withValues(alpha: 0.4),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    CupertinoIcons.book_fill,
-                    size: 18,
-                    color: CupertinoColors.white,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    AppStrings.homeArbainTitle,
-                  ),
-                ],
-              ),
-            ),
-          ),
+        // ─── Speed-Dial FAB: Arba'in + Murattal ───
+        _SpeedDialFab(
+          isDark: isDark,
+          onArbainTap: () => _navigateTo(context, '/arbain'),
+          onMurattalTap: () => _navigateTo(context, '/murattal'),
         ),
       ],
     );
@@ -733,8 +907,10 @@ class HomeContentState extends State<HomeContent> {
         .firstOrNull;
     final totalAyat = surah?.jumlahAyat ?? 0;
     final progressText = totalAyat > 0
-        ? 'Ayat ${lastRead.ayahNumber} dari $totalAyat'
-        : 'Ayat ${lastRead.ayahNumber}';
+        ? AppStrings.homeAyatDariFormat
+            .replaceAll('{number}', '${lastRead.ayahNumber}')
+            .replaceAll('{total}', '$totalAyat')
+        : AppStrings.homeAyatFormat.replaceAll('{number}', '${lastRead.ayahNumber}');
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
@@ -817,14 +993,12 @@ class HomeContentState extends State<HomeContent> {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            'LANJUT BACA',
+                            AppStrings.homeLanjutBaca,
                             style: TextStyle(
                               fontSize: 8,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 0.8,
-                              color: CupertinoColors.white.withValues(
-                                alpha: 0.9,
-                              ),
+                              color: AppColors.whiteWithAlpha(0.9),
                             ),
                           ),
                         ),
@@ -902,6 +1076,8 @@ class HomeContentState extends State<HomeContent> {
                   return const HaidTrackerScreen();
                 case '/arbain':
                   return const HaditsArbainScreen();
+                case '/murattal':
+                  return const MurattalScreen();
                 default:
                   return const SizedBox();
               }

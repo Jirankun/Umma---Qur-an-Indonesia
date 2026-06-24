@@ -65,7 +65,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: isDark
             ? AppColors.surfaceDark
-            : CupertinoColors.systemBackground,
+            : AppColors.cupertinoSystemBackground,
         middle: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -182,8 +182,8 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
               style: TextStyle(
                 fontSize: 11,
                 color: isDark
-                    ? CupertinoColors.systemGrey
-                    : CupertinoColors.systemGrey,
+                    ? AppColors.cupertinoSystemGrey
+                    : AppColors.cupertinoSystemGrey,
               ),
             ),
         ],
@@ -207,7 +207,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                       ? CupertinoIcons.search
                       : CupertinoIcons.bookmark,
                   size: 48,
-                  color: CupertinoColors.systemGrey,
+                  color: AppColors.cupertinoSystemGrey,
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -217,7 +217,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: CupertinoColors.systemGrey,
+                    color: AppColors.cupertinoSystemGrey,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -228,8 +228,8 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark
-                        ? CupertinoColors.systemGrey
-                        : CupertinoColors.systemGrey,
+                        ? AppColors.cupertinoSystemGrey
+                        : AppColors.cupertinoSystemGrey,
                   ),
                 ),
               ],
@@ -276,12 +276,12 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : CupertinoColors.white,
+            color: isDark ? AppColors.surfaceDark : AppColors.cupertinoWhite,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isDark
                   ? AppColors.textLight
-                  : CupertinoColors.systemGrey6,
+                  : AppColors.cupertinoSystemGrey6,
             ),
           ),
           child: Row(
@@ -310,7 +310,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: isDark
-                            ? CupertinoColors.white
+                            ? AppColors.cupertinoWhite
                             : AppColors.textLight,
                       ),
                     ),
@@ -320,8 +320,8 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark
-                            ? CupertinoColors.systemGrey
-                            : CupertinoColors.systemGrey,
+                            ? AppColors.cupertinoSystemGrey
+                            : AppColors.cupertinoSystemGrey,
                       ),
                     ),
                   ],
@@ -350,13 +350,13 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                   decoration: BoxDecoration(
                     color: isDark
                         ? AppColors.textLight
-                        : CupertinoColors.systemGrey6,
+                        : AppColors.cupertinoSystemGrey6,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     CupertinoIcons.trash,
                     size: 16,
-                    color: CupertinoColors.systemRed,
+                    color: AppColors.cupertinoSystemRed,
                   ),
                 ),
               ),
@@ -387,7 +387,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
             const Icon(
               CupertinoIcons.search,
               size: 40,
-              color: CupertinoColors.systemGrey,
+              color: AppColors.cupertinoSystemGrey,
             ),
             const SizedBox(height: 12),
             Text(
@@ -396,8 +396,8 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
               style: TextStyle(
                 fontSize: 13,
                 color: isDark
-                    ? CupertinoColors.systemGrey
-                    : CupertinoColors.systemGrey,
+                    ? AppColors.cupertinoSystemGrey
+                    : AppColors.cupertinoSystemGrey,
               ),
             ),
           ],
@@ -414,7 +414,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
         decoration: BoxDecoration(
           color: isDark
               ? AppColors.textLight
-              : CupertinoColors.tertiarySystemBackground,
+              : AppColors.cupertinoTertiarySystemBackground,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -422,7 +422,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
             const Icon(
               CupertinoIcons.search,
               size: 18,
-              color: CupertinoColors.systemGrey,
+              color: AppColors.cupertinoSystemGrey,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -436,7 +436,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   color: isDark
-                      ? CupertinoColors.white
+                      ? AppColors.cupertinoWhite
                       : AppColors.textLight,
                 ),
                 onChanged: (v) =>
@@ -452,7 +452,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                 child: const Icon(
                   CupertinoIcons.clear_circled_solid,
                   size: 18,
-                  color: CupertinoColors.systemGrey,
+                  color: AppColors.cupertinoSystemGrey,
                 ),
               ),
           ],
@@ -468,7 +468,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
         padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(              color: isDark
                   ? AppColors.textLight
-                  : CupertinoColors.systemGrey5,
+                  : AppColors.cupertinoSystemGrey5,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -488,13 +488,13 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                     color: isActive
                         ? (isDark
                               ? AppColors.surfaceDark
-                              : CupertinoColors.white)
+                              : AppColors.cupertinoWhite)
                         : null,
                     borderRadius: BorderRadius.circular(8),
                     boxShadow: isActive && !isDark
                         ? [
                             BoxShadow(
-                              color: CupertinoColors.black.withValues(alpha: 0.06),
+                              color: AppColors.cupertinoBlack.withValues(alpha: 0.06),
                               blurRadius: 4,
                               offset: const Offset(0, 1),
                             ),
@@ -512,8 +512,8 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                       color: isActive
                           ? AppColors.primary
                           : (isDark
-                                ? CupertinoColors.systemGrey
-                                : CupertinoColors.systemGrey),
+                                ? AppColors.cupertinoSystemGrey
+                                : AppColors.cupertinoSystemGrey),
                     ),
                   ),
                 ),
@@ -564,12 +564,12 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : CupertinoColors.white,
+                color: isDark ? AppColors.surfaceDark : AppColors.cupertinoWhite,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: isDark
                       ? AppColors.textLight
-                      : CupertinoColors.systemGrey6,
+                      : AppColors.cupertinoSystemGrey6,
                 ),
               ),
               child: Column(
@@ -595,7 +595,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: isDark
-                          ? CupertinoColors.white
+                          ? AppColors.cupertinoWhite
                           : AppColors.textLight,
                     ),
                   ),
@@ -659,13 +659,13 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: CupertinoColors.white.withValues(alpha: 0.2),
+                  color: AppColors.cupertinoWhite.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   CupertinoIcons.book_fill,
                   size: 20,
-                  color: CupertinoColors.white,
+                  color: AppColors.cupertinoWhite,
                 ),
               ),
               const SizedBox(width: 12),
@@ -681,7 +681,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 1,
-                            color: CupertinoColors.white,
+                            color: AppColors.cupertinoWhite,
                           ),
                         ),
                         const Spacer(),
@@ -690,7 +690,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
-                            color: CupertinoColors.white.withValues(alpha: 0.7),
+                            color: AppColors.cupertinoWhite.withValues(alpha: 0.7),
                           ),
                         ),
                       ],
@@ -701,7 +701,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: CupertinoColors.white,
+                        color: AppColors.cupertinoWhite,
                       ),
                     ),
                   ],
@@ -714,13 +714,13 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: CupertinoColors.white.withValues(alpha: 0.2),
+                      color: AppColors.cupertinoWhite.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
                       CupertinoIcons.xmark,
                       size: 12,
-                      color: CupertinoColors.white,
+                      color: AppColors.cupertinoWhite,
                     ),
                   ),
                 ),
@@ -752,16 +752,16 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
           color: allDownloaded
               ? AppColors.heat4.withValues(alpha: 0.08)
               : (isWaitingForInternet
-                    ? CupertinoColors.systemOrange.withValues(alpha: 0.08)
+                    ? AppColors.cupertinoSystemOrange.withValues(alpha: 0.08)
                     : (isDark
                           ? AppColors.surfaceDark
-                          : CupertinoColors.white)),
+                          : AppColors.cupertinoWhite)),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: allDownloaded
                 ? AppColors.heat4.withValues(alpha: 0.3)
                 : (isWaitingForInternet
-                      ? CupertinoColors.systemOrange.withValues(alpha: 0.3)
+                      ? AppColors.cupertinoSystemOrange.withValues(alpha: 0.3)
                       : AppColors.primary.withValues(alpha: 0.15)),
           ),
         ),
@@ -772,7 +772,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                     width: 20,
                     height: 20,
                     decoration: BoxDecoration(
-                      color: CupertinoColors.systemOrange.withValues(
+                      color: AppColors.cupertinoSystemOrange.withValues(
                         alpha: 0.2,
                       ),
                       shape: BoxShape.circle,
@@ -780,7 +780,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                     child: const Icon(
                       CupertinoIcons.wifi_slash,
                       size: 12,
-                      color: CupertinoColors.systemOrange,
+                      color: AppColors.cupertinoSystemOrange,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -794,7 +794,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: isDark
-                                ? CupertinoColors.white
+                                ? AppColors.cupertinoWhite
                                 : AppColors.textLight,
                           ),
                         ),
@@ -803,8 +803,8 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                           style: TextStyle(
                             fontSize: 10,
                             color: isDark
-                                ? CupertinoColors.systemGrey
-                                : CupertinoColors.systemGrey,
+                                ? AppColors.cupertinoSystemGrey
+                                : AppColors.cupertinoSystemGrey,
                           ),
                         ),
                       ],
@@ -838,7 +838,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   color: isDark
-                                      ? CupertinoColors.white
+                                      ? AppColors.cupertinoWhite
                                       : AppColors.textLight,
                                 ),
                               ),
@@ -857,7 +857,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                         Container(
                           height: 6,
                           decoration: BoxDecoration(
-                            color: CupertinoColors.systemGrey5,
+                            color: AppColors.cupertinoSystemGrey5,
                             borderRadius: BorderRadius.circular(3),
                           ),
                           child: FractionallySizedBox(
@@ -936,12 +936,12 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : CupertinoColors.white,
+                color: isDark ? AppColors.surfaceDark : AppColors.cupertinoWhite,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: isDark
                       ? AppColors.textLight
-                      : CupertinoColors.systemGrey6,
+                      : AppColors.cupertinoSystemGrey6,
                 ),
               ),
               child: Row(
@@ -978,7 +978,7 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
                                 color: isDark
-                                    ? CupertinoColors.white
+                                    ? AppColors.cupertinoWhite
                                     : AppColors.textLight,
                               ),
                             ),
@@ -1005,8 +1005,8 @@ class _QuranIndexScreenState extends State<QuranIndexScreen> {
                           style: TextStyle(
                             fontSize: 11,
                             color: isDark
-                                ? CupertinoColors.systemGrey
-                                : CupertinoColors.systemGrey,
+                                ? AppColors.cupertinoSystemGrey
+                                : AppColors.cupertinoSystemGrey,
                           ),
                         ),
                       ],
@@ -1111,7 +1111,7 @@ class _HeatmapScreenState extends State<_HeatmapScreen> {
     }
 
     Color heatColor(int s) {
-      if (s == 0) return CupertinoColors.systemGrey6;
+      if (s == 0) return AppColors.cupertinoSystemGrey6;
       if (s < 180) return AppColors.heat1;
       if (s < 900) return AppColors.accentLight;
       if (s < 1800) return AppColors.toolTeal;
@@ -1125,7 +1125,7 @@ class _HeatmapScreenState extends State<_HeatmapScreen> {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: widget.isDark
             ? AppColors.surfaceDark
-            : CupertinoColors.systemBackground,
+            : AppColors.cupertinoSystemBackground,
         middle: Text('${AppStrings.quranStats} $monthName'),
       ),
       child: SafeArea(
@@ -1161,7 +1161,7 @@ class _HeatmapScreenState extends State<_HeatmapScreen> {
                                 border: Border.all(
                                   color: _selectedDay == day
                                       ? AppColors.primary
-                                      : CupertinoColors.systemGrey5.withValues(
+                                      : AppColors.cupertinoSystemGrey5.withValues(
                                           alpha: 0.3,
                                         ),
                                   width: _selectedDay == day ? 2 : 0.5,
@@ -1174,8 +1174,8 @@ class _HeatmapScreenState extends State<_HeatmapScreen> {
                                     fontSize: 9,
                                     fontWeight: FontWeight.w600,
                                     color: secs > 0
-                                        ? CupertinoColors.white
-                                        : CupertinoColors.systemGrey,
+                                        ? AppColors.cupertinoWhite
+                                        : AppColors.cupertinoSystemGrey,
                                   ),
                                 ),
                               ),
@@ -1193,8 +1193,8 @@ class _HeatmapScreenState extends State<_HeatmapScreen> {
                           style: TextStyle(
                             fontSize: 11,
                             color: widget.isDark
-                                ? CupertinoColors.systemGrey
-                                : CupertinoColors.systemGrey,
+                                ? AppColors.cupertinoSystemGrey
+                                : AppColors.cupertinoSystemGrey,
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -1215,8 +1215,8 @@ class _HeatmapScreenState extends State<_HeatmapScreen> {
                           style: TextStyle(
                             fontSize: 11,
                             color: widget.isDark
-                                ? CupertinoColors.systemGrey
-                                : CupertinoColors.systemGrey,
+                                ? AppColors.cupertinoSystemGrey
+                                : AppColors.cupertinoSystemGrey,
                           ),
                         ),
                       ],
@@ -1228,12 +1228,12 @@ class _HeatmapScreenState extends State<_HeatmapScreen> {
                       decoration: BoxDecoration(
                         color: widget.isDark
                             ? AppColors.surfaceDark
-                            : CupertinoColors.white,
+                            : AppColors.cupertinoWhite,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                           color: widget.isDark
                               ? AppColors.textLight
-                              : CupertinoColors.systemGrey6,
+                              : AppColors.cupertinoSystemGrey6,
                         ),
                       ),
                       child: Column(
@@ -1254,8 +1254,8 @@ class _HeatmapScreenState extends State<_HeatmapScreen> {
                               style: TextStyle(
                                 fontSize: 12,
                                 color: widget.isDark
-                                    ? CupertinoColors.systemGrey
-                                    : CupertinoColors.systemGrey,
+                                    ? AppColors.cupertinoSystemGrey
+                                    : AppColors.cupertinoSystemGrey,
                               ),
                             ),
                           ],
@@ -1297,7 +1297,7 @@ class _BookmarkFilterChip extends StatelessWidget {
               ? AppColors.primary
               : (isDark
                     ? AppColors.textLight
-                    : CupertinoColors.systemGrey6),
+                    : AppColors.cupertinoSystemGrey6),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -1309,10 +1309,10 @@ class _BookmarkFilterChip extends StatelessWidget {
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: isActive
-                    ? CupertinoColors.white
+                    ? AppColors.cupertinoWhite
                     : (isDark
-                          ? CupertinoColors.systemGrey
-                          : CupertinoColors.systemGrey),
+                          ? AppColors.cupertinoSystemGrey
+                          : AppColors.cupertinoSystemGrey),
               ),
             ),
             if (count > 0) ...[
@@ -1321,10 +1321,10 @@ class _BookmarkFilterChip extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 decoration: BoxDecoration(
                   color: isActive
-                      ? CupertinoColors.white.withValues(alpha: 0.25)
+                      ? AppColors.cupertinoWhite.withValues(alpha: 0.25)
                       : (isDark
-                                ? CupertinoColors.systemGrey
-                                : CupertinoColors.systemGrey)
+                                ? AppColors.cupertinoSystemGrey
+                                : AppColors.cupertinoSystemGrey)
                             .withValues(alpha: 0.25),
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -1334,8 +1334,8 @@ class _BookmarkFilterChip extends StatelessWidget {
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: isActive
-                        ? CupertinoColors.white
-                        : CupertinoColors.systemGrey,
+                        ? AppColors.cupertinoWhite
+                        : AppColors.cupertinoSystemGrey,
                   ),
                 ),
               ),

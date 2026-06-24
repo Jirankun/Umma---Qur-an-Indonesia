@@ -28,6 +28,7 @@ class UpdateProvider extends ChangeNotifier {
   int _downloadProgress = 0;
   int _downloadTotal = 0;
   bool _dismissed = false; // user pernah dismiss popup (tidak berlaku untuk mandatory)
+  bool _isPopupVisible = false; // cegah stacking popup
 
   UpdateStatus get status => _status;
   String? get latestVersion => _latestVersion;
@@ -38,6 +39,12 @@ class UpdateProvider extends ChangeNotifier {
   double get downloadFraction =>
       _downloadTotal > 0 ? _downloadProgress / _downloadTotal : 0.0;
   bool get isMandatoryUpdate => _status == UpdateStatus.updateAvailable && !_dismissed;
+  bool get isPopupVisible => _isPopupVisible;
+
+  /// Set visibility flag — dicek sebelum showCupertinoDialog untuk cegah stacking.
+  void setPopupVisible(bool value) {
+    _isPopupVisible = value;
+  }
 
   /// Cek update dari GitHub.
   Future<void> checkForUpdate() async {
@@ -87,7 +94,7 @@ class UpdateProvider extends ChangeNotifier {
       // Langsung coba install
       await _installApk();
     } catch (e) {
-      _error = e.toString();
+      _error = 'Gagal mengunduh pembaruan. Periksa koneksi internet dan coba lagi.';
       _status = UpdateStatus.error;
       notifyListeners();
     }
@@ -123,6 +130,7 @@ class UpdateProvider extends ChangeNotifier {
 
   /// Reset ke idle (setelah sukses / user tutup popup error).
   void reset() {
+    _isPopupVisible = false;
     _status = UpdateStatus.idle;
     _error = null;
     _apkPath = null;

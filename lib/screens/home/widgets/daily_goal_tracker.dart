@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../../../config/colors.dart';
+import '../../../config/strings.dart';
 import '../../../providers/tracker_provider.dart';
 
 class DailyGoalTracker extends StatelessWidget {
@@ -34,12 +35,12 @@ class DailyGoalTracker extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : CupertinoColors.white,
+            color: AppColors.surface(isDark),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isDark
                   ? AppColors.textLight
-                  : CupertinoColors.systemGrey6,
+                  : AppColors.cupertinoSystemGrey6,
             ),
           ),
           child: Column(
@@ -67,22 +68,20 @@ class DailyGoalTracker extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Target Ibadah Harian',
+                            AppStrings.homeTargetHarian,
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: isDark
-                                  ? CupertinoColors.white
+                                  ? AppColors.cupertinoWhite
                                   : AppColors.textLight,
                             ),
                           ),
                           Text(
-                            '${summary.completed}/${summary.total} selesai',
+                            '${summary.completed}/${summary.total} selesai'.replaceFirst('selesai', AppStrings.trackerCountFormat.split('{count}').last.trim()),
                             style: TextStyle(
                               fontSize: 11,
-                              color: isDark
-                                  ? CupertinoColors.systemGrey
-                                  : CupertinoColors.systemGrey,
+                              color: AppColors.cupertinoSystemGrey,
                             ),
                           ),
                         ],

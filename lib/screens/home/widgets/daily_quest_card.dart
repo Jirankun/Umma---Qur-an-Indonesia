@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../../../config/colors.dart';
+import '../../../config/strings.dart';
 import '../../../services/ai_content_service.dart';
 
 /// Daily Quest Card — menampilkan misi ibadah harian dari batch 30 quest AI.
@@ -92,14 +93,14 @@ class _DailyQuestCardState extends State<DailyQuestCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'MISI HARIAN',
+                        AppStrings.homeMisiHarian,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1,
                           color: widget.isDark
-                              ? CupertinoColors.systemGrey
-                              : CupertinoColors.systemGrey,
+                              ? AppColors.cupertinoSystemGrey
+                              : AppColors.cupertinoSystemGrey,
                         ),
                       ),
                       if (_isLoading) ...[],
@@ -110,7 +111,7 @@ class _DailyQuestCardState extends State<DailyQuestCard> {
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                             color: widget.isDark
-                                ? CupertinoColors.white
+                                ? AppColors.cupertinoWhite
                                 : AppColors.textLight,
                           ),
                         ),
@@ -129,9 +130,8 @@ class _DailyQuestCardState extends State<DailyQuestCard> {
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
                   height: 1.4,
-                  color: widget.isDark
-                      ? CupertinoColors.systemGrey
-                      : AppColors.textSubtle,
+                  color: widget.isDark                        ? AppColors.cupertinoSystemGrey
+                        : AppColors.textSubtle,
                 ),
               ),
             ],
@@ -148,7 +148,7 @@ class _DailyQuestCardState extends State<DailyQuestCard> {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      'Hadiah: $reward',
+                      '${AppStrings.homeHadiahLabel} $reward',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,

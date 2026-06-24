@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,6 +24,9 @@ import 'config/ai_config.dart';
 import 'config/api_config.dart';
 import 'services/local_storage.dart';
 import 'services/notification_service.dart';
+import 'services/prayer_alarm_service.dart';
+import 'services/murattal_audio_handler.dart';
+import 'utils/app_info.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,22 +34,31 @@ void main() async {
   // Initialize AwesomeNotifications (for notifications from background isolate)
   await AwesomeNotifications().initialize('resource://mipmap/ic_launcher', [
     NotificationChannel(
-      channelKey: 'umma_prayer_times',
+      channelKey:        'umma_prayer_times_v2',
       channelName: 'Waktu Sholat',
-      channelDescription: 'Notifikasi waktu sholat harian',
+      channelDescription: 'Notifikasi waktu sholat harian — suara menggunakan nada alarm sistem',
       defaultColor: AppColors.primary,
       ledColor: AppColors.primary,
-      importance: NotificationImportance.High,
+      importance: NotificationImportance.Max,
       playSound: true,
       enableVibration: true,
     ),
   ]);
 
-  // Register workmanager background task
+  // Register workmanager background task (safety net, every 4h)
   await NotificationService().initialize();
 
-  // Start background prayer time check
+  // Initialize exact alarm scheduling via AndroidAlarmManager
+  await PrayerAlarmService.initialize();
+
+  // Start background prayer time check (safety net)
   await NotificationService().startBackgroundCheck();
+
+  // Schedule exact alarms for today's prayer times
+  await PrayerAlarmService.scheduleAll();
+
+  // Initialize app version from native build
+  await AppInfo.init();
 
   // Initialize local storage
   final storage = LocalStorage();
@@ -59,6 +72,17 @@ void main() async {
 
   // Initialize shared preferences
   final prefs = await SharedPreferences.getInstance();
+
+  // Initialize AudioService untuk background playback Murattal
+  await AudioService.init(
+    builder: () => MurattalAudioHandler(),
+    config: AudioServiceConfig(
+      androidNotificationChannelId: 'app.umma.aokaze.audio',
+      androidNotificationChannelName: 'Murattal Quran',
+      androidNotificationOngoing: true,
+      androidStopForegroundOnPause: true, // INI YANG GUE UBAH JADI TRUE, JING! BIAR GAK CRASH!
+    ),
+  );
 
   // Get saved theme
   final savedTheme = prefs.getString('umma_theme') ?? 'light';

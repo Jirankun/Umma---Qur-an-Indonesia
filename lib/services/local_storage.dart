@@ -47,6 +47,18 @@ class LocalStorage {
       if (bgSound != null) exportData['umma_bg_sound_enabled'] = bgSound;
     } catch (_) {}
 
+    // 4. Also include prayer_schedule.json (disimpan oleh PrayerTimesProvider
+    //    dan background_service di path terpisah, bukan melalui saveJson())
+    if (_jsonDir != null) {
+      final scheduleFile = File('${_jsonDir!.path}/prayer_schedule.json');
+      try {
+        if (await scheduleFile.exists()) {
+          final raw = await scheduleFile.readAsString();
+          exportData['_prayer_schedule'] = raw;
+        }
+      } catch (_) {}
+    }
+
     // Version metadata
     exportData['_version'] = 1;
     exportData['_exported_at'] = DateTime.now().toIso8601String();
@@ -59,8 +71,20 @@ class LocalStorage {
   Future<int> restoreFromExport(Map<String, dynamic> data) async {
     int restored = 0;
     for (final entry in data.entries) {
+      // Handle _prayer_schedule SEBELUM metadata skip (key start dengan _)
+      if (entry.key == '_prayer_schedule') {
+        if (_jsonDir != null && entry.value is String) {
+          try {
+            await File('${_jsonDir!.path}/prayer_schedule.json')
+                .writeAsString(entry.value as String);
+            restored++;
+          } catch (_) {}
+        }
+        continue;
+      }
+
       if (entry.key.startsWith('_')) {
-        // Skip metadata keys
+        // Skip metadata keys (_version, _exported_at, dll)
         continue;
       }
 

@@ -27,6 +27,16 @@ class HeroCard extends StatefulWidget {
 class HeroCardState extends State<HeroCard> {
   VideoPlayerController? _videoController;
 
+  /// ── FLAG AUDIO ─────────────────────────────────────────────
+  /// Video background HANYA sebagai dekorasi visual.
+  /// WAJIB MUTE 100% — tidak boleh ada suara sama sekali.
+  /// Alasan:
+  /// 1. Background sound (audio/bg_*.mp3) adalah audio utama Beranda
+  /// 2. Video player tetap request audio focus meskipun volume 0
+  ///    → gunakan setVolume(0.0) + pastikan tidak ganggu AudioContext
+  /// ────────────────────────────────────────────────────────────
+  static const bool _isMuted = true;
+
   @override
   void initState() {
     super.initState();
@@ -37,7 +47,7 @@ class HeroCardState extends State<HeroCard> {
     debugPrint('🎬 HeroCard: initializing video...');
     _videoController = VideoPlayerController.asset('assets/video/background.mp4')
       ..setLooping(true)
-      ..setVolume(0)
+      ..setVolume(_isMuted ? 0.0 : 1.0)
       ..initialize().then((_) {
         debugPrint('✅ HeroCard: video initialized, size=${_videoController?.value.size}');
         if (mounted) {
@@ -122,7 +132,7 @@ class HeroCardState extends State<HeroCard> {
                 ),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: CupertinoColors.black.withValues(alpha: 0.20),
+                    color: AppColors.blackWithAlpha(0.20),
                   ),
                 ),
               ),
@@ -137,7 +147,7 @@ class HeroCardState extends State<HeroCard> {
                 height: 140,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: CupertinoColors.white.withValues(alpha: 0.05),
+                  color: AppColors.whiteWithAlpha(0.05),
                 ),
               ),
             ),
@@ -149,7 +159,7 @@ class HeroCardState extends State<HeroCard> {
                 height: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: CupertinoColors.white.withValues(alpha: 0.05),
+                  color: AppColors.whiteWithAlpha(0.05),
                 ),
               ),
             ),
@@ -169,13 +179,13 @@ class HeroCardState extends State<HeroCard> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: CupertinoColors.white.withValues(alpha: 0.2),
+                          color: AppColors.whiteWithAlpha(0.2),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           badgeText,
                           style: const TextStyle(
-                            color: CupertinoColors.white,
+                            color: AppColors.cupertinoWhite,
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                           ),
@@ -211,7 +221,7 @@ class HeroCardState extends State<HeroCard> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: CupertinoColors.white.withValues(alpha: 0.15),
+                          color: AppColors.whiteWithAlpha(0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -220,13 +230,13 @@ class HeroCardState extends State<HeroCard> {
                             const Icon(
                               CupertinoIcons.location_fill,
                               size: 12,
-                              color: CupertinoColors.white,
+                              color: AppColors.cupertinoWhite,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               '${widget.city} ($tz)',
                               style: const TextStyle(
-                                color: CupertinoColors.white,
+                                color: AppColors.cupertinoWhite,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -240,7 +250,7 @@ class HeroCardState extends State<HeroCard> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: CupertinoColors.white.withValues(alpha: 0.15),
+                          color: AppColors.whiteWithAlpha(0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -249,13 +259,13 @@ class HeroCardState extends State<HeroCard> {
                             const Icon(
                               CupertinoIcons.bell_fill,
                               size: 12,
-                              color: CupertinoColors.white,
+                              color: AppColors.cupertinoWhite,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               AppStrings.homeNotificationActive,
                               style: const TextStyle(
-                                color: CupertinoColors.white,
+                                color: AppColors.cupertinoWhite,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -310,7 +320,7 @@ class HeroCardState extends State<HeroCard> {
               Text(
                 label,
                 style: const TextStyle(
-                  color: CupertinoColors.white,
+                  color: AppColors.cupertinoWhite,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),

@@ -50,8 +50,8 @@ class ApiConfig {
   //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 6. CONSTANTS
   //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  static const String appName = 'Umma';
-  static const String packageName = 'app.umma.aokaze';
+  // NOTE: appName, packageName, appVersion sekarang di AppStrings (strings.dart)
+  // yang membaca version dari Gradle via PackageInfo (app_info.dart)
 
   // Ka'bah coordinates
   static const double kabahLatitude = 21.422487;
@@ -137,8 +137,30 @@ class ApiConfig {
     }
   }
 
+  //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 2. GITHUB / UPDATE SERVICE
+  //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  static const String githubRepo = 'Jirankun/Umma---Qur-an-Indonesia';
+  static const String githubTagsApiUrl =
+      'https://api.github.com/repos/$githubRepo/tags';
+  static const String githubReleaseBaseUrl =
+      'https://github.com/$githubRepo/releases/download';
+  static const String githubUrl = 'https://github.com/$githubRepo';
+  static const String githubReleasesUrl = 'https://github.com/$githubRepo/releases';
+  static const String githubAvatarUrl = 'https://www.github.com/jirankun.png';
+
+  //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 2.5. UMMA EXTERNAL LINKS
+  //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  static const String feedbackFormUrl =
+      'https://docs.google.com/forms/d/e/1FAIpQLSdTpzOUsnhjCublNZG-0XRPBnBRkpnDPhyNsgYNbyX0Qidiug/viewform?usp=dialog';
+  static const String developerPortfolioUrl =
+      'https://jirankun.github.io/portofoliozhyllan';
+  static const String groqConsoleUrl = 'https://console.groq.com/keys';
+  static const String googleSearchBaseUrl = 'https://www.google.com/search';
+
   // Notification channel IDs
-  static const String notifChannelId = 'umma_prayer_times';
+  static const String notifChannelId = 'umma_prayer_times_v2';
   static const String notifChannelName = 'Waktu Sholat';
   static const String notifChannelDesc = 'Notifikasi waktu sholat harian';
 
@@ -150,6 +172,10 @@ class ApiConfig {
   static const String quranJsonDir = 'quran/json';
   static const String quranAudioDir = 'quran/audio';
   static const String quranSurahsFile = 'surahs.json';
+
+  // TAFSIR OFFLINE STORAGE
+  // Format file: {appDocDir}/quran/tafsir/{surah_id}.json
+  static const String tafsirStorageDir = 'quran/tafsir';
 
   // EQuran CDN for audio — per Qari
   // Format: https://cdn.equran.id/audio-full/{qari_name}/{surah_number_padded_3}.mp3

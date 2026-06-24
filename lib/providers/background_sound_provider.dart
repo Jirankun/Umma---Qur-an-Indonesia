@@ -9,6 +9,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// - bg_sunrise.mp3: from Subuh (05:00) to Maghrib (18:00)
 class BackgroundSoundProvider extends ChangeNotifier {
   // ── Global audio context: mix dengan video player ─────────
+  //
+  // PENTING: AudioContextAndroid harus set audioFocus ke NONE.
+  // Sebab video player (ExoPlayer) tetap request AUDIOFOCUS_GAIN
+  // meskipun volumenya 0. Kalau kita request gain juga, Android
+  // akan memilih salah satu — jadinya background sound mati.
+  //
+  // Dengan audioFocus: none, background sound tidak kena dampak
+  // dari audio focus request video player.
+  // ──────────────────────────────────────────────────────────
   static bool _contextSet = false;
 
   static Future<void> _ensureAudioContext() async {
@@ -17,13 +26,16 @@ class BackgroundSoundProvider extends ChangeNotifier {
     await AudioPlayer.global.setAudioContext(
       AudioContext(
         iOS: AudioContextIOS(
-          // .ambient = tidak mengambil alih fokus audio dari video
+          // .ambient = tidak mengambil alih fokus audio
           category: AVAudioSessionCategory.ambient,
           options: {AVAudioSessionOptions.mixWithOthers},
         ),
         android: AudioContextAndroid(
           stayAwake: false,
           isSpeakerphoneOn: false,
+          // ⚡ JANGAN request audio focus — biarkan video player
+          // yang punya fokus penuh, kita cuma background
+          audioFocus: AndroidAudioFocus.none,
         ),
       ),
     );
@@ -32,7 +44,7 @@ class BackgroundSoundProvider extends ChangeNotifier {
   static const String _storageKey = 'umma_bg_sound_enabled';
 
   AudioPlayer? _player;
-  bool _isEnabled = true;
+  bool _isEnabled = false;
   bool _initialized = false;
   final Completer<void> _initCompleter = Completer<void>();
   String? _currentAudioType; // 'night' or 'sunrise'
@@ -47,7 +59,7 @@ class BackgroundSoundProvider extends ChangeNotifier {
   Future<void> loadSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      _isEnabled = prefs.getBool(_storageKey) ?? true;
+      _isEnabled = prefs.getBool(_storageKey) ?? false;
     } catch (_) {
       _isEnabled = false;
     } finally {
@@ -96,14 +108,41 @@ class BackgroundSoundProvider extends ChangeNotifier {
 
     _player = AudioPlayer();
     _player!.setReleaseMode(ReleaseMode.loop);
+
+    // ── Reconnection listener ──
+    // Jika audio berhenti tiba-tiba (misal kena interrupt audio focus),
+    // coba restart otomatis dengan jeda 500ms untuk hindari loop.
     _player!.onPlayerComplete.listen((_) {
       // Loop: AudioPlayer dengan ReleaseMode.loop akan loop otomatis
     });
 
+    _player!.onPlayerStateChanged.listen((state) async {
+      if (_currentAudioType == null) return; // sudah distop manual
+      if (state == PlayerState.completed) {
+        // ReleaseMode.loop seharusnya handle ini, tapi fallback
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (_player != null && _currentAudioType != null) {
+          try {
+            await _player!.play(AssetSource(assetPath));
+          } catch (_) {}
+        }
+      } else if (state == PlayerState.stopped) {
+        // Audio berhenti di luar kendali (misal interrupt) → restart
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (_player != null && _currentAudioType != null && _isEnabled) {
+          debugPrint('BackgroundSound: unexpected stop → restarting...');
+          try {
+            await _player!.play(AssetSource(assetPath));
+          } catch (_) {}
+        }
+      }
+    });
+
     try {
-      await _player!.setVolume(0.5);
+      await _player!.setVolume(0.7);
       await _player!.play(AssetSource(assetPath));
       _currentAudioType = audioType;
+      debugPrint('BackgroundSound: playing $assetPath (volume=0.7)');
     } catch (e) {
       debugPrint('BackgroundSound: Gagal play audio — $e');
       _currentAudioType = null;

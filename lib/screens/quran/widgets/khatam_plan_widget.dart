@@ -131,12 +131,12 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
         decoration: BoxDecoration(
           color: widget.isDark
               ? AppColors.surfaceDark
-              : CupertinoColors.white,
+              : AppColors.cupertinoWhite,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: widget.isDark
                 ? AppColors.textLight
-                : CupertinoColors.systemGrey6,
+                : AppColors.cupertinoSystemGrey6,
           ),
         ),
         child: const Center(child: CupertinoActivityIndicator(radius: 10)),
@@ -150,12 +150,12 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: widget.isDark ? AppColors.surfaceDark : CupertinoColors.white,
+        color: widget.isDark ? AppColors.surfaceDark : AppColors.cupertinoWhite,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: widget.isDark
               ? AppColors.textLight
-              : CupertinoColors.systemGrey6,
+              : AppColors.cupertinoSystemGrey6,
         ),
       ),
       child: Column(
@@ -182,7 +182,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: widget.isDark
-                      ? CupertinoColors.white
+                      ? AppColors.cupertinoWhite
                       : AppColors.textLight,
                 ),
               ),
@@ -193,8 +193,8 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
             style: TextStyle(
               fontSize: 12,
               color: widget.isDark
-                  ? CupertinoColors.systemGrey
-                  : CupertinoColors.systemGrey,
+                  ? AppColors.cupertinoSystemGrey
+                  : AppColors.cupertinoSystemGrey,
             ),
           ),
           const SizedBox(height: 12),
@@ -215,7 +215,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: CupertinoColors.white,
+                    color: AppColors.cupertinoWhite,
                   ),
                 ),
               ),
@@ -229,7 +229,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                   decoration: BoxDecoration(
                     color: widget.isDark
                         ? AppColors.textLight
-                        : CupertinoColors.tertiarySystemBackground,
+                        : AppColors.cupertinoTertiarySystemBackground,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: CupertinoTextField(
@@ -251,7 +251,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: widget.isDark
-                        ? CupertinoColors.white
+                        ? AppColors.cupertinoWhite
                         : AppColors.textLight,
                   ),
                 ),
@@ -272,7 +272,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: CupertinoColors.white,
+                        color: AppColors.cupertinoWhite,
                       ),
                     ),
                   ),
@@ -296,12 +296,12 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: widget.isDark ? AppColors.surfaceDark : CupertinoColors.white,
+        color: widget.isDark ? AppColors.surfaceDark : AppColors.cupertinoWhite,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: widget.isDark
               ? AppColors.textLight
-              : CupertinoColors.systemGrey6,
+              : AppColors.cupertinoSystemGrey6,
         ),
       ),
       child: Column(
@@ -324,7 +324,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: widget.isDark
-                          ? CupertinoColors.white
+                          ? AppColors.cupertinoWhite
                           : AppColors.textLight,
                     ),
                   ),
@@ -337,7 +337,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: CupertinoColors.systemRed,
+                    color: AppColors.cupertinoSystemRed,
                   ),
                 ),
               ),
@@ -361,8 +361,8 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                   color: widget.isDark
-                      ? CupertinoColors.systemGrey
-                      : CupertinoColors.systemGrey,
+                      ? AppColors.cupertinoSystemGrey
+                      : AppColors.cupertinoSystemGrey,
                 ),
               ),
             ],
@@ -371,7 +371,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
           Container(
             height: 6,
             decoration: BoxDecoration(
-              color: CupertinoColors.systemGrey5,
+              color: AppColors.cupertinoSystemGrey5,
               borderRadius: BorderRadius.circular(3),
             ),
             child: FractionallySizedBox(
@@ -402,7 +402,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: status == 'BEHIND'
-                  ? CupertinoColors.systemRed.withValues(alpha: 0.1)
+                  ? AppColors.cupertinoSystemRed.withValues(alpha: 0.1)
                   : status == 'AHEAD'
                   ? AppColors.heat4.withValues(alpha: 0.1)
                   : AppColors.fiqihSholat.withValues(alpha: 0.1),
@@ -419,7 +419,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                       : CupertinoIcons.check_mark_circled_solid,
                   size: 16,
                   color: status == 'BEHIND'
-                      ? CupertinoColors.systemRed
+                      ? AppColors.cupertinoSystemRed
                       : status == 'AHEAD'
                       ? AppColors.heat4
                       : AppColors.fiqihSholat,
@@ -432,7 +432,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                       fontSize: 11,
                       height: 1.4,
                       color: widget.isDark
-                          ? CupertinoColors.white
+                          ? AppColors.cupertinoWhite
                           : AppColors.textLight,
                     ),
                   ),
@@ -499,7 +499,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: CupertinoColors.white,
+                    color: AppColors.cupertinoWhite,
                   ),
                 ),
               ),
@@ -516,7 +516,7 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
       decoration: BoxDecoration(
         color: widget.isDark
             ? AppColors.textLight.withValues(alpha: 0.5)
-            : CupertinoColors.tertiarySystemBackground,
+            : AppColors.cupertinoTertiarySystemBackground,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -528,8 +528,8 @@ class _KhatamPlanWidgetState extends State<KhatamPlanWidget> {
               fontSize: 10,
               fontWeight: FontWeight.w600,
               color: widget.isDark
-                  ? CupertinoColors.systemGrey
-                  : CupertinoColors.systemGrey,
+                  ? AppColors.cupertinoSystemGrey
+                  : AppColors.cupertinoSystemGrey,
             ),
           ),
           const SizedBox(height: 4),

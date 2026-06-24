@@ -127,6 +127,23 @@ class AppColors {
   static const Color questAccent = Color(0xFFFCD34D);
   static const Color questTextDark = Color(0xFF92400E);
 
+  // ─── CUPERTINO COLOR ALIASES ──────────────────────────────
+  /// Alias langsung ke CupertinoColors untuk penggunaan tema-agnostik.
+  /// Gunakan ini daripada CupertinoColors.xxx langsung di screen.
+  static const Color cupertinoWhite = CupertinoColors.white;
+  static const Color cupertinoSystemBackground = CupertinoColors.systemBackground;
+  static const Color cupertinoSystemGrey = CupertinoColors.systemGrey;
+  static const Color cupertinoSystemGrey2 = CupertinoColors.systemGrey2;
+  static const Color cupertinoSystemGrey3 = CupertinoColors.systemGrey3;
+  static const Color cupertinoSystemGrey4 = CupertinoColors.systemGrey4;
+  static const Color cupertinoSystemGrey5 = CupertinoColors.systemGrey5;
+  static const Color cupertinoSystemGrey6 = CupertinoColors.systemGrey6;
+  static const Color cupertinoSystemRed = CupertinoColors.systemRed;
+  static const Color cupertinoSystemOrange = CupertinoColors.systemOrange;
+  static const Color cupertinoSystemGreen = CupertinoColors.systemGreen;
+  static const Color cupertinoTertiarySystemBackground = CupertinoColors.tertiarySystemBackground;
+  static const Color cupertinoBlack = CupertinoColors.black;
+
   // ─── SHARED HELPERS ─────────────────────────────────────
   /// Ambil warna background sesuai tema
   static Color background(bool isDark) => isDark ? bgDark : bgLight;
@@ -158,6 +175,14 @@ class AppColors {
   /// Error color dengan alpha
   static Color errorWithAlpha(double alpha) =>
       error.withValues(alpha: alpha);
+
+  /// White dengan alpha (untuk overlay, shadow)
+  static Color whiteWithAlpha(double alpha) =>
+      CupertinoColors.white.withValues(alpha: alpha);
+
+  /// Black dengan alpha (untuk shadow, overlay)
+  static Color blackWithAlpha(double alpha) =>
+      CupertinoColors.black.withValues(alpha: alpha);
 
   // ─── SPECIALTY COLORS ────────────────────────────────────
   /// Dark pink untuk Haid tracker
@@ -206,4 +231,5 @@ class AppColors {
   static const Color onboardingBlueDark = Color(0xFF1D4ED8);
 
   static const Color onboardingPurpleDark = Color(0xFF6D28D9);
+  static const Color onboardingIndigoDark = Color(0xFF4338CA);
 }

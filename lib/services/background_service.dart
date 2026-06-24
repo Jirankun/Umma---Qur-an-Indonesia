@@ -64,9 +64,11 @@ Future<void> backgroundCheckPrayerTimes() async {
         prayerMinute,
       );
 
-      // Waktu sholat sudah lewat (dalam 5 menit terakhir) dan belum dinotifikasi
+      // Waktu sholat sudah lewat (dalam 120 menit terakhir) dan belum dinotifikasi
+      // Note: Workmanager sekarang safety net (setiap 4 jam), jadi window lebih lebar
+      // untuk menangkap alarm yg mungkin terlewat oleh exact alarm manager.
       final diff = now.difference(prayerDateTime).inMinutes;
-      if (diff >= 0 && diff <= 5 && !notified.contains(prayer['name'])) {
+      if (diff >= 0 && diff <= 120 && !notified.contains(prayer['name'])) {
         await _showNotification(prayer['name']!);
         await _markNotified(prayer['name']!);
       }
@@ -88,8 +90,8 @@ Future<void> backgroundCheckPrayerTimes() async {
   }
 }
 
-/// Load jadwal sholat dari file lokal
-Future<List<Map<String, dynamic>>?> _loadSchedule() async {
+/// Load jadwal sholat dari file lokal (public — dipakai juga oleh PrayerAlarmService)
+Future<List<Map<String, dynamic>>?> loadPrayerSchedule() async {
   try {
     final dir = await _getStorageDir();
     final file = File('${dir.path}/prayer_schedule.json');
@@ -115,8 +117,11 @@ Future<String> _loadSelectedCity() async {
       }
     }
   } catch (_) {}
-  return 'Jakarta';
+  return    'Jakarta';
 }
+
+// Alias untuk backward compatibility (dipakai oleh fungsi internal)
+Future<List<Map<String, dynamic>>?> _loadSchedule() => loadPrayerSchedule();
 
 /// Download jadwal sholat dari API dan simpan ke lokal
 Future<void> _downloadAndSaveSchedule(int year, int month) async {
@@ -201,7 +206,7 @@ Future<void> _showNotification(String prayerName) async {
   await AwesomeNotifications().createNotification(
     content: NotificationContent(
       id: prayerName.hashCode,
-      channelKey: 'umma_prayer_times',
+      channelKey: ApiConfig.notifChannelId,
       title: '🕌 ${emojis[prayerName] ?? ''} $prayerName — Umma',
       body: messages[prayerName] ?? 'Waktu sholat telah tiba.',
       payload: {'action': 'prayer_$prayerName'},

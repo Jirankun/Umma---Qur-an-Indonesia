@@ -3,12 +3,13 @@ package app.umma.aokaze
 import android.content.Intent
 import android.net.Uri
 import androidx.core.content.FileProvider
-import io.flutter.embedding.android.FlutterActivity
+import com.ryanheise.audioservice.AudioServiceActivity // INI IMPORT BARU, JING!
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 
-class MainActivity : FlutterActivity() {
+// GANTI FlutterActivity() JADI AudioServiceActivity(), BRE! SISANYA TETEP SAMA!
+class MainActivity : AudioServiceActivity() {
     private companion object {
         private const val CHANNEL = "app.umma.aokaze/installer"
     }

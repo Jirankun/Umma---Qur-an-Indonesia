@@ -9,8 +9,8 @@ import '../../providers/quran_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/local_storage.dart';
 import '../../services/quran_tracker_service.dart';
-import '../../services/api_service.dart';
-import '../../services/quran_download_service.dart';
+import 'widgets/reader_qari_picker.dart';
+import 'widgets/reader_tafsir_sheet.dart';
 
 class SurahReaderScreen extends StatefulWidget {
   final int surahId;
@@ -36,14 +36,13 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
   bool _hafalanMode = false;
   final Set<String> _revealedAyatIds = {};
   List<QuranBookmark> _bookmarks = [];
-  final Map<int, Map<int, String>> _tafsirCache = {};
-
   // Scroll & highlight
   final ScrollController _scrollController = ScrollController();
   bool _hasScrolledToTarget = false;
   int? _targetAyahNumber;
   int _scrollRetries = 0;
   bool _scrollInitiated = false;
+  bool _tafsirPrefetched = false;
   GlobalKey? _targetAyatKey;
 
   @override
@@ -118,6 +117,13 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
     final isDark = Provider.of<ThemeProvider>(context).isDark;
     final provider = Provider.of<QuranProvider>(context);
     final surah = provider.selectedSurah;
+
+    // Prefetch tafsir untuk seluruh surah saat pertama kali surah tersedia
+    if (surah != null && !_tafsirPrefetched) {
+      _tafsirPrefetched = true;
+      TafsirSheet.prefetch(surah.nomor);
+    }
+
     final progress = provider.currentProgress;
     final isDownloading = progress?.isDownloading ?? false;
 
@@ -200,7 +206,7 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
   void _showQariPicker(BuildContext context, QuranProvider provider) {
     showCupertinoModalPopup(
       context: context,
-      builder: (_) => _QariPickerSheet(
+      builder: (_) => QariPickerSheet(
         currentQariId: provider.selectedQariId,
         onSelect: (qariId) => provider.setSelectedQari(qariId),
       ),
@@ -236,7 +242,7 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Pengaturan Baca',
+                  AppStrings.quranSettings,
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
@@ -246,22 +252,22 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _buildSettingToggle('Teks Arab', _showArab, isDark, (v) {
+                _buildSettingToggle(AppStrings.quranSettingArab, _showArab, isDark, (v) {
                   setState(() => _showArab = v);
                   setModalState(() {});
                   _saveSettings();
                 }),
-                _buildSettingToggle('Teks Latin', _showLatin, isDark, (v) {
+                _buildSettingToggle(AppStrings.quranSettingLatin, _showLatin, isDark, (v) {
                   setState(() => _showLatin = v);
                   setModalState(() {});
                   _saveSettings();
                 }),
-                _buildSettingToggle('Terjemahan', _showTerjemahan, isDark, (v) {
+                _buildSettingToggle(AppStrings.quranSettingTerjemahan, _showTerjemahan, isDark, (v) {
                   setState(() => _showTerjemahan = v);
                   setModalState(() {});
                   _saveSettings();
                 }),
-                _buildSettingToggle('Mode Hafalan', _hafalanMode, isDark, (v) {
+                _buildSettingToggle(AppStrings.quranSettingHafalan, _hafalanMode, isDark, (v) {
                   setState(() => _hafalanMode = v);
                   if (!v) _revealedAyatIds.clear();
                   setModalState(() {});
@@ -269,7 +275,7 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
                 }),
                 const SizedBox(height: 16),
                 Text(
-                  'Ukuran Arab',
+                  AppStrings.quranSettingFontSize,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -298,9 +304,7 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
                             decoration: BoxDecoration(
                               color: _arabFontSize == size
                                   ? AppColors.primary
-                                  : const Color(
-                                      0xFF1E3A8A,
-                                    ).withValues(alpha: 0.1),
+                                  : AppColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
@@ -388,7 +392,7 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  isNetworkError ? 'Internet Tidak Tersedia' : 'Gagal Memuat',
+                  isNetworkError ? AppStrings.quranErrorNoInternet : AppStrings.quranErrorLoad,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -556,7 +560,7 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Mengunduh audio...',
+                    AppStrings.quranDownloading,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -846,12 +850,8 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
                           color: isPlaying
                               ? AppColors.heat4.withValues(alpha: 0.2)
                               : (isAudioReady
-                                    ? const Color(
-                                        0xFF059669,
-                                      ).withValues(alpha: 0.1)
-                                    : const Color(
-                                        0xFF1E3A8A,
-                                      ).withValues(alpha: 0.08)),
+                                    ? AppColors.heat4.withValues(alpha: 0.1)
+                                    : AppColors.primary.withValues(alpha: 0.08)),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
@@ -892,7 +892,10 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
                   ),
                   const SizedBox(width: 6),
                   GestureDetector(
-                    onTap: () => _showTafsir(ayat, surah),
+                    onTap: () => showCupertinoModalPopup(
+                      context: context,
+                      builder: (_) => TafsirSheet(ayat: ayat, surah: surah),
+                    ),
                     child: Container(
                       width: 32,
                       height: 32,
@@ -1085,177 +1088,6 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
     });
   }
 
-  // ─── TAFSIR ────────────────────────────────────────────────
-  Future<({String tafsirText, String? sourceLabel})> _loadTafsir(
-    Ayat ayat,
-    Surah surah,
-  ) async {
-    try {
-      if (!_tafsirCache.containsKey(widget.surahId)) {
-        final data = await ApiService().getTafsir(widget.surahId);
-        final List<dynamic> tafsirList = data['tafsir'] ?? [];
-        final ayatMap = <int, String>{};
-        for (final item in tafsirList) {
-          final ayatNum = item['ayat'] as int? ?? 0;
-          final teks = (item['teks'] as String? ?? '').trim();
-          if (ayatNum > 0 && teks.isNotEmpty) {
-            ayatMap[ayatNum] = teks;
-          }
-        }
-        _tafsirCache[widget.surahId] = ayatMap;
-      }
-
-      final text = _tafsirCache[widget.surahId]?[ayat.nomorAyat] ?? '';
-      return (
-        tafsirText: text,
-        sourceLabel: 'Tafsir ${surah.namaLatin} \u2014 Kemenag RI',
-      );
-    } catch (_) {
-      return (tafsirText: '', sourceLabel: null);
-    }
-  }
-
-  void _showTafsir(Ayat ayat, Surah surah) {
-    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDark;
-
-    bool loading = true;
-    String tafsirText = '';
-    String? sourceLabel;
-
-    showCupertinoModalPopup(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setModalState) {
-          if (loading) {
-            _loadTafsir(ayat, surah).then((r) {
-              if (mounted) {
-                setModalState(() {
-                  loading = false;
-                  tafsirText = r.tafsirText;
-                  sourceLabel = r.sourceLabel;
-                });
-              }
-            });
-          }
-
-          return Container(
-            height: loading ? 200 : 460,
-            decoration: BoxDecoration(
-              color: isDark
-                  ? AppColors.surfaceDark
-                  : CupertinoColors.systemBackground,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
-            ),
-            child: _buildTafsirSheet(
-              isDark: isDark,
-              loading: loading,
-              ayat: ayat,
-              surah: surah,
-              tafsirText: tafsirText,
-              sourceLabel: sourceLabel,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildTafsirSheet({
-    required bool isDark,
-    required bool loading,
-    required Ayat ayat,
-    required Surah surah,
-    required String tafsirText,
-    required String? sourceLabel,
-  }) {
-    if (loading) {
-      return const Center(child: CupertinoActivityIndicator(radius: 14));
-    }
-
-    // Content state
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: CupertinoColors.systemGrey4,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.heat4.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'TAFSIR',
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.8,
-                    color: AppColors.accent,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '${surah.namaLatin} \u2014 Ayat ${ayat.nomorAyat}',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? CupertinoColors.white
-                      : AppColors.textLight,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Text(
-                tafsirText,
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 1.7,
-                  color: isDark
-                      ? CupertinoColors.white
-                      : AppColors.textLight,
-                ),
-              ),
-            ),
-          ),
-          if (sourceLabel != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              sourceLabel,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: CupertinoColors.systemGrey,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
   static const List<String> _surahNames = [
     '',
     'Al-Fatihah',
@@ -1439,8 +1271,8 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
               const SizedBox(height: 12),
               Text(
                 isKhatam
-                    ? 'Alhamdulillah, Khatam! \u{1F389}'
-                    : 'Batas Bacaan Disimpan',
+                    ? AppStrings.quranKhatam
+                    : AppStrings.quranSaving,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -1450,7 +1282,7 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8),
                   child: Text(
-                    'MasyaAllah, kamu telah menyelesaikan bacaan seluruh Al-Qur\'an.',
+                    AppStrings.quranKhatamDesc,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 13,
@@ -1462,7 +1294,7 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8),
                   child: Text(
-                    'Posisi bacaan terakhir sudah disimpan.',
+                    AppStrings.quranSessionSaved,
                     style: TextStyle(
                       fontSize: 13,
                       color: CupertinoColors.systemGrey,
@@ -1538,206 +1370,3 @@ class _SurahReaderScreenState extends State<SurahReaderScreen> {
   }
 }
 
-class _QariPickerSheet extends StatefulWidget {
-  final String currentQariId;
-  final void Function(String) onSelect;
-
-  const _QariPickerSheet({required this.currentQariId, required this.onSelect});
-
-  @override
-  State<_QariPickerSheet> createState() => _QariPickerSheetState();
-}
-
-class _QariPickerSheetState extends State<_QariPickerSheet> {
-  final Set<String> _qariWithAudio = {};
-  final _downloadService = QuranDownloadService();
-
-  @override
-  void initState() {
-    super.initState();
-    _checkAudioStatus();
-  }
-
-  Future<void> _checkAudioStatus() async {
-    final futures = ApiConfig.qariList.map((qari) async {
-      try {
-        final count = await _downloadService.countAudioForQari(qari['id']!);
-        if (count > 0) return qari['id']!;
-      } catch (_) {}
-      return null;
-    }).toList();
-    final results = await Future.wait(futures);
-    if (mounted) {
-      setState(() {
-        for (final id in results) {
-          if (id != null) _qariWithAudio.add(id);
-        }
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDark;
-
-    return Container(
-      height: 420,
-      decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.surfaceDark
-            : CupertinoColors.systemBackground,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Pilih Qari',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-                ),
-              ],
-            ),
-          ),
-          Container(height: 1, color: CupertinoColors.systemGrey5),
-          Expanded(
-            child: ListView.builder(
-              itemCount: ApiConfig.qariList.length,
-              itemBuilder: (context, index) {
-                final qari = ApiConfig.qariList[index];
-                final isSelected = qari['id'] == widget.currentQariId;
-                final hasAudio = _qariWithAudio.contains(qari['id']);
-                return GestureDetector(
-                  onTap: () {
-                    widget.onSelect(qari['id']!);
-                    Navigator.pop(context);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 14,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppColors.primary.withValues(alpha: 0.08)
-                          : null,
-                      border: Border(
-                        bottom: BorderSide(
-                          color: CupertinoColors.systemGrey6,
-                          width: 0.5,
-                        ),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.primary
-                                : const Color(
-                                    0xFF1E3A8A,
-                                  ).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Center(
-                            child: Text(
-                              '${index + 1}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
-                                color: isSelected
-                                    ? CupertinoColors.white
-                                    : AppColors.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    qari['name']!,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: isDark
-                                          ? CupertinoColors.white
-                                          : AppColors.textLight,
-                                    ),
-                                  ),
-                                  if (hasAudio) ...[
-                                    const SizedBox(width: 6),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 5,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(
-                                          0xFF059669,
-                                        ).withValues(alpha: 0.15),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(
-                                            CupertinoIcons
-                                                .check_mark_circled_solid,
-                                            size: 10,
-                                            color: AppColors.accent,
-                                          ),
-                                          const SizedBox(width: 2),
-                                          Text(
-                                            'Audio',
-                                            style: TextStyle(
-                                              fontSize: 8,
-                                              fontWeight: FontWeight.w700,
-                                              color: AppColors.heat4,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                              Text(
-                                qari['nameAr']!,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: isDark
-                                      ? CupertinoColors.systemGrey
-                                      : CupertinoColors.systemGrey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (isSelected)
-                          const Icon(
-                            CupertinoIcons.check_mark_circled_solid,
-                            size: 20,
-                            color: AppColors.primary,
-                          ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

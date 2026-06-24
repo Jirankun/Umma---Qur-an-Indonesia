@@ -101,14 +101,12 @@ class ToolGrid extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 12),
             child: Text(
-              'FITUR IBADAH',
+              AppStrings.homeFiturIbadah,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1,
-                color: isDark
-                    ? CupertinoColors.systemGrey
-                    : CupertinoColors.systemGrey,
+                color: AppColors.cupertinoSystemGrey,
               ),
             ),
           ),
@@ -128,14 +126,12 @@ class ToolGrid extends StatelessWidget {
                 onTap: () => onToolTap(tool.route),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.surfaceDark
-                        : CupertinoColors.white,
+                    color: AppColors.surface(isDark),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: isDark
                           ? AppColors.textLight
-                          : CupertinoColors.systemGrey6,
+                          : AppColors.cupertinoSystemGrey6,
                     ),
                   ),
                   child: Column(
@@ -158,7 +154,7 @@ class ToolGrid extends StatelessWidget {
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
                           color: isDark
-                              ? CupertinoColors.white
+                              ? AppColors.cupertinoWhite
                               : AppColors.textLight,
                         ),
                       ),

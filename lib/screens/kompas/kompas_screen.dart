@@ -52,7 +52,7 @@ class _KompasScreenState extends State<KompasScreen> {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         setState(() {
-          _error = 'Lokasi tidak aktif. Aktifkan GPS untuk arah kiblat akurat.';
+          _error = AppStrings.kompasNoGps;
           _loading = false;
         });
         return;
@@ -63,7 +63,7 @@ class _KompasScreenState extends State<KompasScreen> {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           setState(() {
-            _error = 'Izin lokasi ditolak. Beri izin untuk arah kiblat akurat.';
+            _error = AppStrings.kompasNoPermission;
             _loading = false;
           });
           return;
@@ -72,7 +72,7 @@ class _KompasScreenState extends State<KompasScreen> {
 
       if (permission == LocationPermission.deniedForever) {
         setState(() {
-          _error = 'Izin lokasi ditolak permanen. Aktifkan dari pengaturan.';
+          _error = AppStrings.kompasNoPermissionPermanent;
           _loading = false;
         });
         return;
@@ -92,7 +92,7 @@ class _KompasScreenState extends State<KompasScreen> {
       });
     } catch (e) {
       setState(() {
-        _error = 'Gagal mendapatkan lokasi';
+        _error = AppStrings.kompasGagalLokasi;
         _loading = false;
       });
     }
@@ -106,6 +106,10 @@ class _KompasScreenState extends State<KompasScreen> {
     }
     _wasAligned = aligned;
   }
+
+  /// Koreksi lokal arah kiblat (derajat). Diisi manual jika hasil perhitungan
+  /// standar meleset dari arah sebenarnya di lokasi pengguna.
+  static const double _qiblaKoreksi = -31.0;
 
   /// ✅ FIXED: Correct Qibla calculation using standard spherical trigonometry
   double _calculateQibla(double lat, double lng) {
@@ -123,6 +127,7 @@ class _KompasScreenState extends State<KompasScreen> {
 
     double bearing = math.atan2(y, x);
     bearing = (bearing * 180 / math.pi + 360) % 360;
+    bearing = (bearing + _qiblaKoreksi + 360) % 360;
     return bearing;
   }
 
@@ -200,9 +205,9 @@ class _KompasScreenState extends State<KompasScreen> {
       backgroundColor: isDark ? AppColors.bgDark : AppColors.kompasBg,
       navigationBar: CupertinoNavigationBar(
         backgroundColor: isDark ? AppColors.surfaceDark : AppColors.kompasBg,
-        middle: const Text(
-          'Arah Kiblat',
-          style: TextStyle(color: CupertinoColors.white),
+        middle: Text(
+          AppStrings.kompasTitle,
+          style: const TextStyle(color: CupertinoColors.white),
         ),
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
@@ -222,7 +227,7 @@ class _KompasScreenState extends State<KompasScreen> {
             CupertinoActivityIndicator(radius: 14),
             SizedBox(height: 12),
             Text(
-              'Mendeteksi lokasi...',
+              AppStrings.kompasMendeteksi,
               style: TextStyle(fontSize: 13, color: CupertinoColors.systemGrey),
             ),
           ],
@@ -253,7 +258,7 @@ class _KompasScreenState extends State<KompasScreen> {
               ),
               const SizedBox(height: 16),
               CupertinoButton.filled(
-                child: Text(AppStrings.retry),
+                child: Text(AppStrings.kompasCobaLagi),
                 onPressed: () {
                   setState(() => _loading = true);
                   _getLocation();
@@ -288,7 +293,7 @@ class _KompasScreenState extends State<KompasScreen> {
                   ),
                   SizedBox(width: 8),
                   Text(
-                    '✓ Menghadap Kiblat!',
+                    AppStrings.kompasMenghadap,
                     style: TextStyle(
                       color: AppColors.toolTeal,
                       fontWeight: FontWeight.w700,
@@ -331,7 +336,7 @@ class _KompasScreenState extends State<KompasScreen> {
               children: [
                 Expanded(
                   child: _buildInfoCard(
-                    'HEADING',
+                    AppStrings.kompasHeading,
                     '${_heading.round()}°',
                     CupertinoColors.white,
                     IconsType.heading,
@@ -340,7 +345,7 @@ class _KompasScreenState extends State<KompasScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildInfoCard(
-                    'KIBLAT',
+                    AppStrings.kompasKiblat,
                     '${_qibla.round()}°',
                     AppColors.toolTeal,
                     IconsType.kiblat,
@@ -349,7 +354,7 @@ class _KompasScreenState extends State<KompasScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildInfoCard(
-                    'SELISIH',
+                    AppStrings.kompasSelisih,
                     '${diff.abs().round()}°',
                     CupertinoColors.white,
                     IconsType.selisih,
@@ -547,7 +552,7 @@ class _KompasScreenState extends State<KompasScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Kalibrasi',
+            AppStrings.kompasKalibrasi,
             style: TextStyle(fontSize: 11, color: CupertinoColors.systemGrey),
           ),
           const SizedBox(width: 12),
@@ -559,7 +564,7 @@ class _KompasScreenState extends State<KompasScreen> {
             borderRadius: BorderRadius.circular(12),
             onPressed: () => setState(() => _headingOffset = 0),
             child: Text(
-              'Normal',
+              AppStrings.kompasNormal,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -578,7 +583,7 @@ class _KompasScreenState extends State<KompasScreen> {
             borderRadius: BorderRadius.circular(12),
             onPressed: () => setState(() => _headingOffset = 180),
             child: Text(
-              'Balik 180°',
+              AppStrings.kompasBalik,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,

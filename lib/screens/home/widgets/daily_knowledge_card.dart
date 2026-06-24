@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import '../../../config/colors.dart';
+import '../../../config/strings.dart';
 import '../../../services/ai_content_service.dart';
 import '../../../utils/date_helper.dart';
 import '../../../data/hadits_data.dart';
@@ -54,14 +55,12 @@ class _DailyKnowledgeCardState extends State<DailyKnowledgeCard> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: widget.isDark
-              ? AppColors.surfaceDark
-              : CupertinoColors.white,
+          color: AppColors.surface(widget.isDark),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: widget.isDark
                 ? AppColors.textLight
-                : CupertinoColors.systemGrey6,
+                : AppColors.cupertinoSystemGrey6,
           ),
         ),
         child: Row(
@@ -92,14 +91,14 @@ class _DailyKnowledgeCardState extends State<DailyKnowledgeCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isRamadhan ? 'HADITS RAMADHAN' : 'TAHUKAH KAMU?',
+                    isRamadhan ? AppStrings.homeHaditsRamadhan : AppStrings.homeTahukahKamu,
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 1,
                       color: widget.isDark
-                          ? CupertinoColors.systemGrey
-                          : CupertinoColors.systemGrey,
+                          ? AppColors.cupertinoSystemGrey
+                          : AppColors.cupertinoSystemGrey,
                     ),
                   ),
                   if (title.isNotEmpty) ...[
@@ -110,7 +109,7 @@ class _DailyKnowledgeCardState extends State<DailyKnowledgeCard> {
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: widget.isDark
-                            ? CupertinoColors.white
+                            ? AppColors.cupertinoWhite
                             : AppColors.textLight,
                       ),
                     ),
@@ -123,7 +122,7 @@ class _DailyKnowledgeCardState extends State<DailyKnowledgeCard> {
                       fontWeight: FontWeight.w400,
                       height: 1.4,
                       color: widget.isDark
-                          ? CupertinoColors.systemGrey
+                          ? AppColors.cupertinoSystemGrey
                           : AppColors.textSubtle,
                     ),
                   ),
@@ -146,7 +145,7 @@ class _DailyKnowledgeCardState extends State<DailyKnowledgeCard> {
                             fontWeight: FontWeight.w500,
                             fontStyle: FontStyle.italic,
                             color: widget.isDark
-                                ? CupertinoColors.systemGrey
+                                ? AppColors.cupertinoSystemGrey
                                 : AppColors.textSecondary,
                           ),
                         ),

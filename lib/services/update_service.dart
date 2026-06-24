@@ -3,26 +3,29 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import '../config/api_config.dart';
+import '../config/strings.dart';
 
 /// Service untuk mengecek update dan download APK dari GitHub.
 class UpdateService {
-  static const String appVersion = '1.0.0';
-  static const String githubRepo = 'Jirankun/Umma---Qur-an-Indonesia';
-  static const String tagsApiUrl =
-      'https://api.github.com/repos/$githubRepo/tags';
-  static const String releaseBaseUrl =
-      'https://github.com/$githubRepo/releases/download';
+  /// Versi aplikasi — baca dari native build
+  static String get appVersion => AppStrings.appVersion;
+  static const String githubRepo = ApiConfig.githubRepo;
+  static const String tagsApiUrl = ApiConfig.githubTagsApiUrl;
+  static const String releaseBaseUrl = ApiConfig.githubReleaseBaseUrl;
 
   /// Ambil daftar tag dari GitHub API, urut terbaru duluan.
   Future<List<String>> fetchTags() async {
     try {
-      final response = await http.get(
-        Uri.parse(tagsApiUrl),
-        headers: {
-          'User-Agent': 'UmmaApp/1.0',
-          'Accept': 'application/vnd.github+json',
-        },
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .get(
+            Uri.parse(tagsApiUrl),
+            headers: {
+              'User-Agent': 'UmmaApp/1.0',
+              'Accept': 'application/vnd.github+json',
+            },
+          )
+          .timeout(const Duration(seconds: 10));
       if (response.statusCode != 200) return [];
       final List<dynamic> data = jsonDecode(response.body);
       return data.map((t) => t['name'] as String).toList();
@@ -56,7 +59,10 @@ class UpdateService {
   Future<UpdateCheckResult> checkForUpdate() async {
     final latestTag = await getLatestTag();
     if (latestTag == null) {
-      return UpdateCheckResult(hasUpdate: false, error: 'Tidak dapat menjangkau server');
+      return UpdateCheckResult(
+        hasUpdate: false,
+        error: 'Tidak dapat menjangkau server',
+      );
     }
     final clean = latestTag.replaceFirst(RegExp(r'^v'), '');
     return UpdateCheckResult(
@@ -82,21 +88,35 @@ class UpdateService {
     final existing = File(filePath);
     if (await existing.exists()) await existing.delete();
 
-    final req = http.Request('GET', Uri.parse(apkUrl));
-    final streamed = await req.send();
-    if (streamed.statusCode != 200) {
-      throw HttpException('Gagal download APK (HTTP ${streamed.statusCode})');
-    }
+    final client = http.Client();
+    try {
+      final req = http.Request('GET', Uri.parse(apkUrl));
+      req.headers.addAll({
+        'User-Agent': 'UmmaApp/1.0',
+        'Accept': 'application/octet-stream',
+      });
+      final streamed = await client.send(req);
+      if (streamed.statusCode != 200) {
+        throw HttpException(
+          'Terjadi kesalahan saat mengunduh pembaruan. Coba lagi nanti.',
+        );
+      }
 
-    final total = streamed.contentLength ?? 0;
-    int dl = 0;
-    final sink = existing.openWrite();
-    await for (final chunk in streamed.stream) {
-      sink.add(chunk);
-      dl += chunk.length;
-      onProgress(dl, total);
+      final total = streamed.contentLength ?? 0;
+      int dl = 0;
+      final sink = existing.openWrite();
+      try {
+        await for (final chunk in streamed.stream) {
+          sink.add(chunk);
+          dl += chunk.length;
+          onProgress(dl, total);
+        }
+      } finally {
+        await sink.close();
+      }
+    } finally {
+      client.close();
     }
-    await sink.close();
     return filePath;
   }
 
@@ -107,7 +127,9 @@ class UpdateService {
       final file = File(filePath);
       if (!await file.exists()) return false;
 
-      await MethodChannel('app.umma.aokaze/installer').invokeMethod('installApk', {'path': filePath});
+      await MethodChannel(
+        'app.umma.aokaze/installer',
+      ).invokeMethod('installApk', {'path': filePath});
       return true;
     } catch (_) {
       return false;
@@ -117,7 +139,9 @@ class UpdateService {
   /// Buka pengaturan izin install dari sumber tidak dikenal.
   Future<bool> openInstallSettings() async {
     try {
-      await MethodChannel('app.umma.aokaze/installer').invokeMethod('openInstallSettings');
+      await MethodChannel(
+        'app.umma.aokaze/installer',
+      ).invokeMethod('openInstallSettings');
       return true;
     } catch (_) {
       return false;
@@ -125,8 +149,8 @@ class UpdateService {
   }
 
   // ─── URLS ─────────────────────────────────────────────────
-  String get githubUrl => 'https://github.com/$githubRepo';
-  String get releasesUrl => 'https://github.com/$githubRepo/releases';
+  String get githubUrl => ApiConfig.githubUrl;
+  String get releasesUrl => ApiConfig.githubReleasesUrl;
 }
 
 /// Hasil pengecekan update.

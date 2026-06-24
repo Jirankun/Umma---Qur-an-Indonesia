@@ -2,6 +2,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:workmanager/workmanager.dart';
 import '../config/api_config.dart';
 import '../services/background_service.dart';
+import 'prayer_alarm_service.dart';
 
 /// Service for system-level prayer time notifications.
 /// Uses Workmanager for periodic background checks (every 30 min)
@@ -19,12 +20,13 @@ class NotificationService {
     await Workmanager().initialize(callbackDispatcher);
   }
 
-  /// Start periodic background prayer time check (every 30 minutes)
+  /// Start periodic background prayer time check (every 4 hours, safety net)
+  /// Exact alarms via AndroidAlarmManager handle the primary notification delivery.
   Future<void> startBackgroundCheck() async {
     await Workmanager().registerPeriodicTask(
       backgroundTaskPeriod,
       backgroundTaskName,
-      frequency: const Duration(minutes: 30),
+      frequency: const Duration(hours: 4),
       constraints: Constraints(networkType: NetworkType.connected),
       existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
       backoffPolicy: BackoffPolicy.linear,
@@ -37,13 +39,16 @@ class NotificationService {
     await Workmanager().cancelByUniqueName(backgroundTaskPeriod);
   }
 
-  /// Schedule prayer notifications — relies on background periodic check (every 30 min)
+  /// Schedule prayer notifications — uses exact alarms + Workmanager safety net
   Future<void> schedulePrayerNotifications() async {
     // Cancel old notifications
     await cancelAllNotifications();
 
-    // Ensure background task is running for real-time notification delivery
+    // Ensure background task is running (safety net)
     await startBackgroundCheck();
+
+    // Schedule exact alarms via AndroidAlarmManager
+    await PrayerAlarmService.scheduleAll();
   }
 
   /// Show notification immediately (for testing or manual trigger)
