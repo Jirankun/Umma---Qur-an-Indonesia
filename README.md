@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://img.icons8.com/fluency/96/islam.png" alt="Umma Logo" width="96"/>
+  <img src="assets/onboarding_icon.png" alt="Umma Logo" width="96"/>
   <h1>☪ Umma — Pendamping Ibadah Muslim</h1>
   <p><strong>Aplikasi all-in-one untuk ibadah sehari-hari</strong></p>
   <p>
